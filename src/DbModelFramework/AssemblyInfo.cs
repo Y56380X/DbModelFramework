@@ -20,26 +20,6 @@
 	SOFTWARE.
 **/
 
-using System;
+using System.Runtime.CompilerServices;
 
-namespace DbModelFramework
-{
-	public class Model<TType> where TType : new()
-	{
-		internal static readonly string TableName = $"{typeof(TType).Name.ToLower()}s";
-
-		protected Model()
-		{
-		}
-
-		public static Model<TType> Get()
-		{
-			throw new NotImplementedException();
-		}
-
-		public static Model<TType> Create()
-		{
-			throw new NotImplementedException();
-		}
-	}
-}
+[assembly: InternalsVisibleTo("DbModelFramework.Test")]

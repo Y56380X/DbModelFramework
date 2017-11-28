@@ -20,26 +20,26 @@
 	SOFTWARE.
 **/
 
-using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace DbModelFramework
+namespace DbModelFramework.Test
 {
-	public class Model<TType> where TType : new()
+	[TestClass]
+	public class ModelTest
 	{
-		internal static readonly string TableName = $"{typeof(TType).Name.ToLower()}s";
+		#region test assets
 
-		protected Model()
+		class Car : Model<Car>
 		{
+
 		}
 
-		public static Model<TType> Get()
-		{
-			throw new NotImplementedException();
-		}
+		#endregion
 
-		public static Model<TType> Create()
+		[TestMethod]
+		public void TableNameOfModelShouldBeModelsNameWithS()
 		{
-			throw new NotImplementedException();
+			Assert.AreEqual("cars", Car.TableName);
 		}
 	}
 }
