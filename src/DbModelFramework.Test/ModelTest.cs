@@ -21,6 +21,7 @@
 **/
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
 
 namespace DbModelFramework.Test
 {
@@ -31,7 +32,8 @@ namespace DbModelFramework.Test
 
 		class Car : Model<Car>
 		{
-
+			public string Manufacturer { get; set; }
+			public string Type { get; set; }
 		}
 
 		#endregion
@@ -40,6 +42,16 @@ namespace DbModelFramework.Test
 		public void TableNameOfModelShouldBeModelsNameWithS()
 		{
 			Assert.AreEqual("cars", Car.TableName);
+		}
+
+		[TestMethod]
+		public void PropertiesOfModel()
+		{
+			var propertyNames = Car.ModelProperties.Select(prop => prop.Name);
+
+
+			Assert.IsTrue(propertyNames.Contains("Manufacturer"));
+			Assert.IsTrue(propertyNames.Contains("Type"));
 		}
 	}
 }

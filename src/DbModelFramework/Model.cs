@@ -21,12 +21,15 @@
 **/
 
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace DbModelFramework
 {
 	public class Model<TType> where TType : new()
 	{
 		internal static readonly string TableName = $"{typeof(TType).Name.ToLower()}s";
+		internal static readonly IEnumerable<PropertyInfo> ModelProperties = typeof(TType).GetProperties();
 
 		protected Model()
 		{
