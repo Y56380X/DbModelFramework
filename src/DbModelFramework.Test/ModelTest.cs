@@ -21,9 +21,7 @@
 **/
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using System.Composition.Hosting;
-using System.Data;
 using System.Linq;
 
 namespace DbModelFramework.Test
@@ -72,6 +70,15 @@ namespace DbModelFramework.Test
 
 			Assert.AreEqual("SELECT name FROM sqlite_master WHERE type='table' AND name='cars';", checkTable);
 			Assert.IsTrue(Fakes.DbConnection.CreatedCommands.Select(c => c.CommandText).Contains(checkTable));
+		}
+
+		[TestMethod]
+		public void CreateTable()
+		{
+			var createTable = Car.Sql.CreateTable;
+
+			Assert.AreEqual("CREATE TABLE cars (manufacturer String, type String);", createTable);
+			Assert.IsTrue(Fakes.DbConnection.CreatedCommands.Select(c => c.CommandText).Contains(createTable));
 		}
 	}
 }

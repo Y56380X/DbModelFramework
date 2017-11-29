@@ -36,13 +36,12 @@ namespace DbModelFramework
 		internal static class Sql
 		{
 			public static readonly string CheckTable = $"SELECT name FROM sqlite_master WHERE type='table' AND name='{TableName}';";
+			public static readonly string CreateTable = $"CREATE TABLE {TableName} ({ModelProperties.ToTableCreationSql()});";
 
 			static Sql()
 			{
 				if (!Check())
-				{
-					// Setup table
-				}
+					Create();
 			}
 
 			private static bool Check()
@@ -57,6 +56,16 @@ namespace DbModelFramework
 				}
 
 				return result;
+			}
+
+			private static void Create()
+			{
+				using (var connection = InjectionContainer.GetExport<IDbConnection>())
+				using (var command = connection.CreateCommand())
+				{
+					command.CommandText = CreateTable;
+					command.ExecuteNonQuery();
+				}
 			}
 		}
 
