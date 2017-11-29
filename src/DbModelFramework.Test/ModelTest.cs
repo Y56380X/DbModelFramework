@@ -68,8 +68,6 @@ namespace DbModelFramework.Test
 		[TestMethod]
 		public void CheckTable()
 		{
-			Mock<IDbCommand> d = new Mock<IDbCommand>();
-			
 			var checkTable = Car.Sql.CheckTable;
 
 			Assert.AreEqual("SELECT name FROM sqlite_master WHERE type='table' AND name='cars';", checkTable);
