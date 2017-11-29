@@ -22,7 +22,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Reflection;
+using static DbModelFramework.DependencyInjection;
 
 namespace DbModelFramework
 {
@@ -30,6 +32,33 @@ namespace DbModelFramework
 	{
 		internal static readonly string TableName = $"{typeof(TType).Name.ToLower()}s";
 		internal static readonly IEnumerable<PropertyInfo> ModelProperties = typeof(TType).GetProperties();
+
+		internal static class Sql
+		{
+			public static readonly string CheckTable = $"SELECT name FROM sqlite_master WHERE type='table' AND name='{TableName}';";
+
+			static Sql()
+			{
+				if (!Check())
+				{
+					// Setup table
+				}
+			}
+
+			private static bool Check()
+			{
+				bool result;
+
+				using (var connection = InjectionContainer.GetExport<IDbConnection>())
+				using (var command = connection.CreateCommand())
+				{
+					command.CommandText = CheckTable;
+					result = command.ExecuteScalar() != null;
+				}
+
+				return result;
+			}
+		}
 
 		protected Model()
 		{

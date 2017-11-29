@@ -21,6 +21,9 @@
 **/
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using System.Composition.Hosting;
+using System.Data;
 using System.Linq;
 
 namespace DbModelFramework.Test
@@ -37,6 +40,15 @@ namespace DbModelFramework.Test
 		}
 
 		#endregion
+	
+		[TestInitialize]
+		public void Init()
+		{
+			var configuration = new ContainerConfiguration();
+			configuration.WithPart<Fakes.DbConnection>();
+
+			DependencyInjection.InjectionContainer = configuration.CreateContainer();
+		}
 
 		[TestMethod]
 		public void TableNameOfModelShouldBeModelsNameWithS()
@@ -49,9 +61,19 @@ namespace DbModelFramework.Test
 		{
 			var propertyNames = Car.ModelProperties.Select(prop => prop.Name);
 
-
 			Assert.IsTrue(propertyNames.Contains("Manufacturer"));
 			Assert.IsTrue(propertyNames.Contains("Type"));
+		}
+
+		[TestMethod]
+		public void CheckTable()
+		{
+			Mock<IDbCommand> d = new Mock<IDbCommand>();
+			
+			var checkTable = Car.Sql.CheckTable;
+
+			Assert.AreEqual("SELECT name FROM sqlite_master WHERE type='table' AND name='cars';", checkTable);
+			Assert.IsTrue(Fakes.DbConnection.CreatedCommands.Select(c => c.CommandText).Contains(checkTable));
 		}
 	}
 }
