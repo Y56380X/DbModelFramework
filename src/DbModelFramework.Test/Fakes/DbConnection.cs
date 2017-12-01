@@ -133,5 +133,12 @@ namespace DbModelFramework.Test.Fakes
 		{
 			customExecuteReaderResults.Add(sql, result);
 		}
+
+		public static void ClearCustomExecuteResults()
+		{
+			customExecuteNonQueryResults.Clear();
+			customExecuteReaderResults.Clear();
+			customExecuteScalarResults.Clear();
+		}
 	}
 }
