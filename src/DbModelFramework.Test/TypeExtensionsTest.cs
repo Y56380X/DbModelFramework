@@ -34,5 +34,29 @@ namespace DbModelFramework.Test
 
 			Assert.AreEqual(default(string), defaultValue);
 		}
+
+		[TestMethod]
+		public void Int32DefaultValue()
+		{
+			var defaultValue = typeof(int).GetDefault();
+
+			Assert.AreEqual(default(int), defaultValue);
+		}
+
+		[TestMethod]
+		public void Int16DefaultValue()
+		{
+			var defaultValue = typeof(short).GetDefault();
+
+			Assert.AreEqual(default(short), defaultValue);
+		}
+
+		[TestMethod]
+		public void Int64DefaultValue()
+		{
+			var defaultValue = typeof(long).GetDefault();
+
+			Assert.AreEqual(default(long), defaultValue);
+		}
 	}
 }

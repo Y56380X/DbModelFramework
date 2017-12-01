@@ -32,7 +32,10 @@ namespace DbModelFramework
 	{
 		static readonly Dictionary<Type, DbType> DbTypeDictionary = new Dictionary<Type, DbType>
 		{
-			{ typeof(string), DbType.String }
+			{ typeof(string), DbType.String },
+			{ typeof(int), DbType.Int32 },
+			{ typeof(short), DbType.Int16 },
+			{ typeof(long), DbType.Int64 }
 		};
 
 		public static string ToTableCreationSql(this IEnumerable<PropertyInfo> modelProperties)

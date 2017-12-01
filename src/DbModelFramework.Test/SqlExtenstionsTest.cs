@@ -41,6 +41,21 @@ namespace DbModelFramework.Test
 			public string MyAttribute3 { get; set; }
 		}
 
+		class SingleInt32 : Model<SingleInt32>
+		{
+			public int MyAttribute { get; set; }
+		}
+
+		class SingleInt16 : Model<SingleInt16>
+		{
+			public short MyAttribute { get; set; }
+		}
+
+		class SingleInt64 : Model<SingleInt64>
+		{
+			public long MyAttribute { get; set; }
+		}
+
 		#endregion
 
 		[TestMethod]
@@ -89,6 +104,30 @@ namespace DbModelFramework.Test
 			var insertParametersSql = MultipleString.ModelProperties.ToInsertParameterChainSql();
 
 			Assert.AreEqual("@myattribute1, @myattribute2, @myattribute3", insertParametersSql);
+		}
+
+		[TestMethod]
+		public void ToTableCreationSql_SingleInt32()
+		{
+			var tableCreationSql = SingleInt32.ModelProperties.ToTableCreationSql();
+
+			Assert.AreEqual("myattribute Int32", tableCreationSql);
+		}
+
+		[TestMethod]
+		public void ToTableCreationSql_SingleInt16()
+		{
+			var tableCreationSql = SingleInt16.ModelProperties.ToTableCreationSql();
+
+			Assert.AreEqual("myattribute Int16", tableCreationSql);
+		}
+
+		[TestMethod]
+		public void ToTableCreationSql_SingleInt64()
+		{
+			var tableCreationSql = SingleInt64.ModelProperties.ToTableCreationSql();
+
+			Assert.AreEqual("myattribute Int64", tableCreationSql);
 		}
 	}
 }
