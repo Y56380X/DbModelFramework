@@ -110,7 +110,7 @@ namespace DbModelFramework.Test
 		{
 			var dataReaderMock = new Mock<IDataReader>();
 			int counter = 0;
-			dataReaderMock.Setup(dr => dr.Read()).Returns(counter++ < 3);
+			dataReaderMock.Setup(dr => dr.Read()).Returns(() => { return counter++ < 3; });
 
 			Fakes.DbConnection.AddCustomExecuteReaderResult("SELECT manufacturer, type FROM cars;", dataReaderMock.Object);
 
