@@ -81,7 +81,7 @@ namespace DbModelFramework.Test
 		{
 			var createTable = Car.Sql.CreateTable;
 
-			Assert.AreEqual("CREATE TABLE cars (manufacturer String, type String, id Int64 PRIMARY KEY AUTOINCREMENT);", createTable);
+			Assert.AreEqual("CREATE TABLE cars (manufacturer TEXT, type TEXT, id INTEGER PRIMARY KEY AUTOINCREMENT);", createTable);
 			Assert.IsTrue(Fakes.DbConnection.CreatedCommands.Select(c => c.CommandText).Contains(createTable));
 		}
 

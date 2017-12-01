@@ -63,7 +63,7 @@ namespace DbModelFramework.Test
 		{
 			var tableCreationSql =  SingleString.ModelProperties.ToTableCreationSql();
 			
-			Assert.AreEqual("myattribute String, id Int64 PRIMARY KEY AUTOINCREMENT", tableCreationSql);
+			Assert.AreEqual("myattribute TEXT, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
 		}
 
 		[TestMethod]
@@ -71,7 +71,7 @@ namespace DbModelFramework.Test
 		{
 			var tableCreationSql = MultipleString.ModelProperties.ToTableCreationSql();
 
-			Assert.AreEqual("myattribute1 String, myattribute2 String, myattribute3 String, id Int64 PRIMARY KEY AUTOINCREMENT", tableCreationSql);
+			Assert.AreEqual("myattribute1 TEXT, myattribute2 TEXT, myattribute3 TEXT, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
 		}
 
 		[TestMethod]
@@ -127,7 +127,7 @@ namespace DbModelFramework.Test
 		{
 			var tableCreationSql = SingleInt32.ModelProperties.ToTableCreationSql();
 
-			Assert.AreEqual("myattribute Int32, id Int64 PRIMARY KEY AUTOINCREMENT", tableCreationSql);
+			Assert.AreEqual("myattribute INTEGER, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
 		}
 
 		[TestMethod]
@@ -135,7 +135,7 @@ namespace DbModelFramework.Test
 		{
 			var tableCreationSql = SingleInt16.ModelProperties.ToTableCreationSql();
 
-			Assert.AreEqual("myattribute Int16, id Int64 PRIMARY KEY AUTOINCREMENT", tableCreationSql);
+			Assert.AreEqual("myattribute INTEGER, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
 		}
 
 		[TestMethod]
@@ -143,7 +143,7 @@ namespace DbModelFramework.Test
 		{
 			var tableCreationSql = SingleInt64.ModelProperties.ToTableCreationSql();
 
-			Assert.AreEqual("myattribute Int64, id Int64 PRIMARY KEY AUTOINCREMENT", tableCreationSql);
+			Assert.AreEqual("myattribute INTEGER, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
 		}
 
 		[TestMethod]
