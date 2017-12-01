@@ -109,6 +109,30 @@ namespace DbModelFramework
 			return stringBuilder.ToString();
 		}
 
+		public static string ToUpdateSql(this IEnumerable<ModelProperty> modelProperties)
+		{
+			StringBuilder stringBuilder = new StringBuilder();
+
+			bool first = true;
+			foreach (var property in modelProperties)
+			{
+				if (property.IsPrimaryKey)
+					continue;
+
+				if (first)
+				{
+					stringBuilder.Append($"{property.AttributeName} = @{property.AttributeName}");
+					first = false;
+				}
+				else
+				{
+					stringBuilder.Append($", {property.AttributeName} = @{property.AttributeName}");
+				}
+			}
+
+			return stringBuilder.ToString();
+		}
+
 		public static DbType ToDbType(this Type type)
 		{
 			return DbTypeDictionary[type];

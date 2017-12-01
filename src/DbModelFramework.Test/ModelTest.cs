@@ -157,5 +157,13 @@ namespace DbModelFramework.Test
 			Assert.IsNotNull(command);
 			Assert.IsTrue(command.Parameters.Contains("@id"));
 		}
+
+		[TestMethod]
+		public void UpdateModelSql()
+		{
+			var updateCar = Car.Sql.Update;
+
+			Assert.AreEqual("UPDATE cars SET manufacturer = @manufacturer, type = @type WHERE id = @id;", updateCar);
+		}
 	}
 }

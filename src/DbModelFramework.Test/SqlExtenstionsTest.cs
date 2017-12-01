@@ -145,5 +145,21 @@ namespace DbModelFramework.Test
 
 			Assert.AreEqual("myattribute Int64, id Int64 PRIMARY KEY AUTOINCREMENT", tableCreationSql);
 		}
+
+		[TestMethod]
+		public void ToUpdateSql_SingleString()
+		{
+			var updateSql = SingleString.ModelProperties.ToUpdateSql();
+
+			Assert.AreEqual("myattribute = @myattribute", updateSql);
+		}
+
+		[TestMethod]
+		public void ToUpdateSql_MultipleString()
+		{
+			var updateSql = MultipleString.ModelProperties.ToUpdateSql();
+
+			Assert.AreEqual("myattribute1 = @myattribute1, myattribute2 = @myattribute2, myattribute3 = @myattribute3", updateSql);
+		}
 	}
 }

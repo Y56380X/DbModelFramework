@@ -47,6 +47,7 @@ namespace DbModelFramework
 			public static readonly string Insert = $"INSERT INTO {TableName} ({ModelProperties.ToAttributeChainSql()}) VALUES ({ModelProperties.ToInsertParameterChainSql()});";
 			public static readonly string SelectAll = $"SELECT {ModelProperties.ToAttributeChainSql(true)} FROM {TableName};";
 			public static readonly string Delete = $"DELETE FROM {TableName} WHERE {PrimaryKeyProperty.AttributeName} = @{PrimaryKeyProperty.AttributeName};";
+			public static readonly string Update = $"UPDATE {TableName} SET {ModelProperties.ToUpdateSql()} WHERE {PrimaryKeyProperty.AttributeName} = @{PrimaryKeyProperty.AttributeName};";
 
 			static Sql()
 			{
