@@ -21,7 +21,10 @@
 **/
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using System.Collections.Generic;
 using System.Composition.Hosting;
+using System.Data;
 using System.Linq;
 
 namespace DbModelFramework.Test
@@ -42,6 +45,7 @@ namespace DbModelFramework.Test
 		[TestInitialize]
 		public void Init()
 		{
+			// Setup fake db connection
 			var configuration = new ContainerConfiguration();
 			configuration.WithPart<Fakes.DbConnection>();
 
@@ -79,6 +83,26 @@ namespace DbModelFramework.Test
 
 			Assert.AreEqual("CREATE TABLE cars (manufacturer String, type String);", createTable);
 			Assert.IsTrue(Fakes.DbConnection.CreatedCommands.Select(c => c.CommandText).Contains(createTable));
+		}
+
+		[TestMethod]
+		public void InsertIntoTable()
+		{
+			var insert = Car.Sql.Insert;
+
+			Assert.AreEqual("INSERT INTO cars (manufacturer, type) VALUES (@manufacturer, @type);", insert);
+		}
+
+		[TestMethod]
+		public void CreateNewModelInstanceShouldInsertInDb()
+		{
+			var car = Car.Create();
+
+			Assert.IsNotNull(car);
+			var command = Fakes.DbConnection.CreatedCommands.SingleOrDefault(c => c.CommandText == Car.Sql.Insert);
+			Assert.IsNotNull(command);
+			Assert.IsTrue(command.Parameters.Contains("@manufacturer"));
+			Assert.IsTrue(command.Parameters.Contains("@type"));
 		}
 	}
 }

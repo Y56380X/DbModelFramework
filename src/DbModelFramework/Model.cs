@@ -37,6 +37,7 @@ namespace DbModelFramework
 		{
 			public static readonly string CheckTable = $"SELECT name FROM sqlite_master WHERE type='table' AND name='{TableName}';";
 			public static readonly string CreateTable = $"CREATE TABLE {TableName} ({ModelProperties.ToTableCreationSql()});";
+			public static readonly string Insert = $"INSERT INTO {TableName} ({ModelProperties.ToInsertAttributesSql()}) VALUES ({ModelProperties.ToInsertParametersSql()});";
 
 			static Sql()
 			{
@@ -73,14 +74,32 @@ namespace DbModelFramework
 		{
 		}
 
-		public static Model<TType> Get()
+		public static TType Get(PropertyInfo property, object value)
 		{
 			throw new NotImplementedException();
 		}
 
-		public static Model<TType> Create()
+		public static IEnumerable<TType> Get()
 		{
 			throw new NotImplementedException();
+		}
+
+		public static TType Create()
+		{
+			var model = new TType();
+
+			using (var connection = InjectionContainer.GetExport<IDbConnection>())
+			using (var command = connection.CreateCommand())
+			{
+				command.CommandText = Sql.Insert;
+
+				foreach (var property in ModelProperties)
+					command.AddParameter($"@{property.Name.ToLower()}", property.PropertyType.ToDbType(), property.GetValue(model) ?? DBNull.Value);
+
+				command.ExecuteNonQuery();
+			}
+
+			return model;
 		}
 	}
 }
