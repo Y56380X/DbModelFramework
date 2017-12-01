@@ -38,8 +38,8 @@ namespace DbModelFramework
 		{
 			public static readonly string CheckTable = $"SELECT name FROM sqlite_master WHERE type='table' AND name='{TableName}';";
 			public static readonly string CreateTable = $"CREATE TABLE {TableName} ({ModelProperties.ToTableCreationSql()});";
-			public static readonly string Insert = $"INSERT INTO {TableName} ({ModelProperties.ToInsertAttributesSql()}) VALUES ({ModelProperties.ToInsertParametersSql()});";
-			public static readonly string SelectAll = $"SELECT {ModelProperties.ToInsertAttributesSql()} FROM {TableName};";
+			public static readonly string Insert = $"INSERT INTO {TableName} ({ModelProperties.ToAttributeChainSql()}) VALUES ({ModelProperties.ToInsertParameterChainSql()});";
+			public static readonly string SelectAll = $"SELECT {ModelProperties.ToAttributeChainSql()} FROM {TableName};";
 
 			static Sql()
 			{

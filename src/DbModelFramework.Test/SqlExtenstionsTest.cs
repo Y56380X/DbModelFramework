@@ -60,33 +60,33 @@ namespace DbModelFramework.Test
 		}
 
 		[TestMethod]
-		public void ToInsertAttributesSql_SingleString()
+		public void ToAttributeChainSql_SingleString()
 		{
-			var insertAttributesSql = SingleString.ModelProperties.ToInsertAttributesSql();
+			var insertAttributesSql = SingleString.ModelProperties.ToAttributeChainSql();
 
 			Assert.AreEqual("myattribute", insertAttributesSql);
 		}
 
 		[TestMethod]
-		public void ToInsertParametersSql_SingleString()
+		public void ToInsertParameterChainSql_SingleString()
 		{
-			var insertParametersSql = SingleString.ModelProperties.ToInsertParametersSql();
+			var insertParametersSql = SingleString.ModelProperties.ToInsertParameterChainSql();
 
 			Assert.AreEqual("@myattribute", insertParametersSql);
 		}
 
 		[TestMethod]
-		public void ToInsertAttributesSql_MultipleString()
+		public void ToAttributeChainSql_MultipleString()
 		{
-			var insertAttributesSql = MultipleString.ModelProperties.ToInsertAttributesSql();
+			var insertAttributesSql = MultipleString.ModelProperties.ToAttributeChainSql();
 
 			Assert.AreEqual("myattribute1, myattribute2, myattribute3", insertAttributesSql);
 		}
 
 		[TestMethod]
-		public void ToInsertParametersSql_MultipleString()
+		public void ToInsertParameterChainSql_MultipleString()
 		{
-			var insertParametersSql = MultipleString.ModelProperties.ToInsertParametersSql();
+			var insertParametersSql = MultipleString.ModelProperties.ToInsertParameterChainSql();
 
 			Assert.AreEqual("@myattribute1, @myattribute2, @myattribute3", insertParametersSql);
 		}

@@ -56,7 +56,7 @@ namespace DbModelFramework
 			return stringBuilder.ToString();
 		}
 
-		public static string ToInsertAttributesSql(this IEnumerable<PropertyInfo> modelProperties)
+		public static string ToAttributeChainSql(this IEnumerable<PropertyInfo> modelProperties)
 		{
 			StringBuilder stringBuilder = new StringBuilder();
 
@@ -77,7 +77,7 @@ namespace DbModelFramework
 			return stringBuilder.ToString();
 		}
 
-		public static string ToInsertParametersSql(this IEnumerable<PropertyInfo> modelProperties)
+		public static string ToInsertParameterChainSql(this IEnumerable<PropertyInfo> modelProperties)
 		{
 			StringBuilder stringBuilder = new StringBuilder();
 
