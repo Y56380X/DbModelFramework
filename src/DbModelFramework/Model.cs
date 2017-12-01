@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Reflection;
 using static DbModelFramework.DependencyInjection;
 
@@ -77,7 +78,7 @@ namespace DbModelFramework
 
 		public static TType Get(PropertyInfo property, object value)
 		{
-			throw new NotImplementedException();
+			return Get().Single(model => property.GetValue(model) == value);
 		}
 
 		public static IEnumerable<TType> Get()
@@ -99,21 +100,6 @@ namespace DbModelFramework
 			return models;
 		}
 
-		private static TType InstanciateModel(IDataReader dataReader)
-		{
-			var model = new TType();
-
-			foreach (var property in ModelProperties)
-			{
-				if (dataReader[property.Name.ToLower()] is DBNull)
-					property.SetValue(model, property.PropertyType.GetDefault());
-				else
-					property.SetValue(model, dataReader[property.Name.ToLower()]);
-			}
-
-			return model;
-		}
-
 		public static TType Create()
 		{
 			var model = new TType();
@@ -127,6 +113,22 @@ namespace DbModelFramework
 					command.AddParameter($"@{property.Name.ToLower()}", property.PropertyType.ToDbType(), property.GetValue(model) ?? DBNull.Value);
 
 				command.ExecuteNonQuery();
+			}
+
+			return model;
+		}
+
+		private static TType InstanciateModel(IDataReader dataReader)
+		{
+			var model = new TType();
+
+			// Get value from db for each model property
+			foreach (var property in ModelProperties)
+			{
+				if (dataReader[property.Name.ToLower()] is DBNull)
+					property.SetValue(model, property.PropertyType.GetDefault());
+				else
+					property.SetValue(model, dataReader[property.Name.ToLower()]);
 			}
 
 			return model;

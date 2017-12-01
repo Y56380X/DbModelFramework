@@ -112,12 +112,30 @@ namespace DbModelFramework.Test
 			int counter = 0;
 			dataReaderMock.Setup(dr => dr.Read()).Returns(() => { return counter++ < 3; });
 
+			Fakes.DbConnection.ClearCustomExecuteResults();
 			Fakes.DbConnection.AddCustomExecuteReaderResult("SELECT manufacturer, type FROM cars;", dataReaderMock.Object);
 
 			var cars = Car.Get();
 
 			Assert.IsNotNull(cars);
 			Assert.AreEqual(3, cars.Count());
+		}
+
+		[TestMethod]
+		public void GetSingleDataAsModelInstanceFromDb()
+		{
+			var dataReaderMock = new Mock<IDataReader>();
+			int counter = 0;
+			dataReaderMock.Setup(dr => dr.Read()).Returns(() => { return counter++ < 1; });
+			dataReaderMock.Setup(dr => dr["manufacturer"]).Returns("ImaginaryManufacturer");
+
+			Fakes.DbConnection.ClearCustomExecuteResults();
+			Fakes.DbConnection.AddCustomExecuteReaderResult("SELECT manufacturer, type FROM cars;", dataReaderMock.Object);
+
+			var car = Car.Get(typeof(Car).GetProperty("Manufacturer"), "ImaginaryManufacturer");
+
+			Assert.IsNotNull(car);
+			Assert.AreEqual("ImaginaryManufacturer", car.Manufacturer);
 		}
 	}
 }
