@@ -34,10 +34,11 @@ namespace DbModelFramework
 
 	}
 
-	public class Model<TType, TIdentifier> where TType : new() where TIdentifier : IComparable
+	public class Model<TType, TPrimaryKey> where TType : new() where TPrimaryKey : IComparable
 	{
 		internal static readonly string TableName = $"{typeof(TType).Name.ToLower()}s";
 		internal static readonly IEnumerable<ModelProperty> ModelProperties = typeof(TType).GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).Select(prop => new ModelProperty(prop));
+		internal static readonly ModelProperty PrimaryKeyProperty = ModelProperties.Single(prop => prop.IsPrimaryKey);
 
 		internal static class Sql
 		{
@@ -45,6 +46,7 @@ namespace DbModelFramework
 			public static readonly string CreateTable = $"CREATE TABLE {TableName} ({ModelProperties.ToTableCreationSql()});";
 			public static readonly string Insert = $"INSERT INTO {TableName} ({ModelProperties.ToAttributeChainSql()}) VALUES ({ModelProperties.ToInsertParameterChainSql()});";
 			public static readonly string SelectAll = $"SELECT {ModelProperties.ToAttributeChainSql(true)} FROM {TableName};";
+			public static readonly string Delete = $"DELETE FROM {TableName} WHERE {PrimaryKeyProperty.AttributeName} = @{PrimaryKeyProperty.AttributeName};";
 
 			static Sql()
 			{
@@ -78,7 +80,7 @@ namespace DbModelFramework
 		}
 
 		[PrimaryKey]
-		protected TIdentifier Id { get; set; }
+		protected TPrimaryKey Id { get; set; }
 
 		protected Model()
 		{
@@ -91,7 +93,18 @@ namespace DbModelFramework
 
 		public bool Delete()
 		{
-			throw new NotImplementedException();
+			int changed;
+
+			using (var connection = InjectionContainer.GetExport<IDbConnection>())
+			using (var command = connection.CreateCommand())
+			{
+				command.CommandText = Sql.Delete;
+				command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, PrimaryKeyProperty.GetValue(this));
+
+				changed = command.ExecuteNonQuery();
+			}
+
+			return changed == 1;
 		}
 
 		public static TType Get(PropertyInfo property, object value)

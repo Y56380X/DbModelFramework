@@ -137,5 +137,25 @@ namespace DbModelFramework.Test
 			Assert.IsNotNull(car);
 			Assert.AreEqual("ImaginaryManufacturer", car.Manufacturer);
 		}
+
+		[TestMethod]
+		public void DeleteModelSql()
+		{
+			var deleteModel = Car.Sql.Delete;
+
+			Assert.AreEqual("DELETE FROM cars WHERE id = @id;", deleteModel);
+		}
+
+		[TestMethod]
+		public void DeleteModelFromDb()
+		{
+			var car = Car.Create();
+
+			car.Delete();
+
+			var command = Fakes.DbConnection.CreatedCommands.SingleOrDefault(c => c.CommandText == Car.Sql.Delete);
+			Assert.IsNotNull(command);
+			Assert.IsTrue(command.Parameters.Contains("@id"));
+		}
 	}
 }
