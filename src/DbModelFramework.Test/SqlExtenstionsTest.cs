@@ -62,8 +62,8 @@ namespace DbModelFramework.Test
 		public void ToTableCreationSql_SingleString()
 		{
 			var tableCreationSql =  SingleString.ModelProperties.ToTableCreationSql();
-
-			Assert.AreEqual("myattribute String", tableCreationSql);
+			
+			Assert.AreEqual("myattribute String, id Int64 PRIMARY KEY AUTOINCREMENT", tableCreationSql);
 		}
 
 		[TestMethod]
@@ -71,15 +71,39 @@ namespace DbModelFramework.Test
 		{
 			var tableCreationSql = MultipleString.ModelProperties.ToTableCreationSql();
 
-			Assert.AreEqual("myattribute1 String, myattribute2 String, myattribute3 String", tableCreationSql);
+			Assert.AreEqual("myattribute1 String, myattribute2 String, myattribute3 String, id Int64 PRIMARY KEY AUTOINCREMENT", tableCreationSql);
 		}
 
 		[TestMethod]
-		public void ToAttributeChainSql_SingleString()
+		public void ToAttributeChainSqlWithPK_SingleString()
+		{
+			var insertAttributesSql = SingleString.ModelProperties.ToAttributeChainSql(true);
+
+			Assert.AreEqual("myattribute, id", insertAttributesSql);
+		}
+
+		[TestMethod]
+		public void ToAttributeChainSqlWithPK_MultipleString()
+		{
+			var insertAttributesSql = MultipleString.ModelProperties.ToAttributeChainSql(true);
+
+			Assert.AreEqual("myattribute1, myattribute2, myattribute3, id", insertAttributesSql);
+		}
+
+		[TestMethod]
+		public void ToAttributeChainSqlWithoutPK_SingleString()
 		{
 			var insertAttributesSql = SingleString.ModelProperties.ToAttributeChainSql();
 
 			Assert.AreEqual("myattribute", insertAttributesSql);
+		}
+
+		[TestMethod]
+		public void ToAttributeChainSqlWithoutPK_MultipleString()
+		{
+			var insertAttributesSql = MultipleString.ModelProperties.ToAttributeChainSql();
+
+			Assert.AreEqual("myattribute1, myattribute2, myattribute3", insertAttributesSql);
 		}
 
 		[TestMethod]
@@ -88,14 +112,6 @@ namespace DbModelFramework.Test
 			var insertParametersSql = SingleString.ModelProperties.ToInsertParameterChainSql();
 
 			Assert.AreEqual("@myattribute", insertParametersSql);
-		}
-
-		[TestMethod]
-		public void ToAttributeChainSql_MultipleString()
-		{
-			var insertAttributesSql = MultipleString.ModelProperties.ToAttributeChainSql();
-
-			Assert.AreEqual("myattribute1, myattribute2, myattribute3", insertAttributesSql);
 		}
 
 		[TestMethod]
@@ -111,7 +127,7 @@ namespace DbModelFramework.Test
 		{
 			var tableCreationSql = SingleInt32.ModelProperties.ToTableCreationSql();
 
-			Assert.AreEqual("myattribute Int32", tableCreationSql);
+			Assert.AreEqual("myattribute Int32, id Int64 PRIMARY KEY AUTOINCREMENT", tableCreationSql);
 		}
 
 		[TestMethod]
@@ -119,7 +135,7 @@ namespace DbModelFramework.Test
 		{
 			var tableCreationSql = SingleInt16.ModelProperties.ToTableCreationSql();
 
-			Assert.AreEqual("myattribute Int16", tableCreationSql);
+			Assert.AreEqual("myattribute Int16, id Int64 PRIMARY KEY AUTOINCREMENT", tableCreationSql);
 		}
 
 		[TestMethod]
@@ -127,7 +143,7 @@ namespace DbModelFramework.Test
 		{
 			var tableCreationSql = SingleInt64.ModelProperties.ToTableCreationSql();
 
-			Assert.AreEqual("myattribute Int64", tableCreationSql);
+			Assert.AreEqual("myattribute Int64, id Int64 PRIMARY KEY AUTOINCREMENT", tableCreationSql);
 		}
 	}
 }

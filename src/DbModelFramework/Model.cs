@@ -29,17 +29,22 @@ using static DbModelFramework.DependencyInjection;
 
 namespace DbModelFramework
 {
-	public class Model<TType> where TType : new()
+	public class Model<TType> : Model<TType, long> where TType : new()
+	{
+
+	}
+
+	public class Model<TType, TIdentifier> where TType : new() where TIdentifier : IComparable
 	{
 		internal static readonly string TableName = $"{typeof(TType).Name.ToLower()}s";
-		internal static readonly IEnumerable<ModelProperty> ModelProperties = typeof(TType).GetProperties().Select(prop => new ModelProperty(prop));
+		internal static readonly IEnumerable<ModelProperty> ModelProperties = typeof(TType).GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).Select(prop => new ModelProperty(prop));
 
 		internal static class Sql
 		{
 			public static readonly string CheckTable = $"SELECT name FROM sqlite_master WHERE type='table' AND name='{TableName}';";
 			public static readonly string CreateTable = $"CREATE TABLE {TableName} ({ModelProperties.ToTableCreationSql()});";
 			public static readonly string Insert = $"INSERT INTO {TableName} ({ModelProperties.ToAttributeChainSql()}) VALUES ({ModelProperties.ToInsertParameterChainSql()});";
-			public static readonly string SelectAll = $"SELECT {ModelProperties.ToAttributeChainSql()} FROM {TableName};";
+			public static readonly string SelectAll = $"SELECT {ModelProperties.ToAttributeChainSql(true)} FROM {TableName};";
 
 			static Sql()
 			{
@@ -71,6 +76,9 @@ namespace DbModelFramework
 				}
 			}
 		}
+
+		[PrimaryKey]
+		protected TIdentifier Id { get; set; }
 
 		protected Model()
 		{

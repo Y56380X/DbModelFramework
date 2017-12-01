@@ -23,7 +23,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Reflection;
 using System.Text;
 
 namespace DbModelFramework
@@ -54,18 +53,24 @@ namespace DbModelFramework
 				{
 					stringBuilder.Append($", {property.AttributeName} {property.Type}");
 				}
+
+				if (property.IsPrimaryKey)
+					stringBuilder.Append(" PRIMARY KEY AUTOINCREMENT");
 			}
 
 			return stringBuilder.ToString();
 		}
 
-		public static string ToAttributeChainSql(this IEnumerable<ModelProperty> modelProperties)
+		public static string ToAttributeChainSql(this IEnumerable<ModelProperty> modelProperties, bool withPrimaryKey = false)
 		{
 			StringBuilder stringBuilder = new StringBuilder();
 
 			bool first = true;
 			foreach (var property in modelProperties)
 			{
+				if (!withPrimaryKey && property.IsPrimaryKey)
+					continue;
+
 				if (first)
 				{
 					stringBuilder.Append($"{property.AttributeName}");
@@ -87,6 +92,9 @@ namespace DbModelFramework
 			bool first = true;
 			foreach (var property in modelProperties)
 			{
+				if (property.IsPrimaryKey)
+					continue;
+
 				if (first)
 				{
 					stringBuilder.Append($"@{property.AttributeName}");

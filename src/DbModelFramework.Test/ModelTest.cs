@@ -81,7 +81,7 @@ namespace DbModelFramework.Test
 		{
 			var createTable = Car.Sql.CreateTable;
 
-			Assert.AreEqual("CREATE TABLE cars (manufacturer String, type String);", createTable);
+			Assert.AreEqual("CREATE TABLE cars (manufacturer String, type String, id Int64 PRIMARY KEY AUTOINCREMENT);", createTable);
 			Assert.IsTrue(Fakes.DbConnection.CreatedCommands.Select(c => c.CommandText).Contains(createTable));
 		}
 
@@ -113,7 +113,7 @@ namespace DbModelFramework.Test
 			dataReaderMock.Setup(dr => dr.Read()).Returns(() => { return counter++ < 3; });
 
 			Fakes.DbConnection.ClearCustomExecuteResults();
-			Fakes.DbConnection.AddCustomExecuteReaderResult("SELECT manufacturer, type FROM cars;", dataReaderMock.Object);
+			Fakes.DbConnection.AddCustomExecuteReaderResult("SELECT manufacturer, type, id FROM cars;", dataReaderMock.Object);
 
 			var cars = Car.Get();
 
@@ -130,7 +130,7 @@ namespace DbModelFramework.Test
 			dataReaderMock.Setup(dr => dr["manufacturer"]).Returns("ImaginaryManufacturer");
 
 			Fakes.DbConnection.ClearCustomExecuteResults();
-			Fakes.DbConnection.AddCustomExecuteReaderResult("SELECT manufacturer, type FROM cars;", dataReaderMock.Object);
+			Fakes.DbConnection.AddCustomExecuteReaderResult("SELECT manufacturer, type, id FROM cars;", dataReaderMock.Object);
 
 			var car = Car.Get(typeof(Car).GetProperty("Manufacturer"), "ImaginaryManufacturer");
 
