@@ -76,6 +76,16 @@ namespace DbModelFramework
 		{
 		}
 
+		public bool Save()
+		{
+			throw new NotImplementedException();
+		}
+
+		public bool Delete()
+		{
+			throw new NotImplementedException();
+		}
+
 		public static TType Get(PropertyInfo property, object value)
 		{
 			return Get().Single(model => property.GetValue(model) == value);
