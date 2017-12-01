@@ -38,6 +38,9 @@ namespace DbModelFramework.Test
 		{
 			public string Manufacturer { get; set; }
 			public string Type { get; set; }
+
+			[DbIgnore]
+			public string IgnorableProperty { get; set; }
 		}
 
 		#endregion

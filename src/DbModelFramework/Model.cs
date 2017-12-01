@@ -37,7 +37,7 @@ namespace DbModelFramework
 	public class Model<TType, TPrimaryKey> where TType : new() where TPrimaryKey : IComparable
 	{
 		internal static readonly string TableName = $"{typeof(TType).Name.ToLower()}s";
-		internal static readonly IEnumerable<ModelProperty> ModelProperties = typeof(TType).GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).Select(prop => new ModelProperty(prop));
+		internal static readonly IEnumerable<ModelProperty> ModelProperties = typeof(TType).GetModelProperties();
 		internal static readonly ModelProperty PrimaryKeyProperty = ModelProperties.Single(prop => prop.IsPrimaryKey);
 
 		internal static class Sql
@@ -89,7 +89,21 @@ namespace DbModelFramework
 
 		public bool Save()
 		{
-			throw new NotImplementedException();
+			int changed;
+
+			using (var connection = InjectionContainer.GetExport<IDbConnection>())
+			using (var command = connection.CreateCommand())
+			{
+				command.CommandText = Sql.Update;
+				command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, PrimaryKeyProperty.GetValue(this));
+
+				foreach (var property in ModelProperties.Where(prop => !prop.IsPrimaryKey))
+					command.AddParameter($"@{property.AttributeName}", property.Type, property.GetValue(this) ?? DBNull.Value);
+
+				changed = command.ExecuteNonQuery();
+			}
+
+			return changed == 1;
 		}
 
 		public bool Delete()
