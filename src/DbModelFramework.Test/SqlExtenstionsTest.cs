@@ -21,9 +21,6 @@
 **/
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DbModelFramework.Test
 {
@@ -60,6 +57,38 @@ namespace DbModelFramework.Test
 			var tableCreationSql = MultipleString.ModelProperties.ToTableCreationSql();
 
 			Assert.AreEqual("myattribute1 String, myattribute2 String, myattribute3 String", tableCreationSql);
+		}
+
+		[TestMethod]
+		public void ToInsertAttributesSql_SingleString()
+		{
+			var insertAttributesSql = SingleString.ModelProperties.ToInsertAttributesSql();
+
+			Assert.AreEqual("myattribute", insertAttributesSql);
+		}
+
+		[TestMethod]
+		public void ToInsertParametersSql_SingleString()
+		{
+			var insertParametersSql = SingleString.ModelProperties.ToInsertParametersSql();
+
+			Assert.AreEqual("@myattribute", insertParametersSql);
+		}
+
+		[TestMethod]
+		public void ToInsertAttributesSql_MultipleString()
+		{
+			var insertAttributesSql = MultipleString.ModelProperties.ToInsertAttributesSql();
+
+			Assert.AreEqual("myattribute1, myattribute2, myattribute3", insertAttributesSql);
+		}
+
+		[TestMethod]
+		public void ToInsertParametersSql_MultipleString()
+		{
+			var insertParametersSql = MultipleString.ModelProperties.ToInsertParametersSql();
+
+			Assert.AreEqual("@myattribute1, @myattribute2, @myattribute3", insertParametersSql);
 		}
 	}
 }

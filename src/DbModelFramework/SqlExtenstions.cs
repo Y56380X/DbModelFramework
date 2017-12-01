@@ -56,9 +56,60 @@ namespace DbModelFramework
 			return stringBuilder.ToString();
 		}
 
+		public static string ToInsertAttributesSql(this IEnumerable<PropertyInfo> modelProperties)
+		{
+			StringBuilder stringBuilder = new StringBuilder();
+
+			bool first = true;
+			foreach (var property in modelProperties)
+			{
+				if (first)
+				{
+					stringBuilder.Append($"{property.Name.ToLower()}");
+					first = false;
+				}
+				else
+				{
+					stringBuilder.Append($", {property.Name.ToLower()}");
+				}
+			}
+
+			return stringBuilder.ToString();
+		}
+
+		public static string ToInsertParametersSql(this IEnumerable<PropertyInfo> modelProperties)
+		{
+			StringBuilder stringBuilder = new StringBuilder();
+
+			bool first = true;
+			foreach (var property in modelProperties)
+			{
+				if (first)
+				{
+					stringBuilder.Append($"@{property.Name.ToLower()}");
+					first = false;
+				}
+				else
+				{
+					stringBuilder.Append($", @{property.Name.ToLower()}");
+				}
+			}
+
+			return stringBuilder.ToString();
+		}
+
 		public static DbType ToDbType(this Type type)
 		{
 			return DbTypeDictionary[type];
+		}
+
+		public static void AddParameter(this IDbCommand command, string parameterName, DbType dbType, object value)
+		{
+			var parameter = command.CreateParameter();
+			parameter.ParameterName = parameterName;
+			parameter.DbType = dbType;
+			parameter.Value = value;
+			command.Parameters.Add(parameter);
 		}
 	}
 }
