@@ -70,7 +70,21 @@ namespace DbModelFramework.Test.Fakes
 
 		public IDbCommand CreateCommand()
 		{
-			var command = Mock.Of<IDbCommand>();
+			var commandMock = new Mock<IDbCommand>() { DefaultValue = DefaultValue.Mock };
+			commandMock.SetupAllProperties();
+
+			// Setup execusion
+			commandMock.Setup(c => c.ExecuteNonQuery()).Returns(default(int));
+			commandMock.Setup(c => c.ExecuteReader()).Returns(Mock.Of<IDataReader>);
+			commandMock.Setup(c => c.ExecuteScalar()).Returns(default(object));
+
+			// Setup parameters
+			commandMock.Setup(c => c.CreateParameter()).Returns(Mock.Of<IDbDataParameter>);
+
+			var parameters = new DataParameterCollection();
+			commandMock.SetupGet(c => c.Parameters).Returns(parameters);
+
+			var command = commandMock.Object;
 			CreatedCommands.Add(command);
 
 			return command;
