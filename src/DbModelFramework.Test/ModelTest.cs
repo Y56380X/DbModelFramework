@@ -104,5 +104,20 @@ namespace DbModelFramework.Test
 			Assert.IsTrue(command.Parameters.Contains("@manufacturer"));
 			Assert.IsTrue(command.Parameters.Contains("@type"));
 		}
+
+		[TestMethod]
+		public void GetAllDataAsModelInstancesFromDb()
+		{
+			var dataReaderMock = new Mock<IDataReader>();
+			int counter = 0;
+			dataReaderMock.Setup(dr => dr.Read()).Returns(counter++ < 3);
+
+			Fakes.DbConnection.AddCustomExecuteReaderResult("SELECT manufacturer, type FROM cars;", dataReaderMock.Object);
+
+			var cars = Car.Get();
+
+			Assert.IsNotNull(cars);
+			Assert.AreEqual(3, cars.Count());
+		}
 	}
 }
