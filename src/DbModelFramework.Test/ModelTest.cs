@@ -61,7 +61,7 @@ namespace DbModelFramework.Test
 		[TestMethod]
 		public void PropertiesOfModel()
 		{
-			var propertyNames = Car.ModelProperties.Select(prop => prop.Name);
+			var propertyNames = Car.ModelProperties.Select(prop => prop.PropertyName);
 
 			Assert.IsTrue(propertyNames.Contains("Manufacturer"));
 			Assert.IsTrue(propertyNames.Contains("Type"));

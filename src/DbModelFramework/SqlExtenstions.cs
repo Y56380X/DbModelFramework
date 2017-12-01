@@ -38,7 +38,7 @@ namespace DbModelFramework
 			{ typeof(long), DbType.Int64 }
 		};
 
-		public static string ToTableCreationSql(this IEnumerable<PropertyInfo> modelProperties)
+		public static string ToTableCreationSql(this IEnumerable<ModelProperty> modelProperties)
 		{
 			StringBuilder stringBuilder = new StringBuilder();
 
@@ -47,19 +47,19 @@ namespace DbModelFramework
 			{
 				if (first)
 				{
-					stringBuilder.Append($"{property.Name.ToLower()} {property.PropertyType.ToDbType()}");
+					stringBuilder.Append($"{property.AttributeName} {property.Type}");
 					first = false;
 				}
 				else
 				{
-					stringBuilder.Append($", {property.Name.ToLower()} {property.PropertyType.ToDbType()}");
+					stringBuilder.Append($", {property.AttributeName} {property.Type}");
 				}
 			}
 
 			return stringBuilder.ToString();
 		}
 
-		public static string ToAttributeChainSql(this IEnumerable<PropertyInfo> modelProperties)
+		public static string ToAttributeChainSql(this IEnumerable<ModelProperty> modelProperties)
 		{
 			StringBuilder stringBuilder = new StringBuilder();
 
@@ -68,19 +68,19 @@ namespace DbModelFramework
 			{
 				if (first)
 				{
-					stringBuilder.Append($"{property.Name.ToLower()}");
+					stringBuilder.Append($"{property.AttributeName}");
 					first = false;
 				}
 				else
 				{
-					stringBuilder.Append($", {property.Name.ToLower()}");
+					stringBuilder.Append($", {property.AttributeName}");
 				}
 			}
 
 			return stringBuilder.ToString();
 		}
 
-		public static string ToInsertParameterChainSql(this IEnumerable<PropertyInfo> modelProperties)
+		public static string ToInsertParameterChainSql(this IEnumerable<ModelProperty> modelProperties)
 		{
 			StringBuilder stringBuilder = new StringBuilder();
 
@@ -89,12 +89,12 @@ namespace DbModelFramework
 			{
 				if (first)
 				{
-					stringBuilder.Append($"@{property.Name.ToLower()}");
+					stringBuilder.Append($"@{property.AttributeName}");
 					first = false;
 				}
 				else
 				{
-					stringBuilder.Append($", @{property.Name.ToLower()}");
+					stringBuilder.Append($", @{property.AttributeName}");
 				}
 			}
 

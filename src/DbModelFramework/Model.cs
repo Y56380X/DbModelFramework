@@ -32,7 +32,7 @@ namespace DbModelFramework
 	public class Model<TType> where TType : new()
 	{
 		internal static readonly string TableName = $"{typeof(TType).Name.ToLower()}s";
-		internal static readonly IEnumerable<PropertyInfo> ModelProperties = typeof(TType).GetProperties();
+		internal static readonly IEnumerable<ModelProperty> ModelProperties = typeof(TType).GetProperties().Select(prop => new ModelProperty(prop));
 
 		internal static class Sql
 		{
@@ -120,7 +120,7 @@ namespace DbModelFramework
 				command.CommandText = Sql.Insert;
 
 				foreach (var property in ModelProperties)
-					command.AddParameter($"@{property.Name.ToLower()}", property.PropertyType.ToDbType(), property.GetValue(model) ?? DBNull.Value);
+					command.AddParameter($"@{property.AttributeName}", property.Type, property.GetValue(model) ?? DBNull.Value);
 
 				command.ExecuteNonQuery();
 			}
@@ -135,10 +135,10 @@ namespace DbModelFramework
 			// Get value from db for each model property
 			foreach (var property in ModelProperties)
 			{
-				if (dataReader[property.Name.ToLower()] is DBNull)
-					property.SetValue(model, property.PropertyType.GetDefault());
+				if (dataReader[property.AttributeName.ToLower()] is DBNull)
+					property.SetValue(model, property.DefaultValue);
 				else
-					property.SetValue(model, dataReader[property.Name.ToLower()]);
+					property.SetValue(model, dataReader[property.AttributeName]);
 			}
 
 			return model;
