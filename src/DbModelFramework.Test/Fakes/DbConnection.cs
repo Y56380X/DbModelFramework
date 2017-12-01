@@ -30,6 +30,10 @@ namespace DbModelFramework.Test.Fakes
 	[Export(typeof(IDbConnection))]
 	class DbConnection : IDbConnection
 	{
+		private static Dictionary<string, int> customExecuteNonQueryResults = new Dictionary<string, int>();
+		private static Dictionary<string, IDataReader> customExecuteReaderResults = new Dictionary<string, IDataReader>();
+		private static Dictionary<string, object> customExecuteScalarResults = new Dictionary<string, object>();
+
 		#region properties
 
 		public static List<IDbCommand> CreatedCommands { get; } = new List<IDbCommand>();
@@ -74,9 +78,27 @@ namespace DbModelFramework.Test.Fakes
 			commandMock.SetupAllProperties();
 
 			// Setup execusion
-			commandMock.Setup(c => c.ExecuteNonQuery()).Returns(default(int));
-			commandMock.Setup(c => c.ExecuteReader()).Returns(Mock.Of<IDataReader>);
-			commandMock.Setup(c => c.ExecuteScalar()).Returns(default(object));
+			commandMock.Setup(c => c.ExecuteNonQuery()).Returns(() => 
+			{
+					if (customExecuteNonQueryResults.ContainsKey(commandMock.Object.CommandText))
+						return customExecuteNonQueryResults[commandMock.Object.CommandText];
+					else
+						return default(int);
+			});
+			commandMock.Setup(c => c.ExecuteReader()).Returns(() =>
+			{
+				if (customExecuteReaderResults.ContainsKey(commandMock.Object.CommandText))
+					return customExecuteReaderResults[commandMock.Object.CommandText];
+				else
+					return Mock.Of<IDataReader>();
+			});
+			commandMock.Setup(c => c.ExecuteScalar()).Returns(() =>
+			{
+				if (customExecuteScalarResults.ContainsKey(commandMock.Object.CommandText))
+					return customExecuteScalarResults[commandMock.Object.CommandText];
+				else
+					return default(object);
+			});
 
 			// Setup parameters
 			commandMock.Setup(c => c.CreateParameter()).Returns(Mock.Of<IDbDataParameter>);
@@ -95,6 +117,21 @@ namespace DbModelFramework.Test.Fakes
 		public void Open()
 		{
 			throw new System.NotImplementedException();
+		}
+
+		public static void AddCustomExecuteNonQueryResult(string sql, int result)
+		{
+			customExecuteNonQueryResults.Add(sql, result);
+		}
+
+		public static void AddCustomExecuteScalarResult(string sql, object result)
+		{
+			customExecuteScalarResults.Add(sql, result);
+		}
+
+		public static void AddCustomExecuteReaderResult(string sql, IDataReader result)
+		{
+			customExecuteReaderResults.Add(sql, result);
 		}
 	}
 }
