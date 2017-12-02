@@ -19,3 +19,11 @@ var myModels = MyModel.Get();
 ```C#
 var myModel = MyModel.Get(typeof(MyModel).GetProperty("Property1"), "MyValue");
 ```
+
+```C#
+myModel.Save();
+```
+
+```C#
+myModel.Delete();
+```
