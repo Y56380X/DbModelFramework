@@ -40,7 +40,7 @@ namespace DbModelFramework.Test
 			public string Type { get; set; }
 
 			[DbIgnore]
-			public string IgnorableProperty { get; set; }
+			public new long Id => base.Id;
 		}
 
 		#endregion
@@ -99,6 +99,8 @@ namespace DbModelFramework.Test
 		[TestMethod]
 		public void CreateNewModelInstanceShouldInsertInDb()
 		{
+			Fakes.DbConnection.CreatedCommands.Clear();
+
 			var car = Car.Create();
 
 			Assert.IsNotNull(car);
@@ -106,6 +108,21 @@ namespace DbModelFramework.Test
 			Assert.IsNotNull(command);
 			Assert.IsTrue(command.Parameters.Contains("@manufacturer"));
 			Assert.IsTrue(command.Parameters.Contains("@type"));
+		}
+
+		[TestMethod]
+		public void CreateNewModelInstanceShouldUpdatePK()
+		{
+			Fakes.DbConnection.CreatedCommands.Clear();
+			Fakes.DbConnection.ClearCustomExecuteResults();
+			Fakes.DbConnection.AddCustomExecuteScalarResult(Car.Sql.LastPrimaryKey, 1);
+
+			var car = Car.Create();
+
+			Assert.IsNotNull(car);
+			Assert.AreEqual(1, car.Id);
+			var command = Fakes.DbConnection.CreatedCommands.SingleOrDefault(c => c.CommandText == Car.Sql.LastPrimaryKey);
+			Assert.IsNotNull(command);
 		}
 
 		[TestMethod]

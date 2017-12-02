@@ -45,6 +45,7 @@ namespace DbModelFramework
 			public static readonly string CheckTable = $"SELECT name FROM sqlite_master WHERE type='table' AND name='{TableName}';";
 			public static readonly string CreateTable = $"CREATE TABLE {TableName} ({ModelProperties.ToTableCreationSql()});";
 			public static readonly string Insert = $"INSERT INTO {TableName} ({ModelProperties.ToAttributeChainSql()}) VALUES ({ModelProperties.ToInsertParameterChainSql()});";
+			public static readonly string LastPrimaryKey = "SELECT last_insert_rowid();";
 			public static readonly string SelectAll = $"SELECT {ModelProperties.ToAttributeChainSql(true)} FROM {TableName};";
 			public static readonly string Delete = $"DELETE FROM {TableName} WHERE {PrimaryKeyProperty.AttributeName} = @{PrimaryKeyProperty.AttributeName};";
 			public static readonly string Update = $"UPDATE {TableName} SET {ModelProperties.ToUpdateSql()} WHERE {PrimaryKeyProperty.AttributeName} = @{PrimaryKeyProperty.AttributeName};";
@@ -151,14 +152,24 @@ namespace DbModelFramework
 			var model = new TType();
 
 			using (var connection = InjectionContainer.GetExport<IDbConnection>())
-			using (var command = connection.CreateCommand())
 			{
-				command.CommandText = Sql.Insert;
+				// Insert
+				using (var command = connection.CreateCommand())
+				{
+					command.CommandText = Sql.Insert;
 
-				foreach (var property in ModelProperties)
-					command.AddParameter($"@{property.AttributeName}", property.Type, property.GetValue(model) ?? DBNull.Value);
+					foreach (var property in ModelProperties)
+						command.AddParameter($"@{property.AttributeName}", property.Type, property.GetValue(model) ?? DBNull.Value);
 
-				command.ExecuteNonQuery();
+					command.ExecuteNonQuery();
+				}
+
+				// Update primary key
+				using (var command = connection.CreateCommand())
+				{
+					command.CommandText = Sql.LastPrimaryKey;
+					PrimaryKeyProperty.SetValue(model, command.ExecuteScalar());
+				}
 			}
 
 			return model;
