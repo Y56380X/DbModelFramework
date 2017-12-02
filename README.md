@@ -1,6 +1,13 @@
 # DbModelFramework
 
 ```C#
+var configuration = new ContainerConfiguration();
+configuration.WithPart<DbConnection>();
+
+DbModelFramework.DependencyInjection.InjectionContainer = configuration.CreateContainer();
+```
+
+```C#
 class MyModel : Model<Car>
 {
 	public string Property1 { get; set; }
