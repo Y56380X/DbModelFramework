@@ -54,7 +54,7 @@ namespace DbModelFramework
 			Type = property.PropertyType.ToDbType();
 			DefaultValue = property.PropertyType.GetDefault();
 			IsPrimaryKey = Attribute.IsDefined(property, typeof(PrimaryKeyAttribute));
-			IsUnique = Attribute.IsDefined(property, typeof(UniqueAttribute));
+			IsUnique = Attribute.IsDefined(property, typeof(DbUniqueAttribute));
 
 			this.property = property;
 		}

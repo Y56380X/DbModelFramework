@@ -58,7 +58,7 @@ namespace DbModelFramework.Test
 
 		class UniqueValue : Model<UniqueValue>
 		{
-			[Unique]
+			[DbUnique]
 			public string MyAttribute { get; set; }
 		}
 
