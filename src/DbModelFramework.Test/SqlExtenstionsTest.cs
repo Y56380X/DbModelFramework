@@ -56,6 +56,12 @@ namespace DbModelFramework.Test
 			public long MyAttribute { get; set; }
 		}
 
+		class UniqueValue : Model<UniqueValue>
+		{
+			[Unique]
+			public string MyAttribute { get; set; }
+		}
+
 		#endregion
 
 		[TestMethod]
@@ -160,6 +166,14 @@ namespace DbModelFramework.Test
 			var updateSql = MultipleString.ModelProperties.ToUpdateSql();
 
 			Assert.AreEqual("myattribute1 = @myattribute1, myattribute2 = @myattribute2, myattribute3 = @myattribute3", updateSql);
+		}
+
+		[TestMethod]
+		public void ToTableCreationString_UniqueValues()
+		{
+			var tableCreationSql = UniqueValue.ModelProperties.ToTableCreationSql();
+
+			Assert.AreEqual("myattribute TEXT UNIQUE, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
 		}
 	}
 }

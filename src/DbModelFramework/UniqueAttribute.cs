@@ -21,42 +21,12 @@
 **/
 
 using System;
-using System.Data;
-using System.Reflection;
 
 namespace DbModelFramework
 {
-	class ModelProperty
+	[AttributeUsage(AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
+	sealed class UniqueAttribute : Attribute
 	{
-		public string PropertyName { get; private set; }
-		public string AttributeName { get; private set; }
-		public DbType Type { get; private set; }
-		public object DefaultValue { get; private set; }
-		public bool IsPrimaryKey { get; private set; }
-		public bool IsUnique { get; private set; }
 
-		private PropertyInfo property;
-
-		public ModelProperty(PropertyInfo property)
-		{
-			PropertyName = property.Name;
-			AttributeName = property.Name.ToLower();
-			Type = property.PropertyType.ToDbType();
-			DefaultValue = property.PropertyType.GetDefault();
-			IsPrimaryKey = Attribute.IsDefined(property, typeof(PrimaryKeyAttribute));
-			IsUnique = Attribute.IsDefined(property, typeof(UniqueAttribute));
-
-			this.property = property;
-		}
-
-		public void SetValue(object model, object value)
-		{
-			property.SetValue(model, value);
-		}
-
-		public object GetValue(object model)
-		{
-			return property.GetValue(model);
-		}
 	}
 }

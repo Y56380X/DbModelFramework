@@ -63,6 +63,9 @@ namespace DbModelFramework
 
 				if (property.IsPrimaryKey)
 					stringBuilder.Append(" PRIMARY KEY AUTOINCREMENT");
+
+				if (property.IsUnique)
+					stringBuilder.Append(" UNIQUE");
 			}
 
 			return stringBuilder.ToString();
