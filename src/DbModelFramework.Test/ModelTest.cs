@@ -141,20 +141,20 @@ namespace DbModelFramework.Test
 		}
 
 		[TestMethod]
-		public void GetSingleDataAsModelInstanceFromDb()
+		public void GetSingleDataAsModelInstanceFromDbByPrimaryKey()
 		{
 			var dataReaderMock = new Mock<IDataReader>();
 			int counter = 0;
 			dataReaderMock.Setup(dr => dr.Read()).Returns(() => { return counter++ < 1; });
-			dataReaderMock.Setup(dr => dr["manufacturer"]).Returns("ImaginaryManufacturer");
+			dataReaderMock.Setup(dr => dr["id"]).Returns(3);
 
 			Fakes.DbConnection.ClearCustomExecuteResults();
-			Fakes.DbConnection.AddCustomExecuteReaderResult("SELECT manufacturer, type, id FROM cars;", dataReaderMock.Object);
+			Fakes.DbConnection.AddCustomExecuteReaderResult("SELECT manufacturer, type, id FROM cars WHERE id = @id;", dataReaderMock.Object);
 
-			var car = Car.Get(typeof(Car).GetProperty("Manufacturer"), "ImaginaryManufacturer");
+			var car = Car.Get(3);
 
 			Assert.IsNotNull(car);
-			Assert.AreEqual("ImaginaryManufacturer", car.Manufacturer);
+			Assert.AreEqual(3, car.Id);
 		}
 
 		[TestMethod]
@@ -183,6 +183,14 @@ namespace DbModelFramework.Test
 			var updateCar = Car.Sql.Update;
 
 			Assert.AreEqual("UPDATE cars SET manufacturer = @manufacturer, type = @type WHERE id = @id;", updateCar);
+		}
+
+		[TestMethod]
+		public void SelectModelByPrimaryKeySql()
+		{
+			var selectSingleModelByPk = Car.Sql.SelectByPrimaryKey;
+
+			Assert.AreEqual("SELECT manufacturer, type, id FROM cars WHERE id = @id;", selectSingleModelByPk);
 		}
 	}
 }

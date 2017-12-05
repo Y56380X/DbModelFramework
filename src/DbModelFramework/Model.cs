@@ -47,6 +47,7 @@ namespace DbModelFramework
 			public static readonly string Insert = $"INSERT INTO {TableName} ({ModelProperties.ToAttributeChainSql()}) VALUES ({ModelProperties.ToInsertParameterChainSql()});";
 			public static readonly string LastPrimaryKey = "SELECT last_insert_rowid();";
 			public static readonly string SelectAll = $"SELECT {ModelProperties.ToAttributeChainSql(true)} FROM {TableName};";
+			public static readonly string SelectByPrimaryKey = $"SELECT {ModelProperties.ToAttributeChainSql(true)} FROM {TableName} WHERE {PrimaryKeyProperty.AttributeName} = @{PrimaryKeyProperty.AttributeName};";
 			public static readonly string Delete = $"DELETE FROM {TableName} WHERE {PrimaryKeyProperty.AttributeName} = @{PrimaryKeyProperty.AttributeName};";
 			public static readonly string Update = $"UPDATE {TableName} SET {ModelProperties.ToUpdateSql()} WHERE {PrimaryKeyProperty.AttributeName} = @{PrimaryKeyProperty.AttributeName};";
 
@@ -123,9 +124,24 @@ namespace DbModelFramework
 			return changed == 1;
 		}
 
-		public static TType Get(PropertyInfo property, object value)
+		public static TType Get(TPrimaryKey primaryKey)
 		{
-			return Get().Single(model => property.GetValue(model) == value);
+			TType model = default(TType);
+
+			using (var connection = InjectionContainer.GetExport<IDbConnection>())
+			using (var command = connection.CreateCommand())
+			{
+				command.CommandText = Sql.SelectByPrimaryKey;
+				command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, primaryKey);
+
+				using (var dataReader = command.ExecuteReader())
+				{
+					if (dataReader.Read())
+						model = InstanciateModel(dataReader);
+				}
+			}
+
+			return model;
 		}
 
 		public static IEnumerable<TType> Get()
