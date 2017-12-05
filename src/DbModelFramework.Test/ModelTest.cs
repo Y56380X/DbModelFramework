@@ -22,7 +22,6 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Collections.Generic;
 using System.Composition.Hosting;
 using System.Data;
 using System.Linq;
