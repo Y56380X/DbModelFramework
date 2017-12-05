@@ -51,7 +51,10 @@ namespace DbModelFramework
 
 		public void SetValue(object model, object value)
 		{
-			property.SetValue(model, value);
+			if (value != null && !property.PropertyType.IsInstanceOfType(value))
+				property.SetValue(model, Convert.ChangeType(value, property.PropertyType));
+			else
+				property.SetValue(model, value);
 		}
 
 		public object GetValue(object model)
