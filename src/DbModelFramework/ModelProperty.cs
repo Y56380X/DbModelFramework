@@ -28,6 +28,14 @@ namespace DbModelFramework
 {
 	class ModelProperty
 	{
+		#region fields
+
+		private PropertyInfo property;
+
+		#endregion
+
+		#region properties
+
 		public string PropertyName { get; private set; }
 		public string AttributeName { get; private set; }
 		public DbType Type { get; private set; }
@@ -35,7 +43,9 @@ namespace DbModelFramework
 		public bool IsPrimaryKey { get; private set; }
 		public bool IsUnique { get; private set; }
 
-		private PropertyInfo property;
+		#endregion
+
+		#region constructors
 
 		public ModelProperty(PropertyInfo property)
 		{
@@ -49,6 +59,10 @@ namespace DbModelFramework
 			this.property = property;
 		}
 
+		#endregion
+
+		#region methods
+
 		public void SetValue(object model, object value)
 		{
 			if (value != null && !property.PropertyType.IsInstanceOfType(value))
@@ -61,5 +75,7 @@ namespace DbModelFramework
 		{
 			return property.GetValue(model);
 		}
+
+		#endregion
 	}
 }

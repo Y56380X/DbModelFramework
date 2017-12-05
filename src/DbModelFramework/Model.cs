@@ -24,7 +24,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Reflection;
 using static DbModelFramework.DependencyInjection;
 
 namespace DbModelFramework
@@ -36,9 +35,13 @@ namespace DbModelFramework
 
 	public class Model<TType, TPrimaryKey> where TType : new() where TPrimaryKey : IComparable
 	{
+		#region fields
+
 		internal static readonly string TableName = $"{typeof(TType).Name.ToLower()}s";
 		internal static readonly IEnumerable<ModelProperty> ModelProperties = typeof(TType).GetModelProperties();
 		internal static readonly ModelProperty PrimaryKeyProperty = ModelProperties.Single(prop => prop.IsPrimaryKey);
+
+		#endregion
 
 		internal static class Sql
 		{
@@ -82,8 +85,14 @@ namespace DbModelFramework
 			}
 		}
 
+		#region properties
+
 		[PrimaryKey]
 		protected TPrimaryKey Id { get; set; }
+
+		#endregion
+
+		#region methods
 
 		protected Model()
 		{
@@ -206,5 +215,7 @@ namespace DbModelFramework
 
 			return model;
 		}
+
+		#endregion
 	}
 }
