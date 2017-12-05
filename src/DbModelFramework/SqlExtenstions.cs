@@ -29,12 +29,19 @@ namespace DbModelFramework
 {
 	static class SqlExtenstions
 	{
-		static readonly Dictionary<Type, DbType> DbTypeDictionary = new Dictionary<Type, DbType>
+		static readonly Dictionary<Type, DbType> TypeToDbTypeDictionary = new Dictionary<Type, DbType>
 		{
 			{ typeof(string), DbType.String },
 			{ typeof(int), DbType.Int32 },
 			{ typeof(short), DbType.Int16 },
 			{ typeof(long), DbType.Int64 }
+		};
+		static readonly Dictionary<DbType, string> DbTypeToStringDictionary = new Dictionary<DbType, string>
+		{
+			{ DbType.String, "TEXT" },
+			{ DbType.Int32, "INTEGER" },
+			{ DbType.Int16, "INTEGER" },
+			{ DbType.Int64, "INTEGER" },
 		};
 
 		public static string ToTableCreationSql(this IEnumerable<ModelProperty> modelProperties)
@@ -46,16 +53,19 @@ namespace DbModelFramework
 			{
 				if (first)
 				{
-					stringBuilder.Append($"{property.AttributeName} {property.Type}");
+					stringBuilder.Append($"{property.AttributeName} {DbTypeToString(property.Type)}");
 					first = false;
 				}
 				else
 				{
-					stringBuilder.Append($", {property.AttributeName} {property.Type}");
+					stringBuilder.Append($", {property.AttributeName} {DbTypeToString(property.Type)}");
 				}
 
 				if (property.IsPrimaryKey)
 					stringBuilder.Append(" PRIMARY KEY AUTOINCREMENT");
+
+				if (property.IsUnique)
+					stringBuilder.Append(" UNIQUE");
 			}
 
 			return stringBuilder.ToString();
@@ -135,7 +145,7 @@ namespace DbModelFramework
 
 		public static DbType ToDbType(this Type type)
 		{
-			return DbTypeDictionary[type];
+			return TypeToDbTypeDictionary[type];
 		}
 
 		public static void AddParameter(this IDbCommand command, string parameterName, DbType dbType, object value)
@@ -145,6 +155,11 @@ namespace DbModelFramework
 			parameter.DbType = dbType;
 			parameter.Value = value;
 			command.Parameters.Add(parameter);
+		}
+
+		private static string DbTypeToString(DbType dbType)
+		{
+			return DbTypeToStringDictionary[dbType];
 		}
 	}
 }

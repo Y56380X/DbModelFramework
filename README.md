@@ -1,6 +1,13 @@
 # DbModelFramework
 
 ```C#
+var configuration = new ContainerConfiguration();
+configuration.WithPart<DbConnection>();
+
+DbModelFramework.DependencyInjection.InjectionContainer = configuration.CreateContainer();
+```
+
+```C#
 class MyModel : Model<Car>
 {
 	public string Property1 { get; set; }
@@ -18,4 +25,12 @@ var myModels = MyModel.Get();
 
 ```C#
 var myModel = MyModel.Get(typeof(MyModel).GetProperty("Property1"), "MyValue");
+```
+
+```C#
+myModel.Save();
+```
+
+```C#
+myModel.Delete();
 ```

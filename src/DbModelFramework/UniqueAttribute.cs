@@ -21,27 +21,12 @@
 **/
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 
 namespace DbModelFramework
 {
-	static class TypeExtensions
+	[AttributeUsage(AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
+	sealed class UniqueAttribute : Attribute
 	{
-		public static object GetDefault(this Type type)
-		{
-			if (type.IsValueType)
-				return Activator.CreateInstance(type);
 
-			return null;
-		}
-
-		public static IEnumerable<ModelProperty> GetModelProperties(this Type modelType)
-		{
-			var properties = modelType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).Where(prop => !Attribute.IsDefined(prop, typeof(DbIgnoreAttribute)));
-			
-			return properties.Select(prop => new ModelProperty(prop));
-		}
 	}
 }

@@ -37,7 +37,7 @@ namespace DbModelFramework
 	public class Model<TType, TPrimaryKey> where TType : new() where TPrimaryKey : IComparable
 	{
 		internal static readonly string TableName = $"{typeof(TType).Name.ToLower()}s";
-		internal static readonly IEnumerable<ModelProperty> ModelProperties = typeof(TType).GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).Select(prop => new ModelProperty(prop));
+		internal static readonly IEnumerable<ModelProperty> ModelProperties = typeof(TType).GetModelProperties();
 		internal static readonly ModelProperty PrimaryKeyProperty = ModelProperties.Single(prop => prop.IsPrimaryKey);
 
 		internal static class Sql
@@ -45,7 +45,9 @@ namespace DbModelFramework
 			public static readonly string CheckTable = $"SELECT name FROM sqlite_master WHERE type='table' AND name='{TableName}';";
 			public static readonly string CreateTable = $"CREATE TABLE {TableName} ({ModelProperties.ToTableCreationSql()});";
 			public static readonly string Insert = $"INSERT INTO {TableName} ({ModelProperties.ToAttributeChainSql()}) VALUES ({ModelProperties.ToInsertParameterChainSql()});";
+			public static readonly string LastPrimaryKey = "SELECT last_insert_rowid();";
 			public static readonly string SelectAll = $"SELECT {ModelProperties.ToAttributeChainSql(true)} FROM {TableName};";
+			public static readonly string SelectByPrimaryKey = $"SELECT {ModelProperties.ToAttributeChainSql(true)} FROM {TableName} WHERE {PrimaryKeyProperty.AttributeName} = @{PrimaryKeyProperty.AttributeName};";
 			public static readonly string Delete = $"DELETE FROM {TableName} WHERE {PrimaryKeyProperty.AttributeName} = @{PrimaryKeyProperty.AttributeName};";
 			public static readonly string Update = $"UPDATE {TableName} SET {ModelProperties.ToUpdateSql()} WHERE {PrimaryKeyProperty.AttributeName} = @{PrimaryKeyProperty.AttributeName};";
 
@@ -89,7 +91,21 @@ namespace DbModelFramework
 
 		public bool Save()
 		{
-			throw new NotImplementedException();
+			int changed;
+
+			using (var connection = InjectionContainer.GetExport<IDbConnection>())
+			using (var command = connection.CreateCommand())
+			{
+				command.CommandText = Sql.Update;
+				command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, PrimaryKeyProperty.GetValue(this));
+
+				foreach (var property in ModelProperties.Where(prop => !prop.IsPrimaryKey))
+					command.AddParameter($"@{property.AttributeName}", property.Type, property.GetValue(this) ?? DBNull.Value);
+
+				changed = command.ExecuteNonQuery();
+			}
+
+			return changed == 1;
 		}
 
 		public bool Delete()
@@ -108,9 +124,24 @@ namespace DbModelFramework
 			return changed == 1;
 		}
 
-		public static TType Get(PropertyInfo property, object value)
+		public static TType Get(TPrimaryKey primaryKey)
 		{
-			return Get().Single(model => property.GetValue(model) == value);
+			TType model = default(TType);
+
+			using (var connection = InjectionContainer.GetExport<IDbConnection>())
+			using (var command = connection.CreateCommand())
+			{
+				command.CommandText = Sql.SelectByPrimaryKey;
+				command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, primaryKey);
+
+				using (var dataReader = command.ExecuteReader())
+				{
+					if (dataReader.Read())
+						model = InstanciateModel(dataReader);
+				}
+			}
+
+			return model;
 		}
 
 		public static IEnumerable<TType> Get()
@@ -137,14 +168,24 @@ namespace DbModelFramework
 			var model = new TType();
 
 			using (var connection = InjectionContainer.GetExport<IDbConnection>())
-			using (var command = connection.CreateCommand())
 			{
-				command.CommandText = Sql.Insert;
+				// Insert
+				using (var command = connection.CreateCommand())
+				{
+					command.CommandText = Sql.Insert;
 
-				foreach (var property in ModelProperties)
-					command.AddParameter($"@{property.AttributeName}", property.Type, property.GetValue(model) ?? DBNull.Value);
+					foreach (var property in ModelProperties)
+						command.AddParameter($"@{property.AttributeName}", property.Type, property.GetValue(model) ?? DBNull.Value);
 
-				command.ExecuteNonQuery();
+					command.ExecuteNonQuery();
+				}
+
+				// Update primary key
+				using (var command = connection.CreateCommand())
+				{
+					command.CommandText = Sql.LastPrimaryKey;
+					PrimaryKeyProperty.SetValue(model, command.ExecuteScalar());
+				}
 			}
 
 			return model;

@@ -22,7 +22,6 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Collections.Generic;
 using System.Composition.Hosting;
 using System.Data;
 using System.Linq;
@@ -38,6 +37,9 @@ namespace DbModelFramework.Test
 		{
 			public string Manufacturer { get; set; }
 			public string Type { get; set; }
+
+			[DbIgnore]
+			public new long Id => base.Id;
 		}
 
 		#endregion
@@ -81,7 +83,7 @@ namespace DbModelFramework.Test
 		{
 			var createTable = Car.Sql.CreateTable;
 
-			Assert.AreEqual("CREATE TABLE cars (manufacturer String, type String, id Int64 PRIMARY KEY AUTOINCREMENT);", createTable);
+			Assert.AreEqual("CREATE TABLE cars (manufacturer TEXT, type TEXT, id INTEGER PRIMARY KEY AUTOINCREMENT);", createTable);
 			Assert.IsTrue(Fakes.DbConnection.CreatedCommands.Select(c => c.CommandText).Contains(createTable));
 		}
 
@@ -96,6 +98,8 @@ namespace DbModelFramework.Test
 		[TestMethod]
 		public void CreateNewModelInstanceShouldInsertInDb()
 		{
+			Fakes.DbConnection.CreatedCommands.Clear();
+
 			var car = Car.Create();
 
 			Assert.IsNotNull(car);
@@ -103,6 +107,21 @@ namespace DbModelFramework.Test
 			Assert.IsNotNull(command);
 			Assert.IsTrue(command.Parameters.Contains("@manufacturer"));
 			Assert.IsTrue(command.Parameters.Contains("@type"));
+		}
+
+		[TestMethod]
+		public void CreateNewModelInstanceShouldUpdatePK()
+		{
+			Fakes.DbConnection.CreatedCommands.Clear();
+			Fakes.DbConnection.ClearCustomExecuteResults();
+			Fakes.DbConnection.AddCustomExecuteScalarResult(Car.Sql.LastPrimaryKey, 1);
+
+			var car = Car.Create();
+
+			Assert.IsNotNull(car);
+			Assert.AreEqual(1, car.Id);
+			var command = Fakes.DbConnection.CreatedCommands.SingleOrDefault(c => c.CommandText == Car.Sql.LastPrimaryKey);
+			Assert.IsNotNull(command);
 		}
 
 		[TestMethod]
@@ -122,20 +141,20 @@ namespace DbModelFramework.Test
 		}
 
 		[TestMethod]
-		public void GetSingleDataAsModelInstanceFromDb()
+		public void GetSingleDataAsModelInstanceFromDbByPrimaryKey()
 		{
 			var dataReaderMock = new Mock<IDataReader>();
 			int counter = 0;
 			dataReaderMock.Setup(dr => dr.Read()).Returns(() => { return counter++ < 1; });
-			dataReaderMock.Setup(dr => dr["manufacturer"]).Returns("ImaginaryManufacturer");
+			dataReaderMock.Setup(dr => dr["id"]).Returns(3);
 
 			Fakes.DbConnection.ClearCustomExecuteResults();
-			Fakes.DbConnection.AddCustomExecuteReaderResult("SELECT manufacturer, type, id FROM cars;", dataReaderMock.Object);
+			Fakes.DbConnection.AddCustomExecuteReaderResult("SELECT manufacturer, type, id FROM cars WHERE id = @id;", dataReaderMock.Object);
 
-			var car = Car.Get(typeof(Car).GetProperty("Manufacturer"), "ImaginaryManufacturer");
+			var car = Car.Get(3);
 
 			Assert.IsNotNull(car);
-			Assert.AreEqual("ImaginaryManufacturer", car.Manufacturer);
+			Assert.AreEqual(3, car.Id);
 		}
 
 		[TestMethod]
@@ -164,6 +183,14 @@ namespace DbModelFramework.Test
 			var updateCar = Car.Sql.Update;
 
 			Assert.AreEqual("UPDATE cars SET manufacturer = @manufacturer, type = @type WHERE id = @id;", updateCar);
+		}
+
+		[TestMethod]
+		public void SelectModelByPrimaryKeySql()
+		{
+			var selectSingleModelByPk = Car.Sql.SelectByPrimaryKey;
+
+			Assert.AreEqual("SELECT manufacturer, type, id FROM cars WHERE id = @id;", selectSingleModelByPk);
 		}
 	}
 }

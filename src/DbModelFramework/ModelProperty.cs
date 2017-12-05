@@ -33,6 +33,7 @@ namespace DbModelFramework
 		public DbType Type { get; private set; }
 		public object DefaultValue { get; private set; }
 		public bool IsPrimaryKey { get; private set; }
+		public bool IsUnique { get; private set; }
 
 		private PropertyInfo property;
 
@@ -43,13 +44,17 @@ namespace DbModelFramework
 			Type = property.PropertyType.ToDbType();
 			DefaultValue = property.PropertyType.GetDefault();
 			IsPrimaryKey = Attribute.IsDefined(property, typeof(PrimaryKeyAttribute));
+			IsUnique = Attribute.IsDefined(property, typeof(UniqueAttribute));
 
 			this.property = property;
 		}
 
 		public void SetValue(object model, object value)
 		{
-			property.SetValue(model, value);
+			if (value != null && !property.PropertyType.IsInstanceOfType(value))
+				property.SetValue(model, Convert.ChangeType(value, property.PropertyType));
+			else
+				property.SetValue(model, value);
 		}
 
 		public object GetValue(object model)

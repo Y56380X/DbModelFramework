@@ -20,28 +20,51 @@
 	SOFTWARE.
 **/
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace DbModelFramework
+namespace DbModelFramework.Test
 {
-	static class TypeExtensions
+	[TestClass]
+	public class ModelPropertyTest
 	{
-		public static object GetDefault(this Type type)
+		class TestModel : Model<TestModel>
 		{
-			if (type.IsValueType)
-				return Activator.CreateInstance(type);
-
-			return null;
+			public long MyAttribute1 { get; set; }
+			public int MyAttribute2 { get; set; }
+			public short MyAttribute3 { get; set; }
 		}
 
-		public static IEnumerable<ModelProperty> GetModelProperties(this Type modelType)
+		[TestMethod]
+		public void SetValueInt64()
 		{
-			var properties = modelType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).Where(prop => !Attribute.IsDefined(prop, typeof(DbIgnoreAttribute)));
-			
-			return properties.Select(prop => new ModelProperty(prop));
+			var modelProperty = new ModelProperty(typeof(TestModel).GetProperty("MyAttribute1"));
+			var model = new TestModel();
+
+			modelProperty.SetValue(model, (long)1200);
+
+			Assert.AreEqual(1200, model.MyAttribute1);
+		}
+
+		[TestMethod]
+		public void SetValueInt32()
+		{
+			var modelProperty = new ModelProperty(typeof(TestModel).GetProperty("MyAttribute2"));
+			var model = new TestModel();
+
+			modelProperty.SetValue(model, (long)1200);
+
+			Assert.AreEqual(1200, model.MyAttribute2);
+		}
+
+		[TestMethod]
+		public void SetValueInt16()
+		{
+			var modelProperty = new ModelProperty(typeof(TestModel).GetProperty("MyAttribute3"));
+			var model = new TestModel();
+
+			modelProperty.SetValue(model, (long)1200);
+
+			Assert.AreEqual(1200, model.MyAttribute3);
 		}
 	}
 }
