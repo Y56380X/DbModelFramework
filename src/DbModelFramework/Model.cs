@@ -24,6 +24,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using static DbModelFramework.DependencyInjection;
 
 namespace DbModelFramework
@@ -51,6 +53,7 @@ namespace DbModelFramework
 			public static readonly string LastPrimaryKey = "SELECT last_insert_rowid();";
 			public static readonly string SelectAll = $"SELECT {ModelProperties.ToAttributeChainSql(true)} FROM {TableName};";
 			public static readonly string SelectByPrimaryKey = $"SELECT {ModelProperties.ToAttributeChainSql(true)} FROM {TableName} WHERE {PrimaryKeyProperty.AttributeName} = @{PrimaryKeyProperty.AttributeName};";
+			public static readonly string SelectByCustomCondition = $"SELECT {ModelProperties.ToAttributeChainSql(true)} FROM {TableName} WHERE {{0}};";
 			public static readonly string Delete = $"DELETE FROM {TableName} WHERE {PrimaryKeyProperty.AttributeName} = @{PrimaryKeyProperty.AttributeName};";
 			public static readonly string Update = $"UPDATE {TableName} SET {ModelProperties.ToUpdateSql()} WHERE {PrimaryKeyProperty.AttributeName} = @{PrimaryKeyProperty.AttributeName};";
 
@@ -161,6 +164,61 @@ namespace DbModelFramework
 			using (var command = connection.CreateCommand())
 			{
 				command.CommandText = Sql.SelectAll;
+
+				using (var dataReader = command.ExecuteReader())
+				{
+					while (dataReader.Read())
+						models.Add(InstanciateModel(dataReader));
+				}
+			}
+
+			return models;
+		}
+
+		private static string GenerateSql(Expression selector, IDbCommand dbCommand)
+		{
+			switch (selector.NodeType)
+			{
+				case ExpressionType.Lambda:
+					return GenerateSql((selector as LambdaExpression).Body, dbCommand);
+				case ExpressionType.AndAlso:
+					return $"{GenerateSql((selector as BinaryExpression).Left, dbCommand)} AND {GenerateSql((selector as BinaryExpression).Right, dbCommand)}";
+				case ExpressionType.OrElse:
+					return $"{GenerateSql((selector as BinaryExpression).Left, dbCommand)} OR {GenerateSql((selector as BinaryExpression).Right, dbCommand)}";
+				case ExpressionType.Equal:
+					return $"{GenerateSql((selector as BinaryExpression).Left, dbCommand)} = {GenerateSql((selector as BinaryExpression).Right, dbCommand)}";
+				case ExpressionType.MemberAccess:
+					{
+						var mExpression = selector as MemberExpression;
+
+						if (mExpression.Expression is ParameterExpression)
+							return mExpression.Member.Name.ToLower();
+
+						if (mExpression.Expression is ConstantExpression cExpression)
+						{
+							if (mExpression.Member is FieldInfo fieldInfo)
+								return fieldInfo.GetValue(cExpression.Value).ToString();
+							if (mExpression.Member is PropertyInfo propertyInfo)
+								return propertyInfo.GetValue(cExpression.Value).ToString();
+						}
+
+						return string.Empty;
+					}
+				case ExpressionType.Constant:
+					return (selector as ConstantExpression).ToString();
+				default:
+					return string.Empty;
+			}
+		}
+
+		public static IEnumerable<TType> Get(Expression<Func<TType, bool>> selector)
+		{
+			var models = new List<TType>();
+
+			using (var connection = InjectionContainer.GetExport<IDbConnection>())
+			using (var command = connection.CreateCommand())
+			{
+				command.CommandText = Sql.SelectByCustomCondition.Replace("{0}", GenerateSql(selector, command));
 
 				using (var dataReader = command.ExecuteReader())
 				{
