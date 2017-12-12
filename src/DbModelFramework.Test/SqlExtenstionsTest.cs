@@ -190,7 +190,9 @@ namespace DbModelFramework.Test
 		[TestMethod]
 		public void ToWhereSql_EqualsStringValue()
 		{
-			var toWhereSql = SqlExtenstions.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == "Value"), Mock.Of<IDbCommand>());
+			var dbCommandMock = new Mock<IDbCommand> { DefaultValue = DefaultValue.Mock };
+
+			var toWhereSql = SqlExtenstions.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == "Value"), dbCommandMock.Object);
 
 			Assert.AreEqual("mystringattribute = @mystringattribute", toWhereSql);
 		}
