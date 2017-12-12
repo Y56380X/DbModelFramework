@@ -175,42 +175,6 @@ namespace DbModelFramework
 			return models;
 		}
 
-		private static string GenerateSql(Expression selector, IDbCommand dbCommand)
-		{
-			switch (selector.NodeType)
-			{
-				case ExpressionType.Lambda:
-					return GenerateSql((selector as LambdaExpression).Body, dbCommand);
-				case ExpressionType.AndAlso:
-					return $"{GenerateSql((selector as BinaryExpression).Left, dbCommand)} AND {GenerateSql((selector as BinaryExpression).Right, dbCommand)}";
-				case ExpressionType.OrElse:
-					return $"{GenerateSql((selector as BinaryExpression).Left, dbCommand)} OR {GenerateSql((selector as BinaryExpression).Right, dbCommand)}";
-				case ExpressionType.Equal:
-					return $"{GenerateSql((selector as BinaryExpression).Left, dbCommand)} = {GenerateSql((selector as BinaryExpression).Right, dbCommand)}";
-				case ExpressionType.MemberAccess:
-					{
-						var mExpression = selector as MemberExpression;
-
-						if (mExpression.Expression is ParameterExpression)
-							return mExpression.Member.Name.ToLower();
-
-						if (mExpression.Expression is ConstantExpression cExpression)
-						{
-							if (mExpression.Member is FieldInfo fieldInfo)
-								return fieldInfo.GetValue(cExpression.Value).ToString();
-							if (mExpression.Member is PropertyInfo propertyInfo)
-								return propertyInfo.GetValue(cExpression.Value).ToString();
-						}
-
-						return string.Empty;
-					}
-				case ExpressionType.Constant:
-					return (selector as ConstantExpression).ToString();
-				default:
-					return string.Empty;
-			}
-		}
-
 		public static IEnumerable<TType> Get(Expression<Func<TType, bool>> selector)
 		{
 			var models = new List<TType>();
@@ -218,7 +182,7 @@ namespace DbModelFramework
 			using (var connection = InjectionContainer.GetExport<IDbConnection>())
 			using (var command = connection.CreateCommand())
 			{
-				command.CommandText = Sql.SelectByCustomCondition.Replace("{0}", GenerateSql(selector, command));
+				command.CommandText = Sql.SelectByCustomCondition.Replace("{0}", selector.ToWhereSql(command));
 
 				using (var dataReader = command.ExecuteReader())
 				{

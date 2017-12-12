@@ -192,36 +192,5 @@ namespace DbModelFramework.Test
 
 			Assert.AreEqual("SELECT manufacturer, type, id FROM cars WHERE id = @id;", selectSingleModelByPk);
 		}
-
-		[TestMethod]
-		public void SelectModelsByCustomSelector()
-		{
-			Car.Get(car => car.Manufacturer == "Audi");
-		}
-
-		[TestMethod]
-		public void SelectModelsByCustomSelectorInt()
-		{
-			Car.Get(car => car.Id == 120);
-		}
-
-		[TestMethod]
-		public void SelectModelsByCustomSelectorAnd()
-		{
-			Car.Get(car => car.Manufacturer == "Audi" && car.Type == "Sedan");
-		}
-
-		[TestMethod]
-		public void SelectModelsByCustomSelectorOr()
-		{
-			Car.Get(car => car.Manufacturer == "Audi" || car.Manufacturer == "Mercedes");
-		}
-
-		[TestMethod]
-		public void SelectModelsByCustomSelectorFied()
-		{
-			string manufacturer = "Audi";
-			Car.Get(car => car.Manufacturer == manufacturer);
-		}
 	}
 }

@@ -21,6 +21,10 @@
 **/
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using System;
+using System.Data;
+using System.Linq.Expressions;
 
 namespace DbModelFramework.Test
 {
@@ -60,6 +64,13 @@ namespace DbModelFramework.Test
 		{
 			[DbUnique]
 			public string MyAttribute { get; set; }
+		}
+
+		class CustomExpression : Model<CustomExpression>
+		{
+			public string MyStringAttribute { get; set; }
+
+			public int MyIntAttribute { get; set; }
 		}
 
 		#endregion
@@ -174,6 +185,14 @@ namespace DbModelFramework.Test
 			var tableCreationSql = UniqueValue.ModelProperties.ToTableCreationSql();
 
 			Assert.AreEqual("myattribute TEXT UNIQUE, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
+		}
+
+		[TestMethod]
+		public void ToWhereSql_EqualsStringValue()
+		{
+			var toWhereSql = SqlExtenstions.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == "Value"), Mock.Of<IDbCommand>());
+
+			Assert.AreEqual("mystringattribute = @mystringattribute", toWhereSql);
 		}
 	}
 }
