@@ -8,7 +8,7 @@ DbModelFramework.DependencyInjection.InjectionContainer = configuration.CreateCo
 ```
 
 ```C#
-class MyModel : Model<Car>
+class MyModel : Model<MyModel>
 {
 	public string Property1 { get; set; }
 	public string Property2 { get; set; }
