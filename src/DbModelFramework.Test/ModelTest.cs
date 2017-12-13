@@ -192,5 +192,43 @@ namespace DbModelFramework.Test
 
 			Assert.AreEqual("SELECT manufacturer, type, id FROM cars WHERE id = @id;", selectSingleModelByPk);
 		}
+
+		[TestMethod]
+		public void ReloadModelData_ChangesShouldDiscardChanges()
+		{
+			var dataReaderMock = new Mock<IDataReader>();
+
+			dataReaderMock.Setup(dr => dr.Read()).Returns(true);
+			dataReaderMock.Setup(dr => dr["id"]).Returns(1);
+			dataReaderMock.Setup(dr => dr["manufacturer"]).Returns("ImaginaryManufacturer");
+
+			Fakes.DbConnection.ClearCustomExecuteResults();
+			Fakes.DbConnection.AddCustomExecuteReaderResult("SELECT manufacturer, type, id FROM cars WHERE id = @id;", dataReaderMock.Object);
+
+			var car = Car.Get(1);
+
+			car.Manufacturer = "TheMagicManufacturer";
+
+			car.Reload();
+
+			Assert.AreEqual("ImaginaryManufacturer", car.Manufacturer);
+		}
+
+		[TestMethod]
+		public void CreateModelWithValues()
+		{
+			Fakes.DbConnection.CreatedCommands.Clear();
+
+			var car = Car.Create(c =>
+			{
+				c.Manufacturer = "TheMagicManufacturer";
+				c.Type = "Sedan";
+			});
+			
+			var command = Fakes.DbConnection.CreatedCommands.SingleOrDefault(c => c.CommandText == Car.Sql.Insert);
+
+			Assert.AreEqual("TheMagicManufacturer", (command.Parameters["@manufacturer"] as IDbDataParameter).Value);
+			Assert.AreEqual("Sedan", (command.Parameters["@type"] as IDbDataParameter).Value);
+		}
 	}
 }

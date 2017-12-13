@@ -23,6 +23,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 
 namespace DbModelFramework
@@ -141,6 +143,94 @@ namespace DbModelFramework
 			}
 
 			return stringBuilder.ToString();
+		}
+
+		public static string ToWhereSql(this Expression selector, IDbCommand dbCommand)
+		{
+			switch (selector.NodeType)
+			{
+				case ExpressionType.Lambda:
+					return (selector as LambdaExpression).Body.ToWhereSql(dbCommand);
+				case ExpressionType.AndAlso:
+					return $"{(selector as BinaryExpression).Left.ToWhereSql(dbCommand)} AND {(selector as BinaryExpression).Right.ToWhereSql(dbCommand)}";
+				case ExpressionType.OrElse:
+					return $"{(selector as BinaryExpression).Left.ToWhereSql(dbCommand)} OR {(selector as BinaryExpression).Right.ToWhereSql(dbCommand)}";
+				case ExpressionType.Equal:
+					{
+						var bExpression = selector as BinaryExpression;
+						var value = GetValue(bExpression.Right);
+						var paName = bExpression.Left.ToWhereSql(dbCommand);
+
+						dbCommand.AddParameter($"@{paName}", ToDbType(value.GetType()), value);
+
+						return $"{paName} = @{paName}";
+					}
+				case ExpressionType.NotEqual:
+					{
+						var bExpression = selector as BinaryExpression;
+						var value = GetValue(bExpression.Right);
+						var paName = bExpression.Left.ToWhereSql(dbCommand);
+
+						dbCommand.AddParameter($"@{paName}", ToDbType(value.GetType()), value);
+
+						return $"{paName} <> @{paName}";
+					}
+				case ExpressionType.MemberAccess:
+					{
+						var mExpression = selector as MemberExpression;
+
+						if (mExpression.Expression is ParameterExpression)
+							return mExpression.Member.Name.ToLower();
+
+						if (mExpression.Member is FieldInfo fieldInfo && mExpression.Expression is ConstantExpression cExpression)
+							return fieldInfo.GetValue(cExpression.Value).ToString();
+
+						return string.Empty;
+					}
+				case ExpressionType.Constant:
+					return (selector as ConstantExpression).ToString();
+				default:
+					return string.Empty;
+			}
+		}
+
+		private static object GetValue(Expression expression)
+		{
+			switch (expression.NodeType)
+			{
+				case ExpressionType.Constant:
+					return (expression as ConstantExpression).Value;
+				case ExpressionType.MemberAccess:
+					{
+						var mExpression = expression as MemberExpression;
+
+						if (mExpression.Expression is ParameterExpression)
+							return mExpression.Member.Name.ToLower();
+
+						if (mExpression.Member is FieldInfo fieldInfo && mExpression.Expression is ConstantExpression cExpression)
+							return fieldInfo.GetValue(cExpression.Value);
+
+						if (mExpression.Member is PropertyInfo propertyInfo && mExpression.Expression is MemberExpression submExpression)
+						{
+							if (submExpression.Expression is ConstantExpression subcExpression)
+							{
+								var fieldInfoValue = (submExpression.Member as FieldInfo).GetValue(subcExpression.Value);
+								return propertyInfo.GetValue(fieldInfoValue, null);
+							}
+							else
+							{
+								var subPropertyValue = GetValue(submExpression.Expression);
+								var propertyParentObject = (submExpression.Member as PropertyInfo).GetValue(subPropertyValue);
+
+								return propertyInfo.GetValue(propertyParentObject);
+							}
+						}
+
+						return string.Empty;
+					}
+				default:
+					return DBNull.Value;
+			}
 		}
 
 		public static DbType ToDbType(this Type type)

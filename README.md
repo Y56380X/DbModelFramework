@@ -1,5 +1,14 @@
 # DbModelFramework
 
+## Getting started
+
+### Environment
+Download NuGet-Package
+
+### Inject InjectionContainer
+As a minimum requirement you have to define a new injection container with at least the sqlite db connection class as a part.
+The db connection class has to export the type IDbConnection.
+
 ```C#
 var configuration = new ContainerConfiguration();
 configuration.WithPart<DbConnection>();
@@ -7,30 +16,43 @@ configuration.WithPart<DbConnection>();
 DbModelFramework.DependencyInjection.InjectionContainer = configuration.CreateContainer();
 ```
 
+## Use the models
+
+### Define a new model class
 ```C#
-class MyModel : Model<Car>
+class MyModel : Model<MyModel>
 {
 	public string Property1 { get; set; }
 	public string Property2 { get; set; }
 }
 ```
 
+### Create a new model instance (insert in db)
 ```C#
 var myModel = MyModel.Create();
 ```
 
+### Get all model data
 ```C#
 var myModels = MyModel.Get();
 ```
 
+### Get all model data which fits in the condition
 ```C#
-var myModel = MyModel.Get(typeof(MyModel).GetProperty("Property1"), "MyValue");
+var myModels = MyModel.Get(model => model.Property1 == "MyValue");
 ```
 
+### Get model data by primary key
+```C#
+var myModel = MyModel.Get(1); // Get model data with primary key 1
+```
+
+### Save changes of a models data (update in db)
 ```C#
 myModel.Save();
 ```
 
+### Delete model data (delete from db)
 ```C#
 myModel.Delete();
 ```

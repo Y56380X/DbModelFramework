@@ -29,7 +29,7 @@ namespace DbModelFramework.Test.Fakes
 {
 	class DataParameterCollection : List<IDbDataParameter>, IDataParameterCollection
 	{
-		public object this[string parameterName] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+		public object this[string parameterName] { get => this.SingleOrDefault(p => p.ParameterName == parameterName); set => throw new NotImplementedException(); }
 
 		public bool IsFixedSize => false;
 

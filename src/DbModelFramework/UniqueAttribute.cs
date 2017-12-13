@@ -25,7 +25,7 @@ using System;
 namespace DbModelFramework
 {
 	[AttributeUsage(AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
-	sealed class UniqueAttribute : Attribute
+	public sealed class DbUniqueAttribute : Attribute
 	{
 
 	}
