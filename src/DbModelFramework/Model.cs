@@ -216,6 +216,7 @@ namespace DbModelFramework
 			setValuesAction?.Invoke(model);
 
 			using (var connection = InjectionContainer.GetExport<IDbConnection>())
+			using (var transaction = connection.BeginTransaction())
 			{
 				// Insert
 				using (var command = connection.CreateCommand())
@@ -234,6 +235,8 @@ namespace DbModelFramework
 					command.CommandText = Sql.LastPrimaryKey;
 					PrimaryKeyProperty.SetValue(model, command.ExecuteScalar());
 				}
+
+				transaction.Commit();
 			}
 
 			return model;
