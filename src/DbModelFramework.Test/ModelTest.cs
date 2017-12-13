@@ -22,6 +22,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
 using System.Composition.Hosting;
 using System.Data;
 using System.Linq;
@@ -191,6 +192,27 @@ namespace DbModelFramework.Test
 			var selectSingleModelByPk = Car.Sql.SelectByPrimaryKey;
 
 			Assert.AreEqual("SELECT manufacturer, type, id FROM cars WHERE id = @id;", selectSingleModelByPk);
+		}
+
+		[TestMethod]
+		public void ReloadModelData_ChangesShouldDiscardChanges()
+		{
+			var dataReaderMock = new Mock<IDataReader>();
+
+			dataReaderMock.Setup(dr => dr.Read()).Returns(true);
+			dataReaderMock.Setup(dr => dr["id"]).Returns(1);
+			dataReaderMock.Setup(dr => dr["manufacturer"]).Returns("ImaginaryManufacturer");
+
+			Fakes.DbConnection.ClearCustomExecuteResults();
+			Fakes.DbConnection.AddCustomExecuteReaderResult("SELECT manufacturer, type, id FROM cars WHERE id = @id;", dataReaderMock.Object);
+
+			var car = Car.Get(1);
+
+			car.Manufacturer = "TheMagicManufacturer";
+
+			car.Reload();
+
+			Assert.AreEqual("ImaginaryManufacturer", car.Manufacturer);
 		}
 	}
 }

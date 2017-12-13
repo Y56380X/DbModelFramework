@@ -100,6 +100,16 @@ namespace DbModelFramework
 		{
 		}
 
+		public void Reload()
+		{
+			// Load current model by id
+			var reloadedModel = Get(Id);
+
+			// Replace all non-pk property values
+			foreach (var modelProperty in ModelProperties.Where(mp => !mp.IsPrimaryKey))
+				modelProperty.SetValue(this, modelProperty.GetValue(reloadedModel));
+		}
+
 		public bool Save()
 		{
 			int changed;
