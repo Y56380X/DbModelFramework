@@ -42,7 +42,7 @@ var myModels = MyModel.Get();
 var myModels = MyModel.Get(model => model.Property1 == "MyValue");
 ```
 
-### Save changed of a models data (update in db)
+### Save changes of a models data (update in db)
 ```C#
 myModel.Save();
 ```
