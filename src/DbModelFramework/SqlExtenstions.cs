@@ -208,7 +208,23 @@ namespace DbModelFramework
 							return mExpression.Member.Name.ToLower();
 
 						if (mExpression.Member is FieldInfo fieldInfo && mExpression.Expression is ConstantExpression cExpression)
-							return fieldInfo.GetValue(cExpression.Value).ToString();
+							return fieldInfo.GetValue(cExpression.Value);
+
+						if (mExpression.Member is PropertyInfo propertyInfo && mExpression.Expression is MemberExpression submExpression)
+						{
+							if (submExpression.Expression is ConstantExpression subcExpression)
+							{
+								var fieldInfoValue = (submExpression.Member as FieldInfo).GetValue(subcExpression.Value);
+								return propertyInfo.GetValue(fieldInfoValue, null);
+							}
+							else
+							{
+								var subPropertyValue = GetValue(submExpression.Expression);
+								var propertyParentObject = (submExpression.Member as PropertyInfo).GetValue(subPropertyValue);
+
+								return propertyInfo.GetValue(propertyParentObject);
+							}
+						}
 
 						return string.Empty;
 					}

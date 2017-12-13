@@ -73,6 +73,11 @@ namespace DbModelFramework.Test
 			public int MyIntAttribute { get; set; }
 		}
 
+		class CascadedFilter
+		{
+			public CustomExpression CustomExpressionFilter { get; set; }
+		}
+
 		#endregion
 
 		[TestMethod]
@@ -235,6 +240,62 @@ namespace DbModelFramework.Test
 
 			string value = "Value";
 			SqlExtenstions.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == value), dbCommand);
+
+			Assert.IsTrue(dbCommand.Parameters.Contains("@mystringattribute"));
+			Assert.AreEqual("Value", (dbCommand.Parameters["@mystringattribute"] as IDbDataParameter).Value);
+			Assert.AreEqual(DbType.String, (dbCommand.Parameters["@mystringattribute"] as IDbDataParameter).DbType);
+		}
+
+		[TestMethod]
+		public void ToWhereSql_EqualsPropertyValue_SqlIsCorrect()
+		{
+			var dbCommandMock = new Mock<IDbCommand> { DefaultValue = DefaultValue.Mock };
+
+			var filter = new CustomExpression { MyStringAttribute = "Value" };
+			var whereSql = SqlExtenstions.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == filter.MyStringAttribute), dbCommandMock.Object);
+
+			Assert.AreEqual("mystringattribute = @mystringattribute", whereSql);
+		}
+
+		[TestMethod]
+		public void ToWhereSql_EqualsPropertyValue_HasParameter()
+		{
+			var parameters = new Fakes.DataParameterCollection();
+			var dbCommandMock = new Mock<IDbCommand> { DefaultValue = DefaultValue.Mock };
+			dbCommandMock.SetupGet(command => command.Parameters).Returns(parameters);
+			dbCommandMock.Setup(command => command.CreateParameter()).Returns(() => Mock.Of<IDbDataParameter>());
+			var dbCommand = dbCommandMock.Object;
+
+			var filter = new CustomExpression { MyStringAttribute = "Value" };
+			SqlExtenstions.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == filter.MyStringAttribute), dbCommand);
+
+			Assert.IsTrue(dbCommand.Parameters.Contains("@mystringattribute"));
+			Assert.AreEqual("Value", (dbCommand.Parameters["@mystringattribute"] as IDbDataParameter).Value);
+			Assert.AreEqual(DbType.String, (dbCommand.Parameters["@mystringattribute"] as IDbDataParameter).DbType);
+		}
+
+		[TestMethod]
+		public void ToWhereSql_EqualsNestedPropertyValue_SqlIsCorrect()
+		{
+			var dbCommandMock = new Mock<IDbCommand> { DefaultValue = DefaultValue.Mock };
+
+			var filter = new CascadedFilter { CustomExpressionFilter = new CustomExpression { MyStringAttribute = "Value" } };
+			var whereSql = SqlExtenstions.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == filter.CustomExpressionFilter.MyStringAttribute), dbCommandMock.Object);
+
+			Assert.AreEqual("mystringattribute = @mystringattribute", whereSql);
+		}
+
+		[TestMethod]
+		public void ToWhereSql_EqualsNestedPropertyValue_HasParameter()
+		{
+			var parameters = new Fakes.DataParameterCollection();
+			var dbCommandMock = new Mock<IDbCommand> { DefaultValue = DefaultValue.Mock };
+			dbCommandMock.SetupGet(command => command.Parameters).Returns(parameters);
+			dbCommandMock.Setup(command => command.CreateParameter()).Returns(() => Mock.Of<IDbDataParameter>());
+			var dbCommand = dbCommandMock.Object;
+
+			var filter = new CascadedFilter { CustomExpressionFilter = new CustomExpression { MyStringAttribute = "Value" } };
+			SqlExtenstions.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == filter.CustomExpressionFilter.MyStringAttribute), dbCommand);
 
 			Assert.IsTrue(dbCommand.Parameters.Contains("@mystringattribute"));
 			Assert.AreEqual("Value", (dbCommand.Parameters["@mystringattribute"] as IDbDataParameter).Value);
