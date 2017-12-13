@@ -24,7 +24,7 @@ var myModels = MyModel.Get();
 ```
 
 ```C#
-var myModel = MyModel.Get(typeof(MyModel).GetProperty("Property1"), "MyValue");
+var myModels = MyModel.Get(model => model.Property1 == "MyValue");
 ```
 
 ```C#
