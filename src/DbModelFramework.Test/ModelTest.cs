@@ -22,7 +22,6 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
 using System.Composition.Hosting;
 using System.Data;
 using System.Linq;
@@ -213,6 +212,23 @@ namespace DbModelFramework.Test
 			car.Reload();
 
 			Assert.AreEqual("ImaginaryManufacturer", car.Manufacturer);
+		}
+
+		[TestMethod]
+		public void CreateModelWithValues()
+		{
+			Fakes.DbConnection.CreatedCommands.Clear();
+
+			var car = Car.Create(c =>
+			{
+				c.Manufacturer = "TheMagicManufacturer";
+				c.Type = "Sedan";
+			});
+			
+			var command = Fakes.DbConnection.CreatedCommands.SingleOrDefault(c => c.CommandText == Car.Sql.Insert);
+
+			Assert.AreEqual("TheMagicManufacturer", (command.Parameters["@manufacturer"] as IDbDataParameter).Value);
+			Assert.AreEqual("Sedan", (command.Parameters["@type"] as IDbDataParameter).Value);
 		}
 	}
 }

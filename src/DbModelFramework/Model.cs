@@ -205,7 +205,15 @@ namespace DbModelFramework
 
 		public static TType Create()
 		{
+			return Create(null);
+		}
+
+		public static TType Create(Action<TType> setValuesAction)
+		{
 			var model = new TType();
+
+			// Set values if action is not null
+			setValuesAction?.Invoke(model);
 
 			using (var connection = InjectionContainer.GetExport<IDbConnection>())
 			{
