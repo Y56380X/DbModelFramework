@@ -42,6 +42,11 @@ var myModels = MyModel.Get();
 var myModels = MyModel.Get(model => model.Property1 == "MyValue");
 ```
 
+### Get model data by primary key
+```C#
+var myModel = MyModel.Get(1); // Get model data with primary key 1
+```
+
 ### Save changes of a models data (update in db)
 ```C#
 myModel.Save();
