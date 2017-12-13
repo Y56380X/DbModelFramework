@@ -188,13 +188,29 @@ namespace DbModelFramework.Test
 		}
 
 		[TestMethod]
-		public void ToWhereSql_EqualsStringValue()
+		public void ToWhereSql_EqualsStringValue_SqlIsCorrect()
 		{
 			var dbCommandMock = new Mock<IDbCommand> { DefaultValue = DefaultValue.Mock };
 
-			var toWhereSql = SqlExtenstions.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == "Value"), dbCommandMock.Object);
+			var whereSql = SqlExtenstions.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == "Value"), dbCommandMock.Object);
 
-			Assert.AreEqual("mystringattribute = @mystringattribute", toWhereSql);
+			Assert.AreEqual("mystringattribute = @mystringattribute", whereSql);
+		}
+
+		[TestMethod]
+		public void ToWhereSql_EqualsStringValue_HasParameter()
+		{
+			var parameters = new Fakes.DataParameterCollection();
+			var dbCommandMock = new Mock<IDbCommand> { DefaultValue = DefaultValue.Mock };
+			dbCommandMock.SetupGet(command => command.Parameters).Returns(parameters);
+			dbCommandMock.Setup(command => command.CreateParameter()).Returns(() => Mock.Of<IDbDataParameter>());
+			var dbCommand = dbCommandMock.Object;
+
+			SqlExtenstions.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == "Value"), dbCommand);
+
+			Assert.IsTrue(dbCommand.Parameters.Contains("@mystringattribute"));
+			Assert.AreEqual("Value", (dbCommand.Parameters["@mystringattribute"] as IDbDataParameter).Value);
+			Assert.AreEqual(DbType.String, (dbCommand.Parameters["@mystringattribute"] as IDbDataParameter).DbType);
 		}
 	}
 }
