@@ -60,6 +60,11 @@ namespace DbModelFramework.Test
 			public long MyAttribute { get; set; }
 		}
 
+		class SingleByteArray : Model<SingleByteArray>
+		{
+			public byte[] MyBinaryData { get; set; }
+		}
+
 		class UniqueValue : Model<UniqueValue>
 		{
 			[DbUnique]
@@ -300,6 +305,14 @@ namespace DbModelFramework.Test
 			Assert.IsTrue(dbCommand.Parameters.Contains("@mystringattribute"));
 			Assert.AreEqual("Value", (dbCommand.Parameters["@mystringattribute"] as IDbDataParameter).Value);
 			Assert.AreEqual(DbType.String, (dbCommand.Parameters["@mystringattribute"] as IDbDataParameter).DbType);
+		}
+
+		[TestMethod]
+		public void ToTableCreationSql_SingleByteArray()
+		{
+			var tableCreationSql = SingleByteArray.ModelProperties.ToTableCreationSql();
+
+			Assert.AreEqual("mybinarydata BLOB, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
 		}
 	}
 }

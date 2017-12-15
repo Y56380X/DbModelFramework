@@ -42,6 +42,13 @@ namespace DbModelFramework.Test
 			public new long Id => base.Id;
 		}
 
+		class Build : Model<Build>
+		{
+			public string Name { get; set; }
+
+			public byte[] Artifact { get; set; }
+		}
+
 		#endregion
 	
 		[TestInitialize]
@@ -229,6 +236,25 @@ namespace DbModelFramework.Test
 
 			Assert.AreEqual("TheMagicManufacturer", (command.Parameters["@manufacturer"] as IDbDataParameter).Value);
 			Assert.AreEqual("Sedan", (command.Parameters["@type"] as IDbDataParameter).Value);
+		}
+
+		[TestMethod]
+		public void GetModelWithBinaryProperty()
+		{
+			var buildArtifact = new byte[] { 10, 20, 30, 40 };
+
+			var dataReaderMock = new Mock<IDataReader>();
+
+			dataReaderMock.Setup(dr => dr.Read()).Returns(true);
+			dataReaderMock.Setup(dr => dr["id"]).Returns(1);
+			dataReaderMock.Setup(dr => dr["artifact"]).Returns(buildArtifact);
+
+			Fakes.DbConnection.ClearCustomExecuteResults();
+			Fakes.DbConnection.AddCustomExecuteReaderResult("SELECT name, artifact, id FROM builds WHERE id = @id;", dataReaderMock.Object);
+
+			var build = Build.Get(1);
+
+			CollectionAssert.AreEqual(buildArtifact, build.Artifact);
 		}
 	}
 }

@@ -36,7 +36,8 @@ namespace DbModelFramework
 			{ typeof(string), DbType.String },
 			{ typeof(int), DbType.Int32 },
 			{ typeof(short), DbType.Int16 },
-			{ typeof(long), DbType.Int64 }
+			{ typeof(long), DbType.Int64 },
+			{ typeof(byte[]), DbType.Binary }
 		};
 		static readonly Dictionary<DbType, string> DbTypeToStringDictionary = new Dictionary<DbType, string>
 		{
@@ -44,6 +45,7 @@ namespace DbModelFramework
 			{ DbType.Int32, "INTEGER" },
 			{ DbType.Int16, "INTEGER" },
 			{ DbType.Int64, "INTEGER" },
+			{ DbType.Binary, "BLOB" }
 		};
 
 		public static string ToTableCreationSql(this IEnumerable<ModelProperty> modelProperties)
