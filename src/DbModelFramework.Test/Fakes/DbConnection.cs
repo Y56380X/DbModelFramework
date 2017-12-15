@@ -54,12 +54,15 @@ namespace DbModelFramework.Test.Fakes
 
 		public IDbTransaction BeginTransaction()
 		{
-			throw new System.NotImplementedException();
+			return Mock.Of<IDbTransaction>();
 		}
 
 		public IDbTransaction BeginTransaction(IsolationLevel il)
 		{
-			throw new System.NotImplementedException();
+			var dbTransactionMock = new Mock<IDbTransaction>(il) { DefaultValue = DefaultValue.Mock };
+			dbTransactionMock.SetupAllProperties();
+
+			return dbTransactionMock.Object;
 		}
 
 		public void ChangeDatabase(string databaseName)
