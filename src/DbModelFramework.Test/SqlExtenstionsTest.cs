@@ -83,6 +83,18 @@ namespace DbModelFramework.Test
 			public CustomExpression CustomExpressionFilter { get; set; }
 		}
 
+		class ModelWithReferencedModel : Model<ModelWithReferencedModel>
+		{
+			public string MyAttribute { get; set; }
+
+			public ReferenceModel MyReferencedModel { get; set; }
+		}
+
+		class ReferenceModel : Model<ReferenceModel>
+		{
+			public string MyAttribute { get; set; }
+		}
+
 		#endregion
 
 		[TestMethod]

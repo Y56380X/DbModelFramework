@@ -29,12 +29,12 @@ using static DbModelFramework.DependencyInjection;
 
 namespace DbModelFramework
 {
-	public class Model<TType> : Model<TType, long> where TType : new()
+	public abstract class Model<TType> : Model<TType, long> where TType : new()
 	{
 
 	}
-
-	public class Model<TType, TPrimaryKey> where TType : new() where TPrimaryKey : IComparable
+	
+	public abstract class Model<TType, TPrimaryKey> where TType : new() where TPrimaryKey : IComparable
 	{
 		#region fields
 
@@ -95,10 +95,6 @@ namespace DbModelFramework
 		#endregion
 
 		#region methods
-
-		protected Model()
-		{
-		}
 
 		public void Reload()
 		{

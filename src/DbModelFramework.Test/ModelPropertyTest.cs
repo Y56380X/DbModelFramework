@@ -20,6 +20,7 @@
 	SOFTWARE.
 **/
 
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DbModelFramework.Test
@@ -32,6 +33,16 @@ namespace DbModelFramework.Test
 			public long MyAttribute1 { get; set; }
 			public int MyAttribute2 { get; set; }
 			public short MyAttribute3 { get; set; }
+		}
+
+
+		class ModelWithReferencedModel : Model<ModelWithReferencedModel>
+		{
+			public ReferenceModel MyReferencedModel { get; set; }
+		}
+
+		class ReferenceModel : Model<ReferenceModel>
+		{
 		}
 
 		[TestMethod]
@@ -65,6 +76,39 @@ namespace DbModelFramework.Test
 			modelProperty.SetValue(model, (long)1200);
 
 			Assert.AreEqual(1200, model.MyAttribute3);
+		}
+
+		[TestMethod]
+		public void GetForeignKey_IsNotNull()
+		{
+			var foreignKey = ModelWithReferencedModel.ModelProperties.SingleOrDefault(prop => prop.IsForeignKey);
+
+			Assert.IsNotNull(foreignKey);
+		}
+
+		[TestMethod]
+		public void GetForeignKey_HasCorrectName()
+		{
+			var foreignKey = ModelWithReferencedModel.ModelProperties.SingleOrDefault(prop => prop.IsForeignKey);
+
+			Assert.AreEqual(nameof(ModelWithReferencedModel.MyReferencedModel), foreignKey.PropertyName);
+		}
+
+		[TestMethod]
+		public void GetForeignKey_HasCorrectType()
+		{
+			var foreignKey = ModelWithReferencedModel.ModelProperties.SingleOrDefault(prop => prop.IsForeignKey);
+
+			Assert.AreEqual(ReferenceModel.PrimaryKeyProperty.Type, foreignKey.Type);
+		}
+
+		[TestMethod]
+		public void GetForeignKey_ForeignKeyRelationIsReferencedPk()
+		{
+			var foreignKey = ModelWithReferencedModel.ModelProperties.SingleOrDefault(prop => prop.IsForeignKey);
+
+			Assert.IsNotNull(foreignKey.ForeignKeyReference);
+			Assert.AreEqual(ReferenceModel.PrimaryKeyProperty, foreignKey.ForeignKeyReference);
 		}
 	}
 }

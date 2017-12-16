@@ -49,6 +49,18 @@ namespace DbModelFramework.Test
 			public byte[] Artifact { get; set; }
 		}
 
+		class Product : Model<Product>
+		{
+			public string Name { get; set; }
+
+			public Manufacturer Manufacturer { get; set; }
+		}
+
+		class Manufacturer : Model<Manufacturer>
+		{
+			public string Name { get; set; }
+		}
+
 		#endregion
 	
 		[TestInitialize]

@@ -43,5 +43,23 @@ namespace DbModelFramework
 			
 			return properties.Select(prop => new ModelProperty(prop));
 		}
+
+		public static bool TryGetGenericBaseClass(this Type propertyType, Type genericType, out Type genericBaseClass)
+		{
+			propertyType = propertyType.BaseType;
+			while (propertyType != typeof(object))
+			{
+				if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == genericType)
+				{
+					genericBaseClass = propertyType;
+					return true;
+				}
+
+				propertyType = propertyType.BaseType;
+			}
+
+			genericBaseClass = default(Type);
+			return false;
+		}
 	}
 }
