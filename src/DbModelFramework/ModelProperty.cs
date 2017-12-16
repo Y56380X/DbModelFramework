@@ -44,6 +44,7 @@ namespace DbModelFramework
 		public bool IsUnique { get; private set; }
 		public bool IsForeignKey { get; private set; }
 		public ModelProperty ForeignKeyReference { get; private set; }
+		public string ForeignKeyTableName { get; private set; }
 
 		#endregion
 
@@ -55,6 +56,7 @@ namespace DbModelFramework
 			AttributeName = property.Name.ToLower();
 			IsForeignKey = property.PropertyType.TryGetGenericBaseClass(typeof(Model<,>), out Type baseClass);
 			ForeignKeyReference = IsForeignKey ? GetForeignKeyReference(baseClass) : null;
+			ForeignKeyTableName = IsForeignKey ? GetForeignKeyTableName(baseClass) : null;
 			Type = IsForeignKey ? ForeignKeyReference.Type : property.PropertyType.ToDbType();
 			DefaultValue = property.PropertyType.GetDefault();
 			IsPrimaryKey = Attribute.IsDefined(property, typeof(PrimaryKeyAttribute));
@@ -83,6 +85,11 @@ namespace DbModelFramework
 		private static ModelProperty GetForeignKeyReference(Type model)
 		{
 			return (ModelProperty)model.GetField("PrimaryKeyProperty", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+		}
+
+		private static string GetForeignKeyTableName(Type model)
+		{
+			return (string)model.GetField("TableName", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
 		}
 
 		#endregion

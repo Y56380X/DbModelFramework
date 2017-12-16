@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -71,6 +72,10 @@ namespace DbModelFramework
 				if (property.IsUnique)
 					stringBuilder.Append(" UNIQUE");
 			}
+
+			// Build foreign key constraints
+			foreach (var property in modelProperties.Where(mp => mp.IsForeignKey))
+				stringBuilder.Append($", FOREIGN KEY({property.AttributeName}) REFERENCES {property.ForeignKeyTableName}({property.ForeignKeyReference.AttributeName})");
 
 			return stringBuilder.ToString();
 		}

@@ -326,5 +326,13 @@ namespace DbModelFramework.Test
 
 			Assert.AreEqual("mybinarydata BLOB, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
 		}
+
+		[TestMethod]
+		public void ToTableCreationSql_ModelWithReferencedModel()
+		{
+			var createTableSql = ModelWithReferencedModel.ModelProperties.ToTableCreationSql();
+
+			Assert.AreEqual("myattribute TEXT, myreferencedmodel INTEGER, id INTEGER PRIMARY KEY AUTOINCREMENT, FOREIGN KEY(myreferencedmodel) REFERENCES referencemodels(id)", createTableSql);
+		}
 	}
 }
