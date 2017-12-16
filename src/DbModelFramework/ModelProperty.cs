@@ -31,6 +31,7 @@ namespace DbModelFramework
 		#region fields
 
 		private PropertyInfo property;
+		private MethodInfo foreignKeyLoader;
 
 		#endregion
 
@@ -62,6 +63,8 @@ namespace DbModelFramework
 			IsPrimaryKey = Attribute.IsDefined(property, typeof(PrimaryKeyAttribute));
 			IsUnique = Attribute.IsDefined(property, typeof(DbUniqueAttribute));
 
+			foreignKeyLoader = IsForeignKey ? baseClass.GetMethod("Get", new Type[] { ForeignKeyReference.property.PropertyType }) : null;
+
 			this.property = property;
 		}
 
@@ -71,15 +74,28 @@ namespace DbModelFramework
 
 		public void SetValue(object model, object value)
 		{
-			if (value != null && !property.PropertyType.IsInstanceOfType(value))
-				property.SetValue(model, Convert.ChangeType(value, property.PropertyType));
+			if (IsForeignKey)
+			{
+				if (value != null && !ForeignKeyReference.property.PropertyType.IsInstanceOfType(value))
+					property.SetValue(model, foreignKeyLoader.Invoke(null, new object[] { Convert.ChangeType(value, ForeignKeyReference.property.PropertyType) }));
+				else
+					property.SetValue(model, foreignKeyLoader.Invoke(null, new object[] { value }));
+			}
 			else
-				property.SetValue(model, value);
+			{
+				if (value != null && !property.PropertyType.IsInstanceOfType(value))
+					property.SetValue(model, Convert.ChangeType(value, property.PropertyType));
+				else
+					property.SetValue(model, value);
+			}
 		}
 
 		public object GetValue(object model)
 		{
-			return property.GetValue(model);
+			if (IsForeignKey)
+				return ForeignKeyReference.GetValue(property.GetValue(model));
+			else
+				return property.GetValue(model);
 		}
 
 		private static ModelProperty GetForeignKeyReference(Type model)

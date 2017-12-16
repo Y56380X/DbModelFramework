@@ -58,6 +58,9 @@ namespace DbModelFramework.Test
 
 		class Manufacturer : Model<Manufacturer>
 		{
+			[DbIgnore]
+			public new long Id => base.Id;
+
 			public string Name { get; set; }
 		}
 
@@ -267,6 +270,47 @@ namespace DbModelFramework.Test
 			var build = Build.Get(1);
 
 			CollectionAssert.AreEqual(buildArtifact, build.Artifact);
+		}
+
+		[TestMethod]
+		public void CreateModelWithReferencedModel_ReferencedModelHasPk()
+		{
+			Fakes.DbConnection.CreatedCommands.Clear();
+			Fakes.DbConnection.ClearCustomExecuteResults();
+			Fakes.DbConnection.AddCustomExecuteScalarResult(Product.Sql.LastPrimaryKey, 1);
+
+			var product = Product.Create(p =>
+			{
+				p.Manufacturer = Manufacturer.Create();
+				p.Name = "My imaginary product";
+			});
+
+			Assert.AreEqual(1, product.Manufacturer.Id);
+		}
+
+		[TestMethod]
+		public void GetModelWithReferencedModel_IsReferenceInstanciated()
+		{
+			var productDataReaderMock = new Mock<IDataReader>();
+			productDataReaderMock.Setup(dr => dr.Read()).Returns(true);
+			productDataReaderMock.Setup(dr => dr["id"]).Returns(1);
+			productDataReaderMock.Setup(dr => dr["manufacturer"]).Returns(1);
+			productDataReaderMock.Setup(dr => dr["name"]).Returns("My imaginary product");
+
+			var manufacturerDataReaderMock = new Mock<IDataReader>();
+			manufacturerDataReaderMock.Setup(dr => dr.Read()).Returns(true);
+			manufacturerDataReaderMock.Setup(dr => dr["id"]).Returns(1);
+			manufacturerDataReaderMock.Setup(dr => dr["name"]).Returns("My imaginary manufacturer");
+
+			Fakes.DbConnection.ClearCustomExecuteResults();
+			Fakes.DbConnection.AddCustomExecuteReaderResult(Product.Sql.SelectByPrimaryKey, productDataReaderMock.Object);
+			Fakes.DbConnection.AddCustomExecuteReaderResult(Manufacturer.Sql.SelectByPrimaryKey, manufacturerDataReaderMock.Object);
+
+			var product = Product.Get(1);
+
+			Assert.IsNotNull(product.Manufacturer);
+			Assert.AreEqual("My imaginary product", product.Name);
+			Assert.AreEqual("My imaginary manufacturer", product.Manufacturer.Name);
 		}
 	}
 }
