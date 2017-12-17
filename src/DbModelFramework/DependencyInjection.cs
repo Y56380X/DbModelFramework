@@ -21,11 +21,31 @@
 **/
 
 using System.Composition.Hosting;
+using System.Data;
 
 namespace DbModelFramework
 {
 	public static class DependencyInjection
 	{
-		public static CompositionHost InjectionContainer { get; set; }
+		private static CompositionHost injectionContainer;
+		public static CompositionHost InjectionContainer
+		{
+			get
+			{
+				return injectionContainer;
+			}
+			set
+			{
+				// Check the injection requirements
+				if (!value.TryGetExport<IDbConnection>(out var dbConnection))
+					throw new System.TypeLoadException($"Type: {typeof(IDbConnection).Name}");
+				dbConnection.Dispose();
+
+				if (!value.TryGetExport<DbRequirements>(out var dbRequirements))
+					throw new System.TypeLoadException($"Type: {typeof(DbRequirements).Name}");
+
+				injectionContainer = value;
+			}
+		}
 	}
 }
