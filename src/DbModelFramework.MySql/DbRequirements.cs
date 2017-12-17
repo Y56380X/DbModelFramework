@@ -20,10 +20,16 @@
 	SOFTWARE.
 **/
 
-namespace DbModelFramework
+using System.Composition;
+
+namespace DbModelFramework.MySql
 {
-	public abstract class DbRequirements
+	[Export(typeof(DbRequirements))]
+	public class DbRequirements : DbModelFramework.DbRequirements
 	{
-		public abstract string GetCheckTableSql(string tableName);
+		public override string GetCheckTableSql(string tableName)
+		{
+			return $"SELECT table_name FROM information_schema.tables WHERE table_name='{tableName}';";
+		}
 	}
 }

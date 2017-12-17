@@ -1,4 +1,4 @@
-﻿/**
+/**
 	Copyright (c) 2017 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,10 +20,21 @@
 	SOFTWARE.
 **/
 
-namespace DbModelFramework
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace DbModelFramework.MySql.Test
 {
-	public abstract class DbRequirements
+	[TestClass]
+	public class DbRequirementsTest
 	{
-		public abstract string GetCheckTableSql(string tableName);
+		[TestMethod]
+		public void CheckDbTableSql()
+		{
+			var dbRequirements = new DbRequirements();
+
+			var checkTableSql = dbRequirements.GetCheckTableSql("models");
+
+			Assert.AreEqual("SELECT table_name FROM information_schema.tables WHERE table_name='models';", checkTableSql);
+		}
 	}
 }
