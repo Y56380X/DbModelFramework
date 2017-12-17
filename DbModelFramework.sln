@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbModelFramework.Sqlite", "src\DbModelFramework.Sqlite\DbModelFramework.Sqlite.csproj", "{22FA7610-09A4-4AC7-976A-021611826D2F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbModelFramework.Sqlite.Test", "src\DbModelFramework.Sqlite.Test\DbModelFramework.Sqlite.Test.csproj", "{77359CC7-DF9B-48AA-BA91-C0351959C59E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{22FA7610-09A4-4AC7-976A-021611826D2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22FA7610-09A4-4AC7-976A-021611826D2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22FA7610-09A4-4AC7-976A-021611826D2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77359CC7-DF9B-48AA-BA91-C0351959C59E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77359CC7-DF9B-48AA-BA91-C0351959C59E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77359CC7-DF9B-48AA-BA91-C0351959C59E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77359CC7-DF9B-48AA-BA91-C0351959C59E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

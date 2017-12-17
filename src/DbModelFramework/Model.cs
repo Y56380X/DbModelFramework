@@ -47,7 +47,7 @@ namespace DbModelFramework
 
 		internal static class Sql
 		{
-			public static readonly string CheckTable = $"SELECT name FROM sqlite_master WHERE type='table' AND name='{TableName}';";
+			public static readonly string CheckTable = DbRequirements.GetCheckTableSql(TableName);
 			public static readonly string CreateTable = $"CREATE TABLE {TableName} ({ModelProperties.ToTableCreationSql()});";
 			public static readonly string Insert = $"INSERT INTO {TableName} ({ModelProperties.ToAttributeChainSql()}) VALUES ({ModelProperties.ToInsertParameterChainSql()});";
 			public static readonly string LastPrimaryKey = "SELECT last_insert_rowid();";

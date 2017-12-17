@@ -25,7 +25,11 @@ using System.Composition;
 namespace DbModelFramework.Sqlite
 {
 	[Export(typeof(DbRequirements))]
-	class DbRequirements : DbModelFramework.DbRequirements
+	public class DbRequirements : DbModelFramework.DbRequirements
 	{
+		public override string GetCheckTableSql(string tableName)
+		{
+			return $"SELECT name FROM sqlite_master WHERE type='table' AND name='{tableName}';";
+		}
 	}
 }

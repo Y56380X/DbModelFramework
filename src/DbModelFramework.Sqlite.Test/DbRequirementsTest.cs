@@ -1,4 +1,4 @@
-﻿/**
+/**
 	Copyright (c) 2017 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,12 +20,21 @@
 	SOFTWARE.
 **/
 
-using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace DbModelFramework
+namespace DbModelFramework.Sqlite.Test
 {
-	public abstract class DbRequirements
+	[TestClass]
+	public class DbRequirementsTest
 	{
-		public abstract string GetCheckTableSql(string tableName);
+		[TestMethod]
+		public void CheckDbTableSql()
+		{
+			var dbRequirements = new DbRequirements();
+
+			var checkTableSql = dbRequirements.GetCheckTableSql("models");
+
+			Assert.AreEqual("SELECT name FROM sqlite_master WHERE type='table' AND name='models';", checkTableSql);
+		}
 	}
 }

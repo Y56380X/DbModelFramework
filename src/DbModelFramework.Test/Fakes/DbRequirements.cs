@@ -27,5 +27,9 @@ namespace DbModelFramework.Test.Fakes
 	[Export(typeof(DbModelFramework.DbRequirements))]
 	class DbRequirements : DbModelFramework.DbRequirements
 	{
+		public override string GetCheckTableSql(string tableName)
+		{
+			return $"EXISTS TABLE {tableName};";
+		}
 	}
 }
