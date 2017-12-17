@@ -69,9 +69,10 @@ namespace DbModelFramework.Test
 		[TestInitialize]
 		public void Init()
 		{
-			// Setup fake db connection
+			// Setup fakes
 			var configuration = new ContainerConfiguration();
 			configuration.WithPart<Fakes.DbConnection>();
+			configuration.WithPart<Fakes.DbRequirements>();
 
 			DependencyInjection.InjectionContainer = configuration.CreateContainer();
 		}

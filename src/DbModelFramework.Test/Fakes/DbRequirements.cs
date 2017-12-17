@@ -20,12 +20,12 @@
 	SOFTWARE.
 **/
 
-using System;
+using System.Composition;
 
-namespace DbModelFramework
+namespace DbModelFramework.Test.Fakes
 {
-	public abstract class DbRequirements
+	[Export(typeof(DbModelFramework.DbRequirements))]
+	class DbRequirements : DbModelFramework.DbRequirements
 	{
-
 	}
 }

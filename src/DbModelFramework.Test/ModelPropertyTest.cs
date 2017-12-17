@@ -20,6 +20,7 @@
 	SOFTWARE.
 **/
 
+using System.Composition.Hosting;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -43,6 +44,16 @@ namespace DbModelFramework.Test
 
 		class ReferenceModel : Model<ReferenceModel>
 		{
+		}
+
+		[TestInitialize]
+		public void Init()
+		{
+			// Setup fake db requirements
+			var configuration = new ContainerConfiguration();
+			configuration.WithPart<Fakes.DbRequirements>();
+
+			DependencyInjection.InjectionContainer = configuration.CreateContainer();
 		}
 
 		[TestMethod]
