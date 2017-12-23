@@ -334,5 +334,35 @@ namespace DbModelFramework.Test
 
 			Assert.AreEqual("myattribute TEXT, myreferencedmodel INTEGER, id INTEGER PRIMARY KEY AUTOINCREMENT, FOREIGN KEY(myreferencedmodel) REFERENCES referencemodels(id)", createTableSql);
 		}
+
+		[TestMethod]
+		public void ToDbType_Int32()
+		{
+			Assert.AreEqual(DbType.Int32, typeof(int).ToDbType());
+		}
+
+		[TestMethod]
+		public void ToDbType_Int16()
+		{
+			Assert.AreEqual(DbType.Int16, typeof(short).ToDbType());
+		}
+
+		[TestMethod]
+		public void ToDbType_Int64()
+		{
+			Assert.AreEqual(DbType.Int64, typeof(long).ToDbType());
+		}
+
+		[TestMethod]
+		public void ToDbType_String()
+		{
+			Assert.AreEqual(DbType.String, typeof(string).ToDbType());
+		}
+
+		[TestMethod]
+		public void ToDbType_ByteArray()
+		{
+			Assert.AreEqual(DbType.Binary, typeof(byte[]).ToDbType());
+		}
 	}
 }
