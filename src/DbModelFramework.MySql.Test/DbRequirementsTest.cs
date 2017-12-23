@@ -34,7 +34,7 @@ namespace DbModelFramework.MySql.Test
 
 			var checkTableSql = dbRequirements.GetCheckTableSql("models");
 
-			Assert.AreEqual("SELECT table_name FROM information_schema.tables WHERE table_name='models';", checkTableSql);
+			Assert.AreEqual("SELECT table_name FROM information_schema.tables WHERE table_name='models' AND table_schema=DATABASE();", checkTableSql);
 		}
 	}
 }
