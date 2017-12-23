@@ -20,6 +20,7 @@
 	SOFTWARE.
 **/
 
+using System.Collections.Generic;
 using System.Composition;
 
 namespace DbModelFramework.Test.Fakes
@@ -30,6 +31,11 @@ namespace DbModelFramework.Test.Fakes
 		public override string GetCheckTableSql(string tableName)
 		{
 			return $"EXISTS TABLE {tableName};";
+		}
+
+		public override string GetTableCreationSql(IEnumerable<ModelProperty> modelProperties)
+		{
+			return $"attribute TEXT";
 		}
 	}
 }

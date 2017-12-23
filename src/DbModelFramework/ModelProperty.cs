@@ -26,7 +26,7 @@ using System.Reflection;
 
 namespace DbModelFramework
 {
-	class ModelProperty
+	public class ModelProperty
 	{
 		#region fields
 

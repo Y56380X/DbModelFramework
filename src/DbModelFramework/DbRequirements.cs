@@ -20,10 +20,18 @@
 	SOFTWARE.
 **/
 
+using System.Collections.Generic;
+using static DbModelFramework.DependencyInjection;
+
 namespace DbModelFramework
 {
 	public abstract class DbRequirements
 	{
+		private static DbRequirements instance;
+		internal static DbRequirements Instance => instance ?? (instance = InjectionContainer.GetExport<DbRequirements>());
+
 		public abstract string GetCheckTableSql(string tableName);
+
+		public abstract string GetTableCreationSql(IEnumerable<ModelProperty> modelProperties);
 	}
 }

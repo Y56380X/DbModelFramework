@@ -38,7 +38,7 @@ namespace DbModelFramework
 	{
 		#region fields
 
-		internal static readonly DbRequirements DbRequirements = InjectionContainer.GetExport<DbRequirements>();
+		internal static readonly DbRequirements DbRequirements = DbRequirements.Instance;
 		internal static readonly string TableName = $"{typeof(TType).Name.ToLower()}s";
 		internal static readonly IEnumerable<ModelProperty> ModelProperties = typeof(TType).GetModelProperties();
 		internal static readonly ModelProperty PrimaryKeyProperty = ModelProperties.Single(prop => prop.IsPrimaryKey);
@@ -83,8 +83,11 @@ namespace DbModelFramework
 				using (var command = connection.CreateCommand())
 				{
 					command.CommandText = CreateTable;
+
 					command.ExecuteNonQuery();
+
 				}
+
 			}
 		}
 

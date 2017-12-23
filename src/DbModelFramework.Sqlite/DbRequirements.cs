@@ -20,16 +20,65 @@
 	SOFTWARE.
 **/
 
+using System.Collections.Generic;
 using System.Composition;
+using System.Data;
+using System.Linq;
+using System.Text;
 
 namespace DbModelFramework.Sqlite
 {
-	[Export(typeof(DbRequirements))]
+	[Export(typeof(DbModelFramework.DbRequirements))]
 	public class DbRequirements : DbModelFramework.DbRequirements
 	{
+		static readonly Dictionary<DbType, string> DbTypeToStringDictionary = new Dictionary<DbType, string>
+		{
+			{ DbType.String, "TEXT" },
+			{ DbType.Int32, "INTEGER" },
+			{ DbType.Int16, "INTEGER" },
+			{ DbType.Int64, "INTEGER" },
+			{ DbType.Binary, "BLOB" }
+		};
+
 		public override string GetCheckTableSql(string tableName)
 		{
 			return $"SELECT name FROM sqlite_master WHERE type='table' AND name='{tableName}';";
+		}
+
+		public override string GetTableCreationSql(IEnumerable<ModelProperty> modelProperties)
+		{
+			StringBuilder stringBuilder = new StringBuilder();
+
+			bool first = true;
+			foreach (var property in modelProperties)
+			{
+				if (first)
+				{
+					stringBuilder.Append($"{property.AttributeName} {DbTypeToString(property.Type)}");
+					first = false;
+				}
+				else
+				{
+					stringBuilder.Append($", {property.AttributeName} {DbTypeToString(property.Type)}");
+				}
+
+				if (property.IsPrimaryKey)
+					stringBuilder.Append(" PRIMARY KEY AUTOINCREMENT");
+
+				if (property.IsUnique)
+					stringBuilder.Append(" UNIQUE");
+			}
+
+			// Build foreign key constraints
+			foreach (var property in modelProperties.Where(mp => mp.IsForeignKey))
+				stringBuilder.Append($", FOREIGN KEY({property.AttributeName}) REFERENCES {property.ForeignKeyTableName}({property.ForeignKeyReference.AttributeName})");
+
+			return stringBuilder.ToString();
+		}
+
+		private static string DbTypeToString(DbType dbType)
+		{
+			return DbTypeToStringDictionary[dbType];
 		}
 	}
 }

@@ -23,7 +23,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -40,44 +39,10 @@ namespace DbModelFramework
 			{ typeof(long), DbType.Int64 },
 			{ typeof(byte[]), DbType.Binary }
 		};
-		static readonly Dictionary<DbType, string> DbTypeToStringDictionary = new Dictionary<DbType, string>
-		{
-			{ DbType.String, "TEXT" },
-			{ DbType.Int32, "INTEGER" },
-			{ DbType.Int16, "INTEGER" },
-			{ DbType.Int64, "INTEGER" },
-			{ DbType.Binary, "BLOB" }
-		};
 
 		public static string ToTableCreationSql(this IEnumerable<ModelProperty> modelProperties)
 		{
-			StringBuilder stringBuilder = new StringBuilder();
-
-			bool first = true;
-			foreach (var property in modelProperties)
-			{
-				if (first)
-				{
-					stringBuilder.Append($"{property.AttributeName} {DbTypeToString(property.Type)}");
-					first = false;
-				}
-				else
-				{
-					stringBuilder.Append($", {property.AttributeName} {DbTypeToString(property.Type)}");
-				}
-
-				if (property.IsPrimaryKey)
-					stringBuilder.Append(" PRIMARY KEY AUTOINCREMENT");
-
-				if (property.IsUnique)
-					stringBuilder.Append(" UNIQUE");
-			}
-
-			// Build foreign key constraints
-			foreach (var property in modelProperties.Where(mp => mp.IsForeignKey))
-				stringBuilder.Append($", FOREIGN KEY({property.AttributeName}) REFERENCES {property.ForeignKeyTableName}({property.ForeignKeyReference.AttributeName})");
-
-			return stringBuilder.ToString();
+			return DbRequirements.Instance.GetTableCreationSql(modelProperties);
 		}
 
 		public static string ToAttributeChainSql(this IEnumerable<ModelProperty> modelProperties, bool withPrimaryKey = false)
@@ -252,11 +217,6 @@ namespace DbModelFramework
 			parameter.DbType = dbType;
 			parameter.Value = value;
 			command.Parameters.Add(parameter);
-		}
-
-		private static string DbTypeToString(DbType dbType)
-		{
-			return DbTypeToStringDictionary[dbType];
 		}
 	}
 }
