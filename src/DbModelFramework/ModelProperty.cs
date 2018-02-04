@@ -37,19 +37,21 @@ namespace DbModelFramework
 
 		#region properties
 
-		public string PropertyName { get; private set; }
-		public string AttributeName { get; private set; }
-		public DbType Type { get; private set; }
-		public object DefaultValue { get; private set; }
-		public bool IsPrimaryKey { get; private set; }
-		public bool IsUnique { get; private set; }
-		public bool IsForeignKey { get; private set; }
-		public ModelProperty ForeignKeyReference { get; private set; }
-		public string ForeignKeyTableName { get; private set; }
+		public virtual string PropertyName { get; private set; }
+		public virtual string AttributeName { get; private set; }
+		public virtual DbType Type { get; private set; }
+		public virtual object DefaultValue { get; private set; }
+		public virtual bool IsPrimaryKey { get; private set; }
+		public virtual bool IsUnique { get; private set; }
+		public virtual bool IsForeignKey { get; private set; }
+		public virtual ModelProperty ForeignKeyReference { get; private set; }
+		public virtual string ForeignKeyTableName { get; private set; }
 
 		#endregion
 
 		#region constructors
+
+		internal ModelProperty() { }
 
 		public ModelProperty(PropertyInfo property)
 		{

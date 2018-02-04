@@ -21,12 +21,55 @@
 **/
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace DbModelFramework.Sqlite.Test
 {
 	[TestClass]
 	public class DbRequirementsTest
 	{
+		#region test assets
+
+		class SingleString : Model<SingleString>
+		{
+			public string MyAttribute { get; set; }
+		}
+
+		class MultipleString : Model<MultipleString>
+		{
+			public string MyAttribute1 { get; set; }
+			public string MyAttribute2 { get; set; }
+			public string MyAttribute3 { get; set; }
+		}
+
+		class SingleInt32 : Model<SingleInt32>
+		{
+			public int MyAttribute { get; set; }
+		}
+
+		class SingleInt16 : Model<SingleInt16>
+		{
+			public short MyAttribute { get; set; }
+		}
+
+		class SingleInt64 : Model<SingleInt64>
+		{
+			public long MyAttribute { get; set; }
+		}
+
+		class SingleByteArray : Model<SingleByteArray>
+		{
+			public byte[] MyBinaryData { get; set; }
+		}
+
+		class UniqueValue : Model<UniqueValue>
+		{
+			[DbUnique]
+			public string MyAttribute { get; set; }
+		}
+
+		#endregion
+
 		[TestMethod]
 		public void CheckDbTableSql()
 		{
@@ -35,6 +78,19 @@ namespace DbModelFramework.Sqlite.Test
 			var checkTableSql = dbRequirements.GetCheckTableSql("models");
 
 			Assert.AreEqual("SELECT name FROM sqlite_master WHERE type='table' AND name='models';", checkTableSql);
+		}
+
+		[TestMethod]
+		public void TableCreationSql_StringAttribute()
+		{
+			var modelPropertyMock = new Mock<ModelProperty>();
+			modelPropertyMock.Setup(mp => mp.AttributeName).Returns("myattribute");
+
+			var dbRequirements = new DbRequirements();
+
+			var createTableSql = dbRequirements.GetTableCreationSql(new[] { modelPropertyMock.Object });
+
+			Assert.AreEqual("myattribute TEXT, id INTEGER PRIMARY KEY AUTOINCREMENT", createTableSql);			
 		}
 	}
 }

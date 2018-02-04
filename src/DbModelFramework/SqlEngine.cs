@@ -1,5 +1,5 @@
 ﻿/**
-	Copyright (c) 2017 Y56380X
+	Copyright (c) 2018 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,9 @@
 	SOFTWARE.
 **/
 
-using System.Runtime.CompilerServices;
-
-[assembly: InternalsVisibleTo("DbModelFramework.Test")]
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
+namespace DbModelFramework
+{
+	class SqlEngine
+	{
+	}
+}
