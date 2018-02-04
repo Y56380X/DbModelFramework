@@ -40,11 +40,6 @@ namespace DbModelFramework
 			{ typeof(byte[]), DbType.Binary }
 		};
 
-		public static string ToTableCreationSql(this IEnumerable<ModelProperty> modelProperties)
-		{
-			return DbRequirements.Instance.GetTableCreationSql(modelProperties);
-		}
-
 		public static string ToAttributeChainSql(this IEnumerable<ModelProperty> modelProperties, bool withPrimaryKey = false)
 		{
 			StringBuilder stringBuilder = new StringBuilder();

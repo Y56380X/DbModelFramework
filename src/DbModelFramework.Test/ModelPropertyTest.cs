@@ -23,6 +23,7 @@
 using System.Composition.Hosting;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace DbModelFramework.Test
 {

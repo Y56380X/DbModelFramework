@@ -1,5 +1,5 @@
 ﻿/**
-	Copyright (c) 2017 Y56380X
+	Copyright (c) 2017-2018 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,6 @@
 	SOFTWARE.
 **/
 
-using System.Collections.Generic;
 using System.Composition;
 
 namespace DbModelFramework.Test.Fakes
@@ -28,14 +27,6 @@ namespace DbModelFramework.Test.Fakes
 	[Export(typeof(DbModelFramework.DbRequirements))]
 	class DbRequirements : DbModelFramework.DbRequirements
 	{
-		public override string GetCheckTableSql(string tableName)
-		{
-			return $"EXISTS TABLE {tableName};";
-		}
-
-		public override string GetTableCreationSql(IEnumerable<ModelProperty> modelProperties)
-		{
-			return $"attribute TEXT";
-		}
+		public override SqlEngine SqlEngine { get; internal set; } = Moq.Mock.Of<SqlEngine>();
 	}
 }

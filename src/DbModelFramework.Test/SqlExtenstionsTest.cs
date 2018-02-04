@@ -97,117 +97,117 @@ namespace DbModelFramework.Test
 
 		#endregion
 
-		[TestMethod]
-		public void ToTableCreationSql_SingleString()
-		{
-			var tableCreationSql =  SingleString.ModelProperties.ToTableCreationSql();
+		//[TestMethod]
+		//public void ToTableCreationSql_SingleString()
+		//{
+		//	var tableCreationSql =  SingleString.ModelProperties.ToTableCreationSql();
 			
-			Assert.AreEqual("myattribute TEXT, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
-		}
+		//	Assert.AreEqual("myattribute TEXT, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
+		//}
 
-		[TestMethod]
-		public void ToTableCreationSql_MultipleString()
-		{
-			var tableCreationSql = MultipleString.ModelProperties.ToTableCreationSql();
+		//[TestMethod]
+		//public void ToTableCreationSql_MultipleString()
+		//{
+		//	var tableCreationSql = MultipleString.ModelProperties.ToTableCreationSql();
 
-			Assert.AreEqual("myattribute1 TEXT, myattribute2 TEXT, myattribute3 TEXT, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
-		}
+		//	Assert.AreEqual("myattribute1 TEXT, myattribute2 TEXT, myattribute3 TEXT, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
+		//}
 
-		[TestMethod]
-		public void ToAttributeChainSqlWithPK_SingleString()
-		{
-			var insertAttributesSql = SingleString.ModelProperties.ToAttributeChainSql(true);
+		//[TestMethod]
+		//public void ToAttributeChainSqlWithPK_SingleString()
+		//{
+		//	var insertAttributesSql = SingleString.ModelProperties.ToAttributeChainSql(true);
 
-			Assert.AreEqual("myattribute, id", insertAttributesSql);
-		}
+		//	Assert.AreEqual("myattribute, id", insertAttributesSql);
+		//}
 
-		[TestMethod]
-		public void ToAttributeChainSqlWithPK_MultipleString()
-		{
-			var insertAttributesSql = MultipleString.ModelProperties.ToAttributeChainSql(true);
+		//[TestMethod]
+		//public void ToAttributeChainSqlWithPK_MultipleString()
+		//{
+		//	var insertAttributesSql = MultipleString.ModelProperties.ToAttributeChainSql(true);
 
-			Assert.AreEqual("myattribute1, myattribute2, myattribute3, id", insertAttributesSql);
-		}
+		//	Assert.AreEqual("myattribute1, myattribute2, myattribute3, id", insertAttributesSql);
+		//}
 
-		[TestMethod]
-		public void ToAttributeChainSqlWithoutPK_SingleString()
-		{
-			var insertAttributesSql = SingleString.ModelProperties.ToAttributeChainSql();
+		//[TestMethod]
+		//public void ToAttributeChainSqlWithoutPK_SingleString()
+		//{
+		//	var insertAttributesSql = SingleString.ModelProperties.ToAttributeChainSql();
 
-			Assert.AreEqual("myattribute", insertAttributesSql);
-		}
+		//	Assert.AreEqual("myattribute", insertAttributesSql);
+		//}
 
-		[TestMethod]
-		public void ToAttributeChainSqlWithoutPK_MultipleString()
-		{
-			var insertAttributesSql = MultipleString.ModelProperties.ToAttributeChainSql();
+		//[TestMethod]
+		//public void ToAttributeChainSqlWithoutPK_MultipleString()
+		//{
+		//	var insertAttributesSql = MultipleString.ModelProperties.ToAttributeChainSql();
 
-			Assert.AreEqual("myattribute1, myattribute2, myattribute3", insertAttributesSql);
-		}
+		//	Assert.AreEqual("myattribute1, myattribute2, myattribute3", insertAttributesSql);
+		//}
 
-		[TestMethod]
-		public void ToInsertParameterChainSql_SingleString()
-		{
-			var insertParametersSql = SingleString.ModelProperties.ToInsertParameterChainSql();
+		//[TestMethod]
+		//public void ToInsertParameterChainSql_SingleString()
+		//{
+		//	var insertParametersSql = SingleString.ModelProperties.ToInsertParameterChainSql();
 
-			Assert.AreEqual("@myattribute", insertParametersSql);
-		}
+		//	Assert.AreEqual("@myattribute", insertParametersSql);
+		//}
 
-		[TestMethod]
-		public void ToInsertParameterChainSql_MultipleString()
-		{
-			var insertParametersSql = MultipleString.ModelProperties.ToInsertParameterChainSql();
+		//[TestMethod]
+		//public void ToInsertParameterChainSql_MultipleString()
+		//{
+		//	var insertParametersSql = MultipleString.ModelProperties.ToInsertParameterChainSql();
 
-			Assert.AreEqual("@myattribute1, @myattribute2, @myattribute3", insertParametersSql);
-		}
+		//	Assert.AreEqual("@myattribute1, @myattribute2, @myattribute3", insertParametersSql);
+		//}
 
-		[TestMethod]
-		public void ToTableCreationSql_SingleInt32()
-		{
-			var tableCreationSql = SingleInt32.ModelProperties.ToTableCreationSql();
+		//[TestMethod]
+		//public void ToTableCreationSql_SingleInt32()
+		//{
+		//	var tableCreationSql = SingleInt32.ModelProperties.ToTableCreationSql();
 
-			Assert.AreEqual("myattribute INTEGER, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
-		}
+		//	Assert.AreEqual("myattribute INTEGER, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
+		//}
 
-		[TestMethod]
-		public void ToTableCreationSql_SingleInt16()
-		{
-			var tableCreationSql = SingleInt16.ModelProperties.ToTableCreationSql();
+		//[TestMethod]
+		//public void ToTableCreationSql_SingleInt16()
+		//{
+		//	var tableCreationSql = SingleInt16.ModelProperties.ToTableCreationSql();
 
-			Assert.AreEqual("myattribute INTEGER, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
-		}
+		//	Assert.AreEqual("myattribute INTEGER, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
+		//}
 
-		[TestMethod]
-		public void ToTableCreationSql_SingleInt64()
-		{
-			var tableCreationSql = SingleInt64.ModelProperties.ToTableCreationSql();
+		//[TestMethod]
+		//public void ToTableCreationSql_SingleInt64()
+		//{
+		//	var tableCreationSql = SingleInt64.ModelProperties.ToTableCreationSql();
 
-			Assert.AreEqual("myattribute INTEGER, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
-		}
+		//	Assert.AreEqual("myattribute INTEGER, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
+		//}
 
-		[TestMethod]
-		public void ToUpdateSql_SingleString()
-		{
-			var updateSql = SingleString.ModelProperties.ToUpdateSql();
+		//[TestMethod]
+		//public void ToUpdateSql_SingleString()
+		//{
+		//	var updateSql = SingleString.ModelProperties.ToUpdateSql();
 
-			Assert.AreEqual("myattribute = @myattribute", updateSql);
-		}
+		//	Assert.AreEqual("myattribute = @myattribute", updateSql);
+		//}
 
-		[TestMethod]
-		public void ToUpdateSql_MultipleString()
-		{
-			var updateSql = MultipleString.ModelProperties.ToUpdateSql();
+		//[TestMethod]
+		//public void ToUpdateSql_MultipleString()
+		//{
+		//	var updateSql = MultipleString.ModelProperties.ToUpdateSql();
 
-			Assert.AreEqual("myattribute1 = @myattribute1, myattribute2 = @myattribute2, myattribute3 = @myattribute3", updateSql);
-		}
+		//	Assert.AreEqual("myattribute1 = @myattribute1, myattribute2 = @myattribute2, myattribute3 = @myattribute3", updateSql);
+		//}
 
-		[TestMethod]
-		public void ToTableCreationString_UniqueValues()
-		{
-			var tableCreationSql = UniqueValue.ModelProperties.ToTableCreationSql();
+		//[TestMethod]
+		//public void ToTableCreationString_UniqueValues()
+		//{
+		//	var tableCreationSql = UniqueValue.ModelProperties.ToTableCreationSql();
 
-			Assert.AreEqual("myattribute TEXT UNIQUE, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
-		}
+		//	Assert.AreEqual("myattribute TEXT UNIQUE, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
+		//}
 
 		[TestMethod]
 		public void ToWhereSql_EqualsStringValue_SqlIsCorrect()
@@ -319,21 +319,21 @@ namespace DbModelFramework.Test
 			Assert.AreEqual(DbType.String, (dbCommand.Parameters["@mystringattribute"] as IDbDataParameter).DbType);
 		}
 
-		[TestMethod]
-		public void ToTableCreationSql_SingleByteArray()
-		{
-			var tableCreationSql = SingleByteArray.ModelProperties.ToTableCreationSql();
+		//[TestMethod]
+		//public void ToTableCreationSql_SingleByteArray()
+		//{
+		//	var tableCreationSql = SingleByteArray.ModelProperties.ToTableCreationSql();
 
-			Assert.AreEqual("mybinarydata BLOB, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
-		}
+		//	Assert.AreEqual("mybinarydata BLOB, id INTEGER PRIMARY KEY AUTOINCREMENT", tableCreationSql);
+		//}
 
-		[TestMethod]
-		public void ToTableCreationSql_ModelWithReferencedModel()
-		{
-			var createTableSql = ModelWithReferencedModel.ModelProperties.ToTableCreationSql();
+		//[TestMethod]
+		//public void ToTableCreationSql_ModelWithReferencedModel()
+		//{
+		//	var createTableSql = ModelWithReferencedModel.ModelProperties.ToTableCreationSql();
 
-			Assert.AreEqual("myattribute TEXT, myreferencedmodel INTEGER, id INTEGER PRIMARY KEY AUTOINCREMENT, FOREIGN KEY(myreferencedmodel) REFERENCES referencemodels(id)", createTableSql);
-		}
+		//	Assert.AreEqual("myattribute TEXT, myreferencedmodel INTEGER, id INTEGER PRIMARY KEY AUTOINCREMENT, FOREIGN KEY(myreferencedmodel) REFERENCES referencemodels(id)", createTableSql);
+		//}
 
 		[TestMethod]
 		public void ToDbType_Int32()

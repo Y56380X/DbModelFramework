@@ -22,6 +22,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
 using System.Composition.Hosting;
 using System.Data;
 using System.Linq;
@@ -32,6 +33,10 @@ namespace DbModelFramework.Test
 	public class ModelTest
 	{
 		#region test assets
+
+		static string CheckTableSql = "CHECK TABLE CARS;";
+		static string CreateTableSql = "CREATE TABLE CARS;";
+
 
 		class Car : Model<Car>
 		{
@@ -74,6 +79,16 @@ namespace DbModelFramework.Test
 			configuration.WithPart<Fakes.DbConnection>();
 			configuration.WithPart<Fakes.DbRequirements>();
 
+			// Setup car sqlengine
+			var sqlEngineMock = new Mock<SqlEngine>();
+			sqlEngineMock.Setup(se => se.CheckTable("cars")).Returns(CheckTableSql);
+			sqlEngineMock.Setup(se => se.CreateTable("cars", Car.ModelProperties)).Returns(CreateTableSql);
+			sqlEngineMock.Setup(se => se.DeleteModel()).Returns(string.Empty);
+			sqlEngineMock.Setup(se => se.InsertModel()).Returns(string.Empty);
+			sqlEngineMock.Setup(se => se.SelectModel()).Returns(string.Empty);
+			sqlEngineMock.Setup(se => se.UpdateModel()).Returns(string.Empty);
+			Car.DbRequirements.SqlEngine = sqlEngineMock.Object;
+
 			DependencyInjection.InjectionContainer = configuration.CreateContainer();
 		}
 
@@ -97,7 +112,8 @@ namespace DbModelFramework.Test
 		{
 			var checkTableSql = Car.Sql.CheckTable;
 
-			Assert.IsNotNull(checkTableSql);
+			Assert.AreEqual(CheckTableSql, checkTableSql);
+			Assert.IsTrue(Fakes.DbConnection.CreatedCommands.Select(c => c.CommandText).Contains(checkTableSql));
 		}
 
 		[TestMethod]
@@ -105,7 +121,7 @@ namespace DbModelFramework.Test
 		{
 			var createTable = Car.Sql.CreateTable;
 
-			Assert.AreEqual("CREATE TABLE cars (manufacturer TEXT, type TEXT, id INTEGER PRIMARY KEY AUTOINCREMENT);", createTable);
+			Assert.AreEqual(CreateTableSql, createTable);
 			Assert.IsTrue(Fakes.DbConnection.CreatedCommands.Select(c => c.CommandText).Contains(createTable));
 		}
 

@@ -20,9 +20,34 @@
 	SOFTWARE.
 **/
 
+using System;
+using System.Collections.Generic;
+
 namespace DbModelFramework
 {
-	class SqlEngine
+	public abstract class SqlEngine
 	{
+		public abstract string CreateTable(string tableName, IEnumerable<ModelProperty> modelProperties);
+		public abstract string CheckTable(string tableName);
+
+		public virtual string InsertModel()
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual string UpdateModel()
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual string DeleteModel()
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual string SelectModel()
+		{
+			throw new NotImplementedException();
+		}
 	}
 }
