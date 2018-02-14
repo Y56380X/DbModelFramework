@@ -29,7 +29,7 @@ namespace DbModelFramework.MySql
 	{
 		public override string CheckTable(string tableName)
 		{
-			throw new NotImplementedException();
+			return $"SELECT table_name FROM information_schema.tables WHERE table_name='{tableName}' AND table_schema=DATABASE();";
 		}
 
 		public override string CreateTable(string tableName, IEnumerable<ModelProperty> modelProperties)
