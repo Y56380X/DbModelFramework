@@ -47,9 +47,9 @@ namespace DbModelFramework
 			return $"UPDATE {tableName} SET {setParameters.ToChain()} WHERE {primaryKeyProperty.AttributeName} = @{primaryKeyProperty.AttributeName};";
 		}
 
-		public virtual string DeleteModel()
+		public virtual string DeleteModel(string tableName, ModelProperty primaryKeyProperty)
 		{
-			throw new NotImplementedException();
+			return $"DELETE FROM {tableName} WHERE {primaryKeyProperty.AttributeName} = @{primaryKeyProperty.AttributeName};";
 		}
 
 		public virtual string SelectModel()

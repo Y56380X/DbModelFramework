@@ -53,7 +53,7 @@ namespace DbModelFramework
 			public static readonly string SelectAll = $"SELECT {ModelProperties.ToAttributeChainSql(true)} FROM {TableName};";
 			public static readonly string SelectByPrimaryKey = $"SELECT {ModelProperties.ToAttributeChainSql(true)} FROM {TableName} WHERE {PrimaryKeyProperty.AttributeName} = @{PrimaryKeyProperty.AttributeName};";
 			public static readonly string SelectByCustomCondition = $"SELECT {ModelProperties.ToAttributeChainSql(true)} FROM {TableName} WHERE {{0}};";
-			public static readonly string Delete = $"DELETE FROM {TableName} WHERE {PrimaryKeyProperty.AttributeName} = @{PrimaryKeyProperty.AttributeName};";
+			public static readonly string Delete = DbRequirements.SqlEngine.DeleteModel(TableName, PrimaryKeyProperty);
 			public static readonly string Update = DbRequirements.SqlEngine.UpdateModel(TableName, ModelProperties);
 
 			static Sql()
