@@ -126,5 +126,35 @@ namespace DbModelFramework.Sqlite.Test
 
 			Assert.AreEqual("CREATE TABLE uniquevalues (myattribute TEXT UNIQUE, id INTEGER PRIMARY KEY AUTOINCREMENT);", createTableSql);
 		}
+
+		[TestMethod]
+		public void DbTypeToString_Int16()
+		{
+			Assert.AreEqual("INTEGER", SqlEngine.DbTypeToString(System.Data.DbType.Int16));
+		}
+
+		[TestMethod]
+		public void DbTypeToString_Int32()
+		{
+			Assert.AreEqual("INTEGER", SqlEngine.DbTypeToString(System.Data.DbType.Int32));
+		}
+
+		[TestMethod]
+		public void DbTypeToString_Int64()
+		{
+			Assert.AreEqual("INTEGER", SqlEngine.DbTypeToString(System.Data.DbType.Int64));
+		}
+
+		[TestMethod]
+		public void DbTypeToString_String()
+		{
+			Assert.AreEqual("TEXT", SqlEngine.DbTypeToString(System.Data.DbType.String));
+		}
+
+		[TestMethod]
+		public void DbTypeToString_Binary()
+		{
+			Assert.AreEqual("BLOB", SqlEngine.DbTypeToString(System.Data.DbType.Binary));
+		}
 	}
 }
