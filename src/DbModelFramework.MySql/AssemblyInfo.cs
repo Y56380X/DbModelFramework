@@ -1,5 +1,5 @@
-/**
-	Copyright (c) 2017-2018 Y56380X
+﻿/**
+	Copyright (c) 2018 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -20,21 +20,7 @@
 	SOFTWARE.
 **/
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
+using System.Runtime.CompilerServices;
 
-namespace DbModelFramework.MySql.Test
-{
-	[TestClass]
-	public class DbRequirementsTest
-	{
-		[TestMethod]
-		public void LoadSqlEngine()
-		{
-			var dbRequirements = new Mock<DbRequirements> { CallBase = true }.Object;
-
-			Assert.IsNotNull(dbRequirements.SqlEngine);
-			Assert.IsInstanceOfType(dbRequirements.SqlEngine, typeof(SqlEngine));
-		}
-	}
-}
+[assembly: InternalsVisibleTo("DbModelFramework.MySql.Test")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
