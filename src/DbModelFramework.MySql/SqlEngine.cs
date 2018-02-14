@@ -20,13 +20,24 @@
 	SOFTWARE.
 **/
 
-using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 
 namespace DbModelFramework.MySql
 {
 	class SqlEngine : DbModelFramework.SqlEngine
 	{
+		static readonly Dictionary<DbType, string> DbTypeToStringDictionary = new Dictionary<DbType, string>
+		{
+			{ DbType.String, "TEXT" },
+			{ DbType.Int32, "INTEGER" },
+			{ DbType.Int16, "INTEGER" },
+			{ DbType.Int64, "INTEGER" },
+			{ DbType.Binary, "BLOB" },
+			{ DbType.Boolean, "BOOLEAN" }
+		};
+
 		public override string CheckTable(string tableName)
 		{
 			return $"SELECT table_name FROM information_schema.tables WHERE table_name='{tableName}' AND table_schema=DATABASE();";
@@ -34,7 +45,12 @@ namespace DbModelFramework.MySql
 
 		public override string CreateTable(string tableName, IEnumerable<ModelProperty> modelProperties)
 		{
-			throw new NotImplementedException();
+			var modelAttributes = modelProperties.Select(prop =>
+			{
+				return $"{prop.AttributeName} {DbTypeToString(prop.Type)}{(prop.IsPrimaryKey ? " NOT NULL PRIMARY KEY AUTO_INCREMENT" : null)}{(prop.IsUnique ? " UNIQUE" : null)}";
+			});
+
+			return $"CREATE TABLE {tableName} ({modelAttributes.ToChain()});";
 		}
 
 		public override string GetLastPrimaryKey()
@@ -42,21 +58,12 @@ namespace DbModelFramework.MySql
 			return "SELECT LAST_INSERT_ID();";
 		}
 
+		private static string DbTypeToString(DbType dbType)
+		{
+			return DbTypeToStringDictionary[dbType];
+		}
+
 		#region Old
-
-		//static readonly Dictionary<DbType, string> DbTypeToStringDictionary = new Dictionary<DbType, string>
-		//{
-		//	{ DbType.String, "TEXT" },
-		//	{ DbType.Int32, "INTEGER" },
-		//	{ DbType.Int16, "INTEGER" },
-		//	{ DbType.Int64, "INTEGER" },
-		//	{ DbType.Binary, "BLOB" }
-		//};
-
-		//public override string GetCheckTableSql(string tableName)
-		//{
-		//	return $"SELECT table_name FROM information_schema.tables WHERE table_name='{tableName}' AND table_schema=DATABASE();";
-		//}
 
 		//public override string GetTableCreationSql(IEnumerable<ModelProperty> modelProperties)
 		//{
@@ -89,11 +96,6 @@ namespace DbModelFramework.MySql
 		//		stringBuilder.Append($", FOREIGN KEY({property.AttributeName}) REFERENCES {property.ForeignKeyTableName}({property.ForeignKeyReference.AttributeName})");
 
 		//	return stringBuilder.ToString();
-		//}
-
-		//private static string DbTypeToString(DbType dbType)
-		//{
-		//	return DbTypeToStringDictionary[dbType];
 		//}
 
 		#endregion

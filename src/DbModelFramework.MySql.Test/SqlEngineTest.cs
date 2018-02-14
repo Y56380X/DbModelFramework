@@ -102,5 +102,15 @@ namespace DbModelFramework.MySql.Test
 
 			Assert.AreEqual("SELECT LAST_INSERT_ID();", getLastPrimaryKey);
 		}
+
+		[TestMethod]
+		public void CreateTableSql_SingleStringModel()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(SingleString.TableName, SingleString.ModelProperties);
+
+			Assert.AreEqual("CREATE TABLE singlestrings (myattribute TEXT, id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT);", createTableSql);
+		}
 	}
 }
