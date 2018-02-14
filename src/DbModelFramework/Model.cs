@@ -49,7 +49,7 @@ namespace DbModelFramework
 			public static readonly string CheckTable = DbRequirements.SqlEngine.CheckTable(TableName);
 			public static readonly string CreateTable = DbRequirements.SqlEngine.CreateTable(TableName, ModelProperties);
 			public static readonly string Insert = DbRequirements.SqlEngine.InsertModel(TableName, ModelProperties);
-			public static readonly string LastPrimaryKey = "SELECT last_insert_rowid();";
+			public static readonly string LastPrimaryKey = DbRequirements.SqlEngine.GetLastPrimaryKey();
 			public static readonly string SelectAll = DbRequirements.SqlEngine.SelectModelAllEntries(TableName, ModelProperties);
 			public static readonly string SelectByPrimaryKey = DbRequirements.SqlEngine.SelectModelEntryByPrimaryKey(TableName, ModelProperties);
 			public static readonly string SelectByCustomCondition = DbRequirements.SqlEngine.SelectModelEntriesByCustomCondition(TableName, ModelProperties, "{{0}}");

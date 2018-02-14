@@ -30,6 +30,7 @@ namespace DbModelFramework
 	{
 		public abstract string CreateTable(string tableName, IEnumerable<ModelProperty> modelProperties);
 		public abstract string CheckTable(string tableName);
+		public abstract string GetLastPrimaryKey();
 		
 		public virtual string InsertModel(string tableName, IEnumerable<ModelProperty> modelProperties)
 		{

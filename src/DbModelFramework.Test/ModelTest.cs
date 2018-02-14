@@ -91,6 +91,7 @@ namespace DbModelFramework.Test
 
 			// Setup car sqlengine
 			var sqlEngineMock = new Mock<SqlEngine>() { CallBase = true };
+			sqlEngineMock.Setup(se => se.GetLastPrimaryKey()).Returns("SELECT LAST_PK;");
 			sqlEngineMock.Setup(se => se.CheckTable("cars")).Returns(Car_CheckTableSql);
 			sqlEngineMock.Setup(se => se.CreateTable("cars", Car.ModelProperties)).Returns(Car_CreateTableSql);
 			sqlEngineMock.Setup(se => se.CheckTable("builds")).Returns(Build_CheckTableSql);
