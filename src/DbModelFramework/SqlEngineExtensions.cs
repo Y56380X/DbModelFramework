@@ -20,38 +20,32 @@
 	SOFTWARE.
 **/
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Text;
 
 namespace DbModelFramework
 {
-	public abstract class SqlEngine
+	static class SqlEngineExtensions
 	{
-		public abstract string CreateTable(string tableName, IEnumerable<ModelProperty> modelProperties);
-		public abstract string CheckTable(string tableName);
-		
-		public virtual string InsertModel(string tableName, IEnumerable<ModelProperty> modelProperties)
+		public static string ToChain(this IEnumerable<string> elements)
 		{
-			var modelAttributes = modelProperties.Where(prop => !prop.IsPrimaryKey).Select(prop => prop.AttributeName);
-			var modelParameters = modelProperties.Where(prop => !prop.IsPrimaryKey).Select(prop => $"@{prop.AttributeName}");
+			StringBuilder chainString = new StringBuilder();
 
-			return $"INSERT INTO {tableName} ({modelAttributes.ToChain()}) VALUES ({modelParameters.ToChain()});";
-		}
+			bool first = true;
+			foreach (var element in elements)
+			{
+				if (first)
+				{
+					chainString.Append(element);
+					first = false;
+				}
+				else
+				{
+					chainString.Append($", {element}");
+				}
+			}
 
-		public virtual string UpdateModel()
-		{
-			throw new NotImplementedException();
-		}
-
-		public virtual string DeleteModel()
-		{
-			throw new NotImplementedException();
-		}
-
-		public virtual string SelectModel()
-		{
-			throw new NotImplementedException();
+			return chainString.ToString();
 		}
 	}
 }

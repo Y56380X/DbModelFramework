@@ -90,7 +90,7 @@ namespace DbModelFramework.Test
 			configuration.WithPart<Fakes.DbRequirements>();
 
 			// Setup car sqlengine
-			var sqlEngineMock = new Mock<SqlEngine>();
+			var sqlEngineMock = new Mock<SqlEngine>() { CallBase = true };
 			sqlEngineMock.Setup(se => se.CheckTable("cars")).Returns(Car_CheckTableSql);
 			sqlEngineMock.Setup(se => se.CreateTable("cars", Car.ModelProperties)).Returns(Car_CreateTableSql);
 			sqlEngineMock.Setup(se => se.CheckTable("builds")).Returns(Build_CheckTableSql);
@@ -100,7 +100,6 @@ namespace DbModelFramework.Test
 			sqlEngineMock.Setup(se => se.CheckTable("manufacturers")).Returns(Manufacturer_CheckTableSql);
 			sqlEngineMock.Setup(se => se.CreateTable("manufacturers", Manufacturer.ModelProperties)).Returns(Manufacturer_CheckTableSql);
 			sqlEngineMock.Setup(se => se.DeleteModel()).Returns(string.Empty);
-			sqlEngineMock.Setup(se => se.InsertModel()).Returns(string.Empty);
 			sqlEngineMock.Setup(se => se.SelectModel()).Returns(string.Empty);
 			sqlEngineMock.Setup(se => se.UpdateModel()).Returns(string.Empty);
 			Fakes.DbRequirements.SqlEngineMock = sqlEngineMock.Object;

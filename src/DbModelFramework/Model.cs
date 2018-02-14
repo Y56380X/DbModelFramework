@@ -48,7 +48,7 @@ namespace DbModelFramework
 		{
 			public static readonly string CheckTable = DbRequirements.SqlEngine.CheckTable(TableName);
 			public static readonly string CreateTable = DbRequirements.SqlEngine.CreateTable(TableName, ModelProperties);
-			public static readonly string Insert = $"INSERT INTO {TableName} ({ModelProperties.ToAttributeChainSql()}) VALUES ({ModelProperties.ToInsertParameterChainSql()});";
+			public static readonly string Insert = DbRequirements.SqlEngine.InsertModel(TableName, ModelProperties);
 			public static readonly string LastPrimaryKey = "SELECT last_insert_rowid();";
 			public static readonly string SelectAll = $"SELECT {ModelProperties.ToAttributeChainSql(true)} FROM {TableName};";
 			public static readonly string SelectByPrimaryKey = $"SELECT {ModelProperties.ToAttributeChainSql(true)} FROM {TableName} WHERE {PrimaryKeyProperty.AttributeName} = @{PrimaryKeyProperty.AttributeName};";
