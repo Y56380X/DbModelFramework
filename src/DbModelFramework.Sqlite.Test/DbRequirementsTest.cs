@@ -21,12 +21,20 @@
 **/
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace DbModelFramework.Sqlite.Test
 {
 	[TestClass]
 	public class DbRequirementsTest
 	{
-		
+		[TestMethod]
+		public void LoadSqlEngine()
+		{
+			var dbRequirements = new Mock<DbRequirements> { CallBase = true }.Object;
+
+			Assert.IsNotNull(dbRequirements.SqlEngine);
+			Assert.IsInstanceOfType(dbRequirements.SqlEngine, typeof(SqlEngine));
+		}
 	}
 }
