@@ -61,7 +61,10 @@ namespace DbModelFramework
 
 		public virtual string SelectModelEntryByPrimaryKey(string tableName, IEnumerable<ModelProperty> modelProperties)
 		{
-			throw new NotImplementedException();
+			var primaryKeyProperty = modelProperties.Single(prop => prop.IsPrimaryKey);
+			var modelAttributes = modelProperties.Select(prop => prop.AttributeName);
+
+			return $"SELECT {modelAttributes.ToChain()} FROM {tableName} WHERE {primaryKeyProperty.AttributeName} = @{primaryKeyProperty.AttributeName};";
 		}
 
 		public virtual string SelectModelEntriesByCustomCondition(string tableName, IEnumerable<ModelProperty> modelProperties, string placeholder)
