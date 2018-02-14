@@ -28,6 +28,15 @@ namespace DbModelFramework.Sqlite
 {
 	class SqlEngine : DbModelFramework.SqlEngine
 	{
+		static readonly Dictionary<DbType, string> DbTypeToStringDictionary = new Dictionary<DbType, string>
+		{
+			{ DbType.String, "TEXT" },
+			{ DbType.Int32, "INTEGER" },
+			{ DbType.Int16, "INTEGER" },
+			{ DbType.Int64, "INTEGER" },
+			{ DbType.Binary, "BLOB" }
+		};
+
 		public override string CheckTable(string tableName)
 		{
 			return $"SELECT name FROM sqlite_master WHERE type='table' AND name='{tableName}';";
@@ -76,16 +85,7 @@ namespace DbModelFramework.Sqlite
 			return "SELECT last_insert_rowid();";
 		}
 
-		static readonly Dictionary<DbType, string> DbTypeToStringDictionary = new Dictionary<DbType, string>
-		{
-			{ DbType.String, "TEXT" },
-			{ DbType.Int32, "INTEGER" },
-			{ DbType.Int16, "INTEGER" },
-			{ DbType.Int64, "INTEGER" },
-			{ DbType.Binary, "BLOB" }
-		};
-
-		private static string DbTypeToString(DbType dbType)
+		public static string DbTypeToString(DbType dbType)
 		{
 			return DbTypeToStringDictionary[dbType];
 		}

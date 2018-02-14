@@ -42,29 +42,11 @@ namespace DbModelFramework.Sqlite.Test
 			public string MyAttribute3 { get; set; }
 		}
 
-		class SingleInt32 : Model<SingleInt32>
+		class MixedType : Model<MixedType>
 		{
-			public int MyAttribute { get; set; }
-		}
-
-		class SingleInt16 : Model<SingleInt16>
-		{
-			public short MyAttribute { get; set; }
-		}
-
-		class SingleInt64 : Model<SingleInt64>
-		{
-			public long MyAttribute { get; set; }
-		}
-
-		class SingleByteArray : Model<SingleByteArray>
-		{
-			public byte[] MyBinaryData { get; set; }
-		}
-
-		class SingleBoolean : Model<SingleBoolean>
-		{
-			public bool MyBooleanData { get; set; }
+			public string MyAttribute1 { get; set; }
+			public int MyAttribute2 { get; set; }
+			public byte[] MyAttribute3 { get; set; }
 		}
 
 		#endregion
@@ -107,6 +89,26 @@ namespace DbModelFramework.Sqlite.Test
 			var createTableSql = sqlEngine.CreateTable(SingleString.TableName, SingleString.ModelProperties);
 
 			Assert.AreEqual("CREATE TABLE singlestrings (myattribute TEXT, id INTEGER PRIMARY KEY AUTOINCREMENT);", createTableSql);
+		}
+
+		[TestMethod]
+		public void CreateTableSql_MultipleStringModel()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(MultipleString.TableName, MultipleString.ModelProperties);
+
+			Assert.AreEqual("CREATE TABLE multiplestrings (myattribute1 TEXT, myattribute2 TEXT, myattribute3 TEXT, id INTEGER PRIMARY KEY AUTOINCREMENT);", createTableSql);
+		}
+
+		[TestMethod]
+		public void CreateTableSql_MixedTypeModel()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(MixedType.TableName, MixedType.ModelProperties);
+
+			Assert.AreEqual("CREATE TABLE mixedtypes (myattribute1 TEXT, myattribute2 INTEGER, myattribute3 BLOB, id INTEGER PRIMARY KEY AUTOINCREMENT);", createTableSql);
 		}
 	}
 }
