@@ -20,32 +20,17 @@
 	SOFTWARE.
 **/
 
-using System.Collections.Generic;
-using System.Text;
+using System.Composition;
+using System.Data;
 
-namespace DbModelFramework
+namespace DbModelFramework.Sqlite.Test.Fakes
 {
-	public static class SqlEngineExtensions
+	[Export(typeof(DbModelFramework.DbRequirements))]
+	class DbRequirements : Sqlite.DbRequirements
 	{
-		public static string ToChain(this IEnumerable<string> elements)
+		public override IDbConnection CreateDbConnection()
 		{
-			StringBuilder chainString = new StringBuilder();
-
-			bool first = true;
-			foreach (var element in elements)
-			{
-				if (first)
-				{
-					chainString.Append(element);
-					first = false;
-				}
-				else
-				{
-					chainString.Append($", {element}");
-				}
-			}
-
-			return chainString.ToString();
+			throw new System.NotImplementedException();
 		}
 	}
 }

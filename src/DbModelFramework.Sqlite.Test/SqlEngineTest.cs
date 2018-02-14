@@ -20,6 +20,7 @@
 	SOFTWARE.
 **/
 
+using System.Composition.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DbModelFramework.Sqlite.Test
@@ -68,6 +69,16 @@ namespace DbModelFramework.Sqlite.Test
 
 		#endregion
 
+		[TestInitialize]
+		public void Init()
+		{
+			// Setup fakes
+			var configuration = new ContainerConfiguration();
+			configuration.WithPart<Fakes.DbRequirements>();
+
+			DependencyInjection.InjectionContainer = configuration.CreateContainer();
+		}
+
 		[TestMethod]
 		public void CheckDbTableSql()
 		{
@@ -86,6 +97,16 @@ namespace DbModelFramework.Sqlite.Test
 			var getLastPrimaryKey = sqlEngine.GetLastPrimaryKey();
 
 			Assert.AreEqual("SELECT last_insert_rowid();", getLastPrimaryKey);
+		}
+
+		[TestMethod]
+		public void CreateTableSql_SingleStringModel()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(SingleString.TableName, SingleString.ModelProperties);
+
+			Assert.AreEqual("CREATE TABLE singlestrings (myattribute TEXT, id INTEGER PRIMARY KEY AUTOINCREMENT);", createTableSql);
 		}
 	}
 }

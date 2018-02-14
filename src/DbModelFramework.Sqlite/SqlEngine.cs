@@ -22,6 +22,7 @@
 
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 
 namespace DbModelFramework.Sqlite
 {
@@ -34,6 +35,13 @@ namespace DbModelFramework.Sqlite
 
 		public override string CreateTable(string tableName, IEnumerable<ModelProperty> modelProperties)
 		{
+			var modelAttributes = modelProperties.Select(prop =>
+			{
+				return $"{prop.AttributeName} {DbTypeToString(prop.Type)}{(prop.IsPrimaryKey ? " PRIMARY KEY AUTOINCREMENT" : null)}";
+			});
+
+			return $"CREATE TABLE {tableName} ({modelAttributes.ToChain()});";
+
 			//StringBuilder stringBuilder = new StringBuilder();
 
 			//bool first = true;
@@ -61,8 +69,6 @@ namespace DbModelFramework.Sqlite
 			//	stringBuilder.Append($", FOREIGN KEY({property.AttributeName}) REFERENCES {property.ForeignKeyTableName}({property.ForeignKeyReference.AttributeName})");
 
 			//return stringBuilder.ToString();
-
-			throw new System.NotImplementedException();
 		}
 
 		public override string GetLastPrimaryKey()

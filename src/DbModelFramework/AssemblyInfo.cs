@@ -23,4 +23,5 @@
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("DbModelFramework.Test")]
+[assembly: InternalsVisibleTo("DbModelFramework.Sqlite.Test")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
