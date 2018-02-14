@@ -25,7 +25,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 
 namespace DbModelFramework
 {
@@ -37,7 +36,8 @@ namespace DbModelFramework
 			{ typeof(int), DbType.Int32 },
 			{ typeof(short), DbType.Int16 },
 			{ typeof(long), DbType.Int64 },
-			{ typeof(byte[]), DbType.Binary }
+			{ typeof(byte[]), DbType.Binary },
+			{ typeof(bool), DbType.Boolean }
 		};
 
 		public static string ToWhereSql(this Expression selector, IDbCommand dbCommand)
