@@ -54,7 +54,9 @@ namespace DbModelFramework
 
 		public virtual string SelectModelAllEntries(string tableName, IEnumerable<ModelProperty> modelProperties)
 		{
-			throw new NotImplementedException();
+			var modelAttributes = modelProperties.Select(prop => prop.AttributeName);
+
+			return $"SELECT {modelAttributes.ToChain()} FROM {tableName};";
 		}
 
 		public virtual string SelectModelEntryByPrimaryKey(string tableName, IEnumerable<ModelProperty> modelProperties)
