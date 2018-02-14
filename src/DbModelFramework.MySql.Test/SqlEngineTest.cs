@@ -112,5 +112,35 @@ namespace DbModelFramework.MySql.Test
 
 			Assert.AreEqual("CREATE TABLE singlestrings (myattribute TEXT, id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT);", createTableSql);
 		}
+
+		[TestMethod]
+		public void CreateTableSql_MultipleStringModel()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(MultipleString.TableName, MultipleString.ModelProperties);
+
+			Assert.AreEqual("CREATE TABLE multiplestrings (myattribute1 TEXT, myattribute2 TEXT, myattribute3 TEXT, id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT);", createTableSql);
+		}
+
+		[TestMethod]
+		public void CreateTableSql_MixedTypeModel()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(MixedType.TableName, MixedType.ModelProperties);
+
+			Assert.AreEqual("CREATE TABLE mixedtypes (myattribute1 TEXT, myattribute2 INTEGER, myattribute3 BLOB, id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT);", createTableSql);
+		}
+
+		[TestMethod]
+		public void CreateTableSql_UniqueValueModel()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(UniqueValue.TableName, UniqueValue.ModelProperties);
+
+			Assert.AreEqual("CREATE TABLE uniquevalues (myattribute VARCHAR(255) UNIQUE, id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT);", createTableSql);
+		}
 	}
 }

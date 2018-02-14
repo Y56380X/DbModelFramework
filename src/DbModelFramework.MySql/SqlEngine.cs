@@ -38,6 +38,15 @@ namespace DbModelFramework.MySql
 			{ DbType.Boolean, "BOOLEAN" }
 		};
 
+		static readonly Dictionary<DbType, string> DbTypeAsKeyToStringDictionary = new Dictionary<DbType, string>
+		{
+			{ DbType.String, "VARCHAR(255)" },
+			{ DbType.Int32, "INTEGER" },
+			{ DbType.Int16, "INTEGER" },
+			{ DbType.Int64, "INTEGER" },
+			{ DbType.Boolean, "BOOLEAN" }
+		};
+
 		public override string CheckTable(string tableName)
 		{
 			return $"SELECT table_name FROM information_schema.tables WHERE table_name='{tableName}' AND table_schema=DATABASE();";
@@ -47,7 +56,8 @@ namespace DbModelFramework.MySql
 		{
 			var modelAttributes = modelProperties.Select(prop =>
 			{
-				return $"{prop.AttributeName} {DbTypeToString(prop.Type)}{(prop.IsPrimaryKey ? " NOT NULL PRIMARY KEY AUTO_INCREMENT" : null)}{(prop.IsUnique ? " UNIQUE" : null)}";
+				return $"{prop.AttributeName} {DbTypeToString(prop.Type, prop.IsUnique || prop.IsForeignKey || prop.IsPrimaryKey)}"
+				+ $"{(prop.IsPrimaryKey ? " NOT NULL PRIMARY KEY AUTO_INCREMENT" : null)}{(prop.IsUnique ? " UNIQUE" : null)}";
 			});
 
 			return $"CREATE TABLE {tableName} ({modelAttributes.ToChain()});";
@@ -58,9 +68,9 @@ namespace DbModelFramework.MySql
 			return "SELECT LAST_INSERT_ID();";
 		}
 
-		private static string DbTypeToString(DbType dbType)
+		private static string DbTypeToString(DbType dbType, bool asKey = false)
 		{
-			return DbTypeToStringDictionary[dbType];
+			return asKey ? DbTypeAsKeyToStringDictionary[dbType] : DbTypeToStringDictionary[dbType];
 		}
 
 		#region Old
