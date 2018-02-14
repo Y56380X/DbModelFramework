@@ -52,7 +52,17 @@ namespace DbModelFramework
 			return $"DELETE FROM {tableName} WHERE {primaryKeyProperty.AttributeName} = @{primaryKeyProperty.AttributeName};";
 		}
 
-		public virtual string SelectModel()
+		public virtual string SelectModelAllEntries(string tableName, IEnumerable<ModelProperty> modelProperties)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual string SelectModelEntryByPrimaryKey(string tableName, IEnumerable<ModelProperty> modelProperties)
+		{
+			throw new NotImplementedException();
+		}
+
+		public virtual string SelectModelEntriesByCustomCondition(string tableName, IEnumerable<ModelProperty> modelProperties, string placeholder)
 		{
 			throw new NotImplementedException();
 		}
