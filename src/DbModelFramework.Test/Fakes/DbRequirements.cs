@@ -21,12 +21,20 @@
 **/
 
 using System.Composition;
+using System.Data;
 
 namespace DbModelFramework.Test.Fakes
 {
 	[Export(typeof(DbModelFramework.DbRequirements))]
 	class DbRequirements : DbModelFramework.DbRequirements
 	{
-		public override SqlEngine SqlEngine { get; internal set; } = Moq.Mock.Of<SqlEngine>();
+		public static SqlEngine SqlEngineMock { get; set; }
+
+		public override SqlEngine SqlEngine => SqlEngineMock ?? Moq.Mock.Of<SqlEngine>();
+
+		public override IDbConnection CreateDbConnection()
+		{
+			return new DbConnection();
+		}
 	}
 }

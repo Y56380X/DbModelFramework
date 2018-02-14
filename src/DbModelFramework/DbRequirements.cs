@@ -1,5 +1,5 @@
 ﻿/**
-	Copyright (c) 2017 Y56380X
+	Copyright (c) 2017-2018 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -20,7 +20,7 @@
 	SOFTWARE.
 **/
 
-using System;
+using System.Data;
 using static DbModelFramework.DependencyInjection;
 
 namespace DbModelFramework
@@ -30,6 +30,8 @@ namespace DbModelFramework
 		private static DbRequirements instance;
 		internal static DbRequirements Instance => instance ?? (instance = InjectionContainer.GetExport<DbRequirements>());
 
-		public abstract SqlEngine SqlEngine { get; internal set; }
+		public abstract SqlEngine SqlEngine { get; }
+
+		public abstract IDbConnection CreateDbConnection();
 	}
 }

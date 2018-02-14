@@ -1,5 +1,5 @@
 ﻿/**
-	Copyright (c) 2017 Y56380X
+	Copyright (c) 2017-2018 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
-using static DbModelFramework.DependencyInjection;
 
 namespace DbModelFramework
 {
@@ -67,7 +66,7 @@ namespace DbModelFramework
 			{
 				bool result;
 
-				using (var connection = InjectionContainer.GetExport<IDbConnection>())
+				using (var connection = DbRequirements.CreateDbConnection())
 				using (var command = connection.CreateCommand())
 				{
 					command.CommandText = CheckTable;
@@ -79,7 +78,7 @@ namespace DbModelFramework
 
 			private static void Create()
 			{
-				using (var connection = InjectionContainer.GetExport<IDbConnection>())
+				using (var connection = DbRequirements.CreateDbConnection())
 				using (var command = connection.CreateCommand())
 				{
 					command.CommandText = CreateTable;
@@ -114,7 +113,7 @@ namespace DbModelFramework
 		{
 			int changed;
 
-			using (var connection = InjectionContainer.GetExport<IDbConnection>())
+			using (var connection = DbRequirements.CreateDbConnection())
 			using (var command = connection.CreateCommand())
 			{
 				command.CommandText = Sql.Update;
@@ -133,7 +132,7 @@ namespace DbModelFramework
 		{
 			int changed;
 
-			using (var connection = InjectionContainer.GetExport<IDbConnection>())
+			using (var connection = DbRequirements.CreateDbConnection())
 			using (var command = connection.CreateCommand())
 			{
 				command.CommandText = Sql.Delete;
@@ -149,7 +148,7 @@ namespace DbModelFramework
 		{
 			TType model = default(TType);
 
-			using (var connection = InjectionContainer.GetExport<IDbConnection>())
+			using (var connection = DbRequirements.CreateDbConnection())
 			using (var command = connection.CreateCommand())
 			{
 				command.CommandText = Sql.SelectByPrimaryKey;
@@ -169,7 +168,7 @@ namespace DbModelFramework
 		{
 			var models = new List<TType>();
 
-			using (var connection = InjectionContainer.GetExport<IDbConnection>())
+			using (var connection = DbRequirements.CreateDbConnection())
 			using (var command = connection.CreateCommand())
 			{
 				command.CommandText = Sql.SelectAll;
@@ -188,7 +187,7 @@ namespace DbModelFramework
 		{
 			var models = new List<TType>();
 
-			using (var connection = InjectionContainer.GetExport<IDbConnection>())
+			using (var connection = DbRequirements.CreateDbConnection())
 			using (var command = connection.CreateCommand())
 			{
 				command.CommandText = Sql.SelectByCustomCondition.Replace("{0}", selector.ToWhereSql(command));
@@ -215,7 +214,7 @@ namespace DbModelFramework
 			// Set values if action is not null
 			setValuesAction?.Invoke(model);
 
-			using (var connection = InjectionContainer.GetExport<IDbConnection>())
+			using (var connection = DbRequirements.CreateDbConnection())
 			using (var transaction = connection.BeginTransaction())
 			{
 				// Insert

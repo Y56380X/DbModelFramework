@@ -1,5 +1,5 @@
 ﻿/**
-	Copyright (c) 2017 Y56380X
+	Copyright (c) 2017-2018 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -22,10 +22,10 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
 using System.Composition.Hosting;
 using System.Data;
 using System.Linq;
+using static DbModelFramework.Test.ModelTest.SqlFakes;
 
 namespace DbModelFramework.Test
 {
@@ -34,9 +34,20 @@ namespace DbModelFramework.Test
 	{
 		#region test assets
 
-		static string CheckTableSql = "CHECK TABLE CARS;";
-		static string CreateTableSql = "CREATE TABLE CARS;";
+		public static class SqlFakes
+		{
+			public static string Car_CheckTableSql = "CHECK TABLE CARS;";
+			public static string Car_CreateTableSql = "CREATE TABLE CARS;";
 
+			public static string Build_CheckTableSql = "CHECK TABLE BUILDS;";
+			public static string Build_CreateTableSql = "CREATE TABLE BUILDS;";
+
+			public static string Product_CheckTableSql = "CHECK TABLE PRODUCTS;";
+			public static string Product_CreateTableSql = "CREATE TABLE PRODUCTS;";
+
+			public static string Manufacturer_CheckTableSql = "CHECK TABLE MANUFACTURERS;";
+			public static string Manufacturer_CreateTableSql = "CREATE TABLE MANUFACTURERS;";
+		}
 
 		class Car : Model<Car>
 		{
@@ -76,18 +87,23 @@ namespace DbModelFramework.Test
 		{
 			// Setup fakes
 			var configuration = new ContainerConfiguration();
-			configuration.WithPart<Fakes.DbConnection>();
 			configuration.WithPart<Fakes.DbRequirements>();
 
 			// Setup car sqlengine
 			var sqlEngineMock = new Mock<SqlEngine>();
-			sqlEngineMock.Setup(se => se.CheckTable("cars")).Returns(CheckTableSql);
-			sqlEngineMock.Setup(se => se.CreateTable("cars", Car.ModelProperties)).Returns(CreateTableSql);
+			sqlEngineMock.Setup(se => se.CheckTable("cars")).Returns(Car_CheckTableSql);
+			sqlEngineMock.Setup(se => se.CreateTable("cars", Car.ModelProperties)).Returns(Car_CreateTableSql);
+			sqlEngineMock.Setup(se => se.CheckTable("builds")).Returns(Build_CheckTableSql);
+			sqlEngineMock.Setup(se => se.CreateTable("builds", Build.ModelProperties)).Returns(Build_CreateTableSql);
+			sqlEngineMock.Setup(se => se.CheckTable("products")).Returns(Product_CheckTableSql);
+			sqlEngineMock.Setup(se => se.CreateTable("products", Product.ModelProperties)).Returns(Product_CreateTableSql);
+			sqlEngineMock.Setup(se => se.CheckTable("manufacturers")).Returns(Manufacturer_CheckTableSql);
+			sqlEngineMock.Setup(se => se.CreateTable("manufacturers", Manufacturer.ModelProperties)).Returns(Manufacturer_CheckTableSql);
 			sqlEngineMock.Setup(se => se.DeleteModel()).Returns(string.Empty);
 			sqlEngineMock.Setup(se => se.InsertModel()).Returns(string.Empty);
 			sqlEngineMock.Setup(se => se.SelectModel()).Returns(string.Empty);
 			sqlEngineMock.Setup(se => se.UpdateModel()).Returns(string.Empty);
-			Car.DbRequirements.SqlEngine = sqlEngineMock.Object;
+			Fakes.DbRequirements.SqlEngineMock = sqlEngineMock.Object;
 
 			DependencyInjection.InjectionContainer = configuration.CreateContainer();
 		}
@@ -112,7 +128,7 @@ namespace DbModelFramework.Test
 		{
 			var checkTableSql = Car.Sql.CheckTable;
 
-			Assert.AreEqual(CheckTableSql, checkTableSql);
+			Assert.AreEqual(Car_CheckTableSql, checkTableSql);
 			Assert.IsTrue(Fakes.DbConnection.CreatedCommands.Select(c => c.CommandText).Contains(checkTableSql));
 		}
 
@@ -121,7 +137,7 @@ namespace DbModelFramework.Test
 		{
 			var createTable = Car.Sql.CreateTable;
 
-			Assert.AreEqual(CreateTableSql, createTable);
+			Assert.AreEqual(Car_CreateTableSql, createTable);
 			Assert.IsTrue(Fakes.DbConnection.CreatedCommands.Select(c => c.CommandText).Contains(createTable));
 		}
 

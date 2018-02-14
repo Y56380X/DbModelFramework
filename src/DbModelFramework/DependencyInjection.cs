@@ -1,5 +1,5 @@
 ﻿/**
-	Copyright (c) 2017 Y56380X
+	Copyright (c) 2017-2018 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
 **/
 
 using System.Composition.Hosting;
-using System.Data;
 
 namespace DbModelFramework
 {
@@ -37,10 +36,6 @@ namespace DbModelFramework
 			set
 			{
 				// Check the injection requirements
-				if (!value.TryGetExport<IDbConnection>(out var dbConnection))
-					throw new System.TypeLoadException($"Type: {typeof(IDbConnection).Name}");
-				dbConnection.Dispose();
-
 				if (!value.TryGetExport<DbRequirements>(out var dbRequirements))
 					throw new System.TypeLoadException($"Type: {typeof(DbRequirements).Name}");
 
