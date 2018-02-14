@@ -29,9 +29,7 @@ namespace DbModelFramework.Sqlite
 	{
 		public override string CheckTable(string tableName)
 		{
-			//return $"SELECT name FROM sqlite_master WHERE type='table' AND name='{tableName}';";
-
-			throw new System.NotImplementedException();
+			return $"SELECT name FROM sqlite_master WHERE type='table' AND name='{tableName}';";
 		}
 
 		public override string CreateTable(string tableName, IEnumerable<ModelProperty> modelProperties)

@@ -27,6 +27,55 @@ namespace DbModelFramework.Sqlite.Test
 	[TestClass]
 	public class SqlEngineTest
 	{
+		#region test assets
 
+		class SingleString : Model<SingleString>
+		{
+			public string MyAttribute { get; set; }
+		}
+
+		class MultipleString : Model<MultipleString>
+		{
+			public string MyAttribute1 { get; set; }
+			public string MyAttribute2 { get; set; }
+			public string MyAttribute3 { get; set; }
+		}
+
+		class SingleInt32 : Model<SingleInt32>
+		{
+			public int MyAttribute { get; set; }
+		}
+
+		class SingleInt16 : Model<SingleInt16>
+		{
+			public short MyAttribute { get; set; }
+		}
+
+		class SingleInt64 : Model<SingleInt64>
+		{
+			public long MyAttribute { get; set; }
+		}
+
+		class SingleByteArray : Model<SingleByteArray>
+		{
+			public byte[] MyBinaryData { get; set; }
+		}
+
+		class SingleBoolean : Model<SingleBoolean>
+		{
+			public bool MyBooleanData { get; set; }
+		}
+
+		#endregion
+
+		[TestMethod]
+		public void CheckDbTableSql()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var checkTableSql = sqlEngine.CheckTable("models");
+
+			Assert.AreEqual("SELECT name FROM sqlite_master WHERE type='table' AND name='models';",  checkTableSql);
+		}
 	}
 }
