@@ -67,7 +67,7 @@ namespace DbModelFramework.Sqlite
 
 		public override string GetLastPrimaryKey()
 		{
-			throw new System.NotImplementedException();
+			return "SELECT last_insert_rowid();";
 		}
 
 		static readonly Dictionary<DbType, string> DbTypeToStringDictionary = new Dictionary<DbType, string>

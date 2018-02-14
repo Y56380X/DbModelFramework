@@ -77,5 +77,15 @@ namespace DbModelFramework.Sqlite.Test
 
 			Assert.AreEqual("SELECT name FROM sqlite_master WHERE type='table' AND name='models';",  checkTableSql);
 		}
+
+		[TestMethod]
+		public void GetLastPrimaryKey()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var getLastPrimaryKey = sqlEngine.GetLastPrimaryKey();
+
+			Assert.AreEqual("SELECT last_insert_rowid();", getLastPrimaryKey);
+		}
 	}
 }
