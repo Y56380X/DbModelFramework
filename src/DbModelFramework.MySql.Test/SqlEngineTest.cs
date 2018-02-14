@@ -92,5 +92,15 @@ namespace DbModelFramework.MySql.Test
 
 			Assert.AreEqual("SELECT table_name FROM information_schema.tables WHERE table_name='models' AND table_schema=DATABASE();",  checkTableSql);
 		}
+
+		[TestMethod]
+		public void GetLastPrimaryKey()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var getLastPrimaryKey = sqlEngine.GetLastPrimaryKey();
+
+			Assert.AreEqual("SELECT LAST_INSERT_ID();", getLastPrimaryKey);
+		}
 	}
 }

@@ -39,7 +39,7 @@ namespace DbModelFramework.MySql
 
 		public override string GetLastPrimaryKey()
 		{
-			throw new NotImplementedException();
+			return "SELECT LAST_INSERT_ID();";
 		}
 
 		#region Old
