@@ -101,7 +101,6 @@ namespace DbModelFramework.Test
 			sqlEngineMock.Setup(se => se.CreateTable("manufacturers", Manufacturer.ModelProperties)).Returns(Manufacturer_CheckTableSql);
 			sqlEngineMock.Setup(se => se.DeleteModel()).Returns(string.Empty);
 			sqlEngineMock.Setup(se => se.SelectModel()).Returns(string.Empty);
-			sqlEngineMock.Setup(se => se.UpdateModel()).Returns(string.Empty);
 			Fakes.DbRequirements.SqlEngineMock = sqlEngineMock.Object;
 
 			DependencyInjection.InjectionContainer = configuration.CreateContainer();

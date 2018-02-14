@@ -39,9 +39,12 @@ namespace DbModelFramework
 			return $"INSERT INTO {tableName} ({modelAttributes.ToChain()}) VALUES ({modelParameters.ToChain()});";
 		}
 
-		public virtual string UpdateModel()
+		public virtual string UpdateModel(string tableName, IEnumerable<ModelProperty> modelProperties)
 		{
-			throw new NotImplementedException();
+			var primaryKeyProperty = modelProperties.Single(prop => prop.IsPrimaryKey);
+			var setParameters = modelProperties.Where(prop => !prop.IsPrimaryKey).Select(prop => $"{prop.AttributeName} = @{prop.AttributeName}");
+
+			return $"UPDATE {tableName} SET {setParameters.ToChain()} WHERE {primaryKeyProperty.AttributeName} = @{primaryKeyProperty.AttributeName};";
 		}
 
 		public virtual string DeleteModel()
