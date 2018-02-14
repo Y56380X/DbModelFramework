@@ -55,6 +55,22 @@ namespace DbModelFramework.Sqlite.Test
 			public string MyAttribute { get; set; }
 		}
 
+		class SingleReferencingModel : Model<SingleReferencingModel>
+		{
+			ReferencedModel MyReference { set; get; }
+		}
+
+		class MultipleReferencingModel : Model<MultipleReferencingModel>
+		{
+			ReferencedModel MyReference1 { set; get; }
+			ReferencedModel MyReference2 { set; get; }
+		}
+
+		class ReferencedModel : Model<ReferencedModel>
+		{
+			public string MyAttribute { get; set; }
+		}
+
 		#endregion
 
 		[TestInitialize]
@@ -125,6 +141,27 @@ namespace DbModelFramework.Sqlite.Test
 			var createTableSql = sqlEngine.CreateTable(UniqueValue.TableName, UniqueValue.ModelProperties);
 
 			Assert.AreEqual("CREATE TABLE uniquevalues (myattribute TEXT UNIQUE, id INTEGER PRIMARY KEY AUTOINCREMENT);", createTableSql);
+		}
+
+		[TestMethod]
+		public void CreateTableSql_SingleReferencingModel()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(SingleReferencingModel.TableName, SingleReferencingModel.ModelProperties);
+
+			Assert.AreEqual("CREATE TABLE singlereferencingmodels (myreference INTEGER, id INTEGER PRIMARY KEY AUTOINCREMENT, FOREIGN KEY(myreference) REFERENCES referencedmodels(id));", createTableSql);
+		}
+
+		[TestMethod]
+		public void CreateTableSql_MultipleReferencingModel()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(MultipleReferencingModel.TableName, MultipleReferencingModel.ModelProperties);
+
+			Assert.AreEqual("CREATE TABLE multiplereferencingmodels (myreference1 INTEGER, myreference2 INTEGER, id INTEGER PRIMARY KEY AUTOINCREMENT, "
+				+ "FOREIGN KEY(myreference1) REFERENCES referencedmodels(id), FOREIGN KEY(myreference2) REFERENCES referencedmodels(id));", createTableSql);
 		}
 
 		[TestMethod]

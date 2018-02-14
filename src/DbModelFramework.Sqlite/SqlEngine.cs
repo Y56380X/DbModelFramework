@@ -49,13 +49,12 @@ namespace DbModelFramework.Sqlite
 				return $"{prop.AttributeName} {DbTypeToString(prop.Type)}{(prop.IsPrimaryKey ? " PRIMARY KEY AUTOINCREMENT" : null)}{(prop.IsUnique ? " UNIQUE" : null)}";
 			});
 
-			return $"CREATE TABLE {tableName} ({modelAttributes.ToChain()});";
+			var foreignKeyAttributes = modelProperties.Where(prop => prop.IsForeignKey).Select(prop =>
+			{
+				return $"FOREIGN KEY({prop.AttributeName}) REFERENCES {prop.ForeignKeyTableName}({prop.ForeignKeyReference.AttributeName})";
+			});
 
-			//// Build foreign key constraints
-			//foreach (var property in modelProperties.Where(mp => mp.IsForeignKey))
-			//	stringBuilder.Append($", FOREIGN KEY({property.AttributeName}) REFERENCES {property.ForeignKeyTableName}({property.ForeignKeyReference.AttributeName})");
-
-			//return stringBuilder.ToString();
+			return $"CREATE TABLE {tableName} ({modelAttributes.ToChain()}{(foreignKeyAttributes.Count() > 0 ? $", {foreignKeyAttributes.ToChain()}" : null)});";
 		}
 
 		public override string GetLastPrimaryKey()
