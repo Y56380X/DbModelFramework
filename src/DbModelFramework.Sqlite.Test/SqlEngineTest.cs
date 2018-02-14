@@ -49,6 +49,12 @@ namespace DbModelFramework.Sqlite.Test
 			public byte[] MyAttribute3 { get; set; }
 		}
 
+		class UniqueValue : Model<UniqueValue>
+		{
+			[DbUnique]
+			public string MyAttribute { get; set; }
+		}
+
 		#endregion
 
 		[TestInitialize]
@@ -109,6 +115,16 @@ namespace DbModelFramework.Sqlite.Test
 			var createTableSql = sqlEngine.CreateTable(MixedType.TableName, MixedType.ModelProperties);
 
 			Assert.AreEqual("CREATE TABLE mixedtypes (myattribute1 TEXT, myattribute2 INTEGER, myattribute3 BLOB, id INTEGER PRIMARY KEY AUTOINCREMENT);", createTableSql);
+		}
+
+		[TestMethod]
+		public void CreateTableSql_UniqueValueModel()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(UniqueValue.TableName, UniqueValue.ModelProperties);
+
+			Assert.AreEqual("CREATE TABLE uniquevalues (myattribute TEXT UNIQUE, id INTEGER PRIMARY KEY AUTOINCREMENT);", createTableSql);
 		}
 	}
 }

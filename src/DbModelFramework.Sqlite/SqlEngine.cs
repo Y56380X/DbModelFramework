@@ -46,32 +46,10 @@ namespace DbModelFramework.Sqlite
 		{
 			var modelAttributes = modelProperties.Select(prop =>
 			{
-				return $"{prop.AttributeName} {DbTypeToString(prop.Type)}{(prop.IsPrimaryKey ? " PRIMARY KEY AUTOINCREMENT" : null)}";
+				return $"{prop.AttributeName} {DbTypeToString(prop.Type)}{(prop.IsPrimaryKey ? " PRIMARY KEY AUTOINCREMENT" : null)}{(prop.IsUnique ? " UNIQUE" : null)}";
 			});
 
 			return $"CREATE TABLE {tableName} ({modelAttributes.ToChain()});";
-
-			//StringBuilder stringBuilder = new StringBuilder();
-
-			//bool first = true;
-			//foreach (var property in modelProperties)
-			//{
-			//	if (first)
-			//	{
-			//		stringBuilder.Append($"{property.AttributeName} {DbTypeToString(property.Type)}");
-			//		first = false;
-			//	}
-			//	else
-			//	{
-			//		stringBuilder.Append($", {property.AttributeName} {DbTypeToString(property.Type)}");
-			//	}
-
-			//	if (property.IsPrimaryKey)
-			//		stringBuilder.Append(" PRIMARY KEY AUTOINCREMENT");
-
-			//	if (property.IsUnique)
-			//		stringBuilder.Append(" UNIQUE");
-			//}
 
 			//// Build foreign key constraints
 			//foreach (var property in modelProperties.Where(mp => mp.IsForeignKey))
