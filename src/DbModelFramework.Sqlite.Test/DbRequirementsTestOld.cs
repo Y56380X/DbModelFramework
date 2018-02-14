@@ -26,7 +26,7 @@ using Moq;
 namespace DbModelFramework.Sqlite.Test
 {
 	[TestClass]
-	public class DbRequirementsTest
+	public class DbRequirementsTestOld
 	{
 		#region test assets
 

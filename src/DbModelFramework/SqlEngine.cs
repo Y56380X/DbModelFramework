@@ -69,7 +69,9 @@ namespace DbModelFramework
 
 		public virtual string SelectModelEntriesByCustomCondition(string tableName, IEnumerable<ModelProperty> modelProperties, string placeholder)
 		{
-			throw new NotImplementedException();
+			var modelAttributes = modelProperties.Select(prop => prop.AttributeName);
+
+			return $"SELECT {modelAttributes.ToChain()} FROM {tableName} WHERE {placeholder};";
 		}
 	}
 }

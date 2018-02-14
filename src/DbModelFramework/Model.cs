@@ -52,7 +52,7 @@ namespace DbModelFramework
 			public static readonly string LastPrimaryKey = "SELECT last_insert_rowid();";
 			public static readonly string SelectAll = DbRequirements.SqlEngine.SelectModelAllEntries(TableName, ModelProperties);
 			public static readonly string SelectByPrimaryKey = DbRequirements.SqlEngine.SelectModelEntryByPrimaryKey(TableName, ModelProperties);
-			public static readonly string SelectByCustomCondition = $"SELECT {ModelProperties.ToAttributeChainSql(true)} FROM {TableName} WHERE {{0}};";
+			public static readonly string SelectByCustomCondition = DbRequirements.SqlEngine.SelectModelEntriesByCustomCondition(TableName, ModelProperties, "{{0}}");
 			public static readonly string Delete = DbRequirements.SqlEngine.DeleteModel(TableName, PrimaryKeyProperty);
 			public static readonly string Update = DbRequirements.SqlEngine.UpdateModel(TableName, ModelProperties);
 
