@@ -60,7 +60,12 @@ namespace DbModelFramework.MySql
 				+ $"{(prop.IsPrimaryKey ? " NOT NULL PRIMARY KEY AUTO_INCREMENT" : null)}{(prop.IsUnique ? " UNIQUE" : null)}";
 			});
 
-			return $"CREATE TABLE {tableName} ({modelAttributes.ToChain()});";
+			var foreignKeyAttributes = modelProperties.Where(prop => prop.IsForeignKey).Select(prop =>
+			{
+				return $"FOREIGN KEY({prop.AttributeName}) REFERENCES {prop.ForeignKeyTableName}({prop.ForeignKeyReference.AttributeName})";
+			});
+
+			return $"CREATE TABLE {tableName} ({modelAttributes.ToChain()}{(foreignKeyAttributes.Count() > 0 ? $", {foreignKeyAttributes.ToChain()}" : null)});";
 		}
 
 		public override string GetLastPrimaryKey()

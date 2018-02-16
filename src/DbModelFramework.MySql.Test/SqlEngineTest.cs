@@ -142,5 +142,26 @@ namespace DbModelFramework.MySql.Test
 
 			Assert.AreEqual("CREATE TABLE uniquevalues (myattribute VARCHAR(255) UNIQUE, id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT);", createTableSql);
 		}
+
+		[TestMethod]
+		public void CreateTableSql_SingleReferencingModel()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(SingleReferencingModel.TableName, SingleReferencingModel.ModelProperties);
+
+			Assert.AreEqual("CREATE TABLE singlereferencingmodels (myreference INTEGER, id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, FOREIGN KEY(myreference) REFERENCES referencedmodels(id));", createTableSql);
+		}
+
+		[TestMethod]
+		public void CreateTableSql_MultipleReferencingModel()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(MultipleReferencingModel.TableName, MultipleReferencingModel.ModelProperties);
+
+			Assert.AreEqual("CREATE TABLE multiplereferencingmodels (myreference1 INTEGER, myreference2 INTEGER, id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, "
+				+ "FOREIGN KEY(myreference1) REFERENCES referencedmodels(id), FOREIGN KEY(myreference2) REFERENCES referencedmodels(id));", createTableSql);
+		}
 	}
 }
