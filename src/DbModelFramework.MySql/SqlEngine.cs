@@ -77,42 +77,5 @@ namespace DbModelFramework.MySql
 		{
 			return asKey ? DbTypeAsKeyToStringDictionary[dbType] : DbTypeToStringDictionary[dbType];
 		}
-
-		#region Old
-
-		//public override string GetTableCreationSql(IEnumerable<ModelProperty> modelProperties)
-		//{
-		//	StringBuilder stringBuilder = new StringBuilder();
-
-		//	bool first = true;
-		//	foreach (var property in modelProperties)
-		//	{
-		//		if (first)
-		//		{
-		//			stringBuilder.Append($"{property.AttributeName} {DbTypeToString(property.Type)}");
-		//			first = false;
-		//		}
-		//		else
-		//		{
-		//			stringBuilder.Append($", {property.AttributeName} {DbTypeToString(property.Type)}");
-		//		}
-		//	}
-
-		//	// Build primary key constraints
-		//	foreach (var property in modelProperties.Where(mp => mp.IsPrimaryKey))
-		//		stringBuilder.Append($", PRIMARY KEY ({property.AttributeName})");
-
-		//	// Build unique value constraints
-		//	foreach (var property in modelProperties.Where(mp => mp.IsUnique))
-		//		stringBuilder.Append($", UNIQUE ({property.AttributeName})");
-
-		//	// Build foreign key constraints
-		//	foreach (var property in modelProperties.Where(mp => mp.IsForeignKey))
-		//		stringBuilder.Append($", FOREIGN KEY({property.AttributeName}) REFERENCES {property.ForeignKeyTableName}({property.ForeignKeyReference.AttributeName})");
-
-		//	return stringBuilder.ToString();
-		//}
-
-		#endregion
 	}
 }
