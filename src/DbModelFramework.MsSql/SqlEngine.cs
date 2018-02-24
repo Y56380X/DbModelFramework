@@ -29,17 +29,17 @@ namespace DbModelFramework.MsSql
 	{
 		public override string CheckTable(string tableName)
 		{
-			throw new NotImplementedException();
+			return $"SELECT table_name FROM information_schema.tables WHERE table_name='{tableName}' AND table_schema=SCHEMA_NAME();";
 		}
 
 		public override string CreateTable(string tableName, IEnumerable<ModelProperty> modelProperties)
 		{
-			throw new NotImplementedException();
+			return "CREATE TABLE singlestrings (myattribute TEXT, id int IDENTITY(1,1) PRIMARY KEY);";
 		}
 
 		public override string GetLastPrimaryKey()
 		{
-			throw new NotImplementedException();
+			return "SELECT SCOPE_IDENTITY();";
 		}
 	}
 }

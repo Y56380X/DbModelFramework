@@ -1,5 +1,5 @@
 ﻿/**
-	Copyright (c) 2017-2018 Y56380X
+	Copyright (c) 2018 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -20,10 +20,17 @@
 	SOFTWARE.
 **/
 
-using System.Runtime.CompilerServices;
+using System.Composition;
+using System.Data;
 
-[assembly: InternalsVisibleTo("DbModelFramework.Test")]
-[assembly: InternalsVisibleTo("DbModelFramework.Sqlite.Test")]
-[assembly: InternalsVisibleTo("DbModelFramework.MySql.Test")]
-[assembly: InternalsVisibleTo("DbModelFramework.MsSql.Test")]
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
+namespace DbModelFramework.MsSql.Test.Fakes
+{
+	[Export(typeof(DbModelFramework.DbRequirements))]
+	class DbRequirements : MsSql.DbRequirements
+	{
+		public override IDbConnection CreateDbConnection()
+		{
+			throw new System.NotImplementedException();
+		}
+	}
+}

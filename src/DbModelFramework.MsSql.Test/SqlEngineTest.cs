@@ -20,6 +20,7 @@
 	SOFTWARE.
 **/
 
+using System.Composition.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DbModelFramework.MsSql.Test
@@ -27,5 +28,53 @@ namespace DbModelFramework.MsSql.Test
 	[TestClass]
 	public class SqlEngineTest
 	{
+		#region test assets
+
+		class SingleString : Model<SingleString>
+		{
+			public string MyAttribute { get; set; }
+		}
+
+		#endregion
+
+		[TestInitialize]
+		public void Init()
+		{
+			// Setup fakes
+			var configuration = new ContainerConfiguration();
+			configuration.WithPart<Fakes.DbRequirements>();
+
+			DependencyInjection.InjectionContainer = configuration.CreateContainer();
+		}
+
+		[TestMethod]
+		public void CheckDbTableSql()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var checkTableSql = sqlEngine.CheckTable("models");
+
+			Assert.AreEqual("SELECT table_name FROM information_schema.tables WHERE table_name='models' AND table_schema=SCHEMA_NAME();", checkTableSql);
+		}
+
+		[TestMethod]
+		public void GetLastPrimaryKey()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var getLastPrimaryKey = sqlEngine.GetLastPrimaryKey();
+
+			Assert.AreEqual("SELECT SCOPE_IDENTITY();", getLastPrimaryKey);
+		}
+
+		[TestMethod]
+		public void CreateTableSql_SingleStringModel()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(SingleString.TableName, SingleString.ModelProperties);
+
+			Assert.AreEqual("CREATE TABLE singlestrings (myattribute TEXT, id int IDENTITY(1,1) PRIMARY KEY);", createTableSql);
+		}
 	}
 }
