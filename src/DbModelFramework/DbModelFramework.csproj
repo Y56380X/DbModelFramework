@@ -8,7 +8,7 @@
 		<Authors>Y56380X</Authors>
 		<Company />
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-		<Copyright>Copyright (c) 2017 Y56380X</Copyright>
+		<Copyright>Copyright (c) 2017-2018 Y56380X</Copyright>
 		<PackageProjectUrl>https://github.com/Y56380X/DbModelFramework</PackageProjectUrl>
 		<PackageLicenseUrl>https://github.com/Y56380X/DbModelFramework/blob/master/LICENSE</PackageLicenseUrl>
 	</PropertyGroup>
