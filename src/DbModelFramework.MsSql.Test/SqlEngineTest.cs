@@ -142,5 +142,26 @@ namespace DbModelFramework.MsSql.Test
 
 			Assert.AreEqual("CREATE TABLE uniquevalues (myattribute Nvarchar(255) UNIQUE, id int IDENTITY(1,1) PRIMARY KEY);", createTableSql);
 		}
+
+		[TestMethod]
+		public void CreateTableSql_SingleReferencingModel()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(SingleReferencingModel.TableName, SingleReferencingModel.ModelProperties);
+
+			Assert.AreEqual("CREATE TABLE singlereferencingmodels (myreference int FOREIGN KEY REFERENCES referencedmodels(id), id int IDENTITY(1,1) PRIMARY KEY);", createTableSql);
+		}
+
+		[TestMethod]
+		public void CreateTableSql_MultipleReferencingModel()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(MultipleReferencingModel.TableName, MultipleReferencingModel.ModelProperties);
+
+			Assert.AreEqual("CREATE TABLE multiplereferencingmodels (myreference1 int FOREIGN KEY REFERENCES referencedmodels(id), myreference2 int FOREIGN KEY REFERENCES referencedmodels(id), "
+				+ "id int IDENTITY(1,1) PRIMARY KEY);", createTableSql);
+		}
 	}
 }
