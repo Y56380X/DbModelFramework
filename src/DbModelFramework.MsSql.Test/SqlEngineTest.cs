@@ -35,6 +35,42 @@ namespace DbModelFramework.MsSql.Test
 			public string MyAttribute { get; set; }
 		}
 
+		class MultipleString : Model<MultipleString>
+		{
+			public string MyAttribute1 { get; set; }
+			public string MyAttribute2 { get; set; }
+			public string MyAttribute3 { get; set; }
+		}
+
+		class MixedType : Model<MixedType>
+		{
+			public string MyAttribute1 { get; set; }
+			public int MyAttribute2 { get; set; }
+			public byte[] MyAttribute3 { get; set; }
+		}
+
+		class UniqueValue : Model<UniqueValue>
+		{
+			[DbUnique]
+			public string MyAttribute { get; set; }
+		}
+
+		class SingleReferencingModel : Model<SingleReferencingModel>
+		{
+			ReferencedModel MyReference { set; get; }
+		}
+
+		class MultipleReferencingModel : Model<MultipleReferencingModel>
+		{
+			ReferencedModel MyReference1 { set; get; }
+			ReferencedModel MyReference2 { set; get; }
+		}
+
+		class ReferencedModel : Model<ReferencedModel>
+		{
+			public string MyAttribute { get; set; }
+		}
+
 		#endregion
 
 		[TestInitialize]
@@ -74,7 +110,17 @@ namespace DbModelFramework.MsSql.Test
 
 			var createTableSql = sqlEngine.CreateTable(SingleString.TableName, SingleString.ModelProperties);
 
-			Assert.AreEqual("CREATE TABLE singlestrings (myattribute TEXT, id int IDENTITY(1,1) PRIMARY KEY);", createTableSql);
+			Assert.AreEqual("CREATE TABLE singlestrings (myattribute Nvarchar(max), id int IDENTITY(1,1) PRIMARY KEY);", createTableSql);
+		}
+
+		[TestMethod]
+		public void CreateTableSql_MultipleStringModel()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(MultipleString.TableName, MultipleString.ModelProperties);
+
+			Assert.AreEqual("CREATE TABLE multiplestrings (myattribute1 Nvarchar(max), myattribute2 Nvarchar(max), myattribute3 Nvarchar(max), id int IDENTITY(1,1) PRIMARY KEY);", createTableSql);
 		}
 	}
 }

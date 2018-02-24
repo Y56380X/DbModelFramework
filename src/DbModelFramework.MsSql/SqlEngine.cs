@@ -22,11 +22,32 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 
 namespace DbModelFramework.MsSql
 {
 	class SqlEngine : DbModelFramework.SqlEngine
 	{
+		static readonly Dictionary<DbType, string> DbTypeToStringDictionary = new Dictionary<DbType, string>
+		{
+			{ DbType.String, "Nvarchar(max)" },
+			{ DbType.Int32, "int" },
+			{ DbType.Int16, "int" },
+			{ DbType.Int64, "int" },
+			{ DbType.Binary, "binary" },
+			{ DbType.Boolean, "int" }
+		};
+
+		static readonly Dictionary<DbType, string> DbTypeAsKeyToStringDictionary = new Dictionary<DbType, string>
+		{
+			{ DbType.String, "Nvarchar(255)" },
+			{ DbType.Int32, "int" },
+			{ DbType.Int16, "int" },
+			{ DbType.Int64, "int" },
+			{ DbType.Boolean, "int" }
+		};
+
 		public override string CheckTable(string tableName)
 		{
 			return $"SELECT table_name FROM information_schema.tables WHERE table_name='{tableName}' AND table_schema=SCHEMA_NAME();";
@@ -34,12 +55,22 @@ namespace DbModelFramework.MsSql
 
 		public override string CreateTable(string tableName, IEnumerable<ModelProperty> modelProperties)
 		{
-			return "CREATE TABLE singlestrings (myattribute TEXT, id int IDENTITY(1,1) PRIMARY KEY);";
+			var modelAttributes = modelProperties.Select(prop =>
+			{
+				return $"{prop.AttributeName} {DbTypeToString(prop.Type)}{(prop.IsPrimaryKey ? " IDENTITY(1,1) PRIMARY KEY" : null)}";
+			});
+
+			return $"CREATE TABLE {tableName} ({modelAttributes.ToChain()});";
 		}
 
 		public override string GetLastPrimaryKey()
 		{
 			return "SELECT SCOPE_IDENTITY();";
+		}
+
+		private static string DbTypeToString(DbType dbType, bool asKey = false)
+		{
+			return asKey ? DbTypeAsKeyToStringDictionary[dbType] : DbTypeToStringDictionary[dbType];
 		}
 	}
 }
