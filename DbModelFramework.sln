@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2026
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbModelFramework", "src\DbModelFramework\DbModelFramework.csproj", "{44480A12-0386-4EFB-8B26-44E72634FC81}"
 EndProject
@@ -12,15 +12,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbModelFramework.Sqlite", "src\DbModelFramework.Sqlite\DbModelFramework.Sqlite.csproj", "{22FA7610-09A4-4AC7-976A-021611826D2F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbModelFramework.Sqlite", "src\DbModelFramework.Sqlite\DbModelFramework.Sqlite.csproj", "{22FA7610-09A4-4AC7-976A-021611826D2F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbModelFramework.Sqlite.Test", "src\DbModelFramework.Sqlite.Test\DbModelFramework.Sqlite.Test.csproj", "{77359CC7-DF9B-48AA-BA91-C0351959C59E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbModelFramework.Sqlite.Test", "src\DbModelFramework.Sqlite.Test\DbModelFramework.Sqlite.Test.csproj", "{77359CC7-DF9B-48AA-BA91-C0351959C59E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{95157DEB-ABF4-456D-9D9D-8B7D81409158}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbModelFramework.MySql", "src\DbModelFramework.MySql\DbModelFramework.MySql.csproj", "{88ED4EAD-581C-4C30-B6EA-DBAB3456B671}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbModelFramework.MySql", "src\DbModelFramework.MySql\DbModelFramework.MySql.csproj", "{88ED4EAD-581C-4C30-B6EA-DBAB3456B671}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbModelFramework.MySql.Test", "src\DbModelFramework.MySql.Test\DbModelFramework.MySql.Test.csproj", "{1FFA95E0-C339-4C35-862D-474488479B09}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbModelFramework.MySql.Test", "src\DbModelFramework.MySql.Test\DbModelFramework.MySql.Test.csproj", "{1FFA95E0-C339-4C35-862D-474488479B09}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbModelFramework.MsSql", "src\DbModelFramework.MsSql\DbModelFramework.MsSql.csproj", "{756C8C5D-C8F5-4946-9D9A-92B4F14C20CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -52,6 +54,10 @@ Global
 		{1FFA95E0-C339-4C35-862D-474488479B09}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1FFA95E0-C339-4C35-862D-474488479B09}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1FFA95E0-C339-4C35-862D-474488479B09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{756C8C5D-C8F5-4946-9D9A-92B4F14C20CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{756C8C5D-C8F5-4946-9D9A-92B4F14C20CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{756C8C5D-C8F5-4946-9D9A-92B4F14C20CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{756C8C5D-C8F5-4946-9D9A-92B4F14C20CE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
