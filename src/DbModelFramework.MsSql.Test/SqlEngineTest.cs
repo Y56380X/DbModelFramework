@@ -122,5 +122,25 @@ namespace DbModelFramework.MsSql.Test
 
 			Assert.AreEqual("CREATE TABLE multiplestrings (myattribute1 Nvarchar(max), myattribute2 Nvarchar(max), myattribute3 Nvarchar(max), id int IDENTITY(1,1) PRIMARY KEY);", createTableSql);
 		}
+
+		[TestMethod]
+		public void CreateTableSql_MixedTypeModel()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(MixedType.TableName, MixedType.ModelProperties);
+
+			Assert.AreEqual("CREATE TABLE mixedtypes (myattribute1 Nvarchar(max), myattribute2 int, myattribute3 binary, id int IDENTITY(1,1) PRIMARY KEY);", createTableSql);
+		}
+
+		[TestMethod]
+		public void CreateTableSql_UniqueValueModel()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(UniqueValue.TableName, UniqueValue.ModelProperties);
+
+			Assert.AreEqual("CREATE TABLE uniquevalues (myattribute Nvarchar(255) UNIQUE, id int IDENTITY(1,1) PRIMARY KEY);", createTableSql);
+		}
 	}
 }

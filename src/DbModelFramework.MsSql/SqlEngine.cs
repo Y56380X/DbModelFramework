@@ -57,7 +57,7 @@ namespace DbModelFramework.MsSql
 		{
 			var modelAttributes = modelProperties.Select(prop =>
 			{
-				return $"{prop.AttributeName} {DbTypeToString(prop.Type)}{(prop.IsPrimaryKey ? " IDENTITY(1,1) PRIMARY KEY" : null)}";
+				return $"{prop.AttributeName} {DbTypeToString(prop.Type, prop.IsUnique || prop.IsForeignKey || prop.IsPrimaryKey)}{(prop.IsPrimaryKey ? " IDENTITY(1,1) PRIMARY KEY" : null)}{(prop.IsUnique ? " UNIQUE" : null)}";
 			});
 
 			return $"CREATE TABLE {tableName} ({modelAttributes.ToChain()});";
