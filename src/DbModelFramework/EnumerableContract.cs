@@ -43,7 +43,7 @@ namespace DbModelFramework
 			tableName = $"{enumItemType.Name.ToLower()}sTo{modelType.Name.ToLower()}s";
 			virtualModelProperties = new[] {
 				new ModelProperty(new VirtualPropertyInfo(enumItemType.Name.ToLower(), enumItemType)),
-				new ModelProperty(new VirtualPropertyInfo(modelType.Name.ToLower(), typeof(int)/*TODO: Type of models pk*/))
+				new ModelProperty(new VirtualPropertyInfo(modelType.Name.ToLower(), modelType))
 			};
 
 			onCreateSql = DbRequirements.SqlEngine.CreateTable(tableName, virtualModelProperties);
