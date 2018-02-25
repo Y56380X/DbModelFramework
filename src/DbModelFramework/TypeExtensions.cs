@@ -30,6 +30,12 @@ namespace DbModelFramework
 {
 	static class TypeExtensions
 	{
+		private static readonly Type[] EnumerableBlacklist =
+		{
+			typeof(string),
+			typeof(byte[])
+		};
+
 		public static object GetDefault(this Type type)
 		{
 			if (type.IsValueType)
@@ -42,7 +48,7 @@ namespace DbModelFramework
 		{
 			// Get all properties (without ignored ones and enumerables)
 			var properties = modelType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-				.Where(prop => !Attribute.IsDefined(prop, typeof(DbIgnoreAttribute)) && !typeof(IEnumerable).IsAssignableFrom(prop.PropertyType));
+				.Where(prop => !Attribute.IsDefined(prop, typeof(DbIgnoreAttribute)) && (EnumerableBlacklist.Contains(prop.PropertyType) || !typeof(IEnumerable).IsAssignableFrom(prop.PropertyType)));
 			
 			return properties.Select(prop => new ModelProperty(prop));
 		}
@@ -71,7 +77,7 @@ namespace DbModelFramework
 
 			// Setup execution contracts for enumerables
 			var enumerables = modelType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-				.Where(prop => !Attribute.IsDefined(prop, typeof(DbIgnoreAttribute)) && typeof(IEnumerable).IsAssignableFrom(prop.PropertyType));
+				.Where(prop => !Attribute.IsDefined(prop, typeof(DbIgnoreAttribute)) && !EnumerableBlacklist.Contains(prop.PropertyType) && typeof(IEnumerable).IsAssignableFrom(prop.PropertyType));
 
 			executionContracts.AddRange(enumerables.Select(en => new EnumerableContract(modelType, en.DeclaringType)));
 
