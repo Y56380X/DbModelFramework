@@ -73,7 +73,7 @@ namespace DbModelFramework
 			var enumerables = modelType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
 				.Where(prop => !Attribute.IsDefined(prop, typeof(DbIgnoreAttribute)) && typeof(IEnumerable).IsAssignableFrom(prop.PropertyType));
 
-			executionContracts.AddRange(enumerables.Select(en => new EnumerableContract(en.DeclaringType)));
+			executionContracts.AddRange(enumerables.Select(en => new EnumerableContract(modelType, en.DeclaringType)));
 
 			return executionContracts;
 		}

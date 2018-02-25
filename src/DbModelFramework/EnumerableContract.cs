@@ -28,9 +28,18 @@ namespace DbModelFramework
 	{
 		internal static readonly DbRequirements DbRequirements = DbRequirements.Instance;
 
-		public EnumerableContract(Type enumItemType)
-		{
+		#region sql
 
+		private readonly string onCreateSql;
+
+		#endregion
+
+		public EnumerableContract(Type modelType, Type enumItemType)
+		{
+			onCreateSql = DbRequirements.SqlEngine.CreateTable($"{enumItemType.Name.ToLower()}sTo{modelType.Name.ToLower()}s", new[] {
+				new ModelProperty(new VirtualPropertyInfo()),
+				new ModelProperty(new VirtualPropertyInfo())
+			});
 		}
 
 		public override void OnCreate()
