@@ -42,7 +42,7 @@ namespace DbModelFramework
 		{
 			// Get all properties (without ignored ones and enumerables)
 			var properties = modelType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-				.Where(prop => !Attribute.IsDefined(prop, typeof(DbIgnoreAttribute)) && !prop.PropertyType.IsSubclassOf(typeof(IEnumerable)));
+				.Where(prop => !Attribute.IsDefined(prop, typeof(DbIgnoreAttribute)) && !typeof(IEnumerable).IsAssignableFrom(prop.PropertyType));
 			
 			return properties.Select(prop => new ModelProperty(prop));
 		}
@@ -67,12 +67,15 @@ namespace DbModelFramework
 
 		public static IEnumerable<ExecutionContract> GetExecutionContracts(this Type modelType)
 		{
+			var executionContracts = new List<ExecutionContract>();
+
 			// Setup execution contracts for enumerables
 			var enumerables = modelType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
-				.Where(prop => !Attribute.IsDefined(prop, typeof(DbIgnoreAttribute)) && prop.PropertyType.IsSubclassOf(typeof(IEnumerable)));
+				.Where(prop => !Attribute.IsDefined(prop, typeof(DbIgnoreAttribute)) && typeof(IEnumerable).IsAssignableFrom(prop.PropertyType));
 
-			return new List<ExecutionContract>();
-			//throw new NotImplementedException();
+			executionContracts.AddRange(enumerables.Select(en => new EnumerableContract(en.DeclaringType)));
+
+			return executionContracts;
 		}
 	}
 }

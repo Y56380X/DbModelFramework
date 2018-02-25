@@ -21,29 +21,36 @@
 **/
 
 using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Text;
 
 namespace DbModelFramework
 {
-	abstract class ExecutionContract
+	class EnumerableContract : ExecutionContract
 	{
-		public abstract void OnCreate();
+		internal static readonly DbRequirements DbRequirements = DbRequirements.Instance;
 
-		public abstract void OnInsert();
-
-		public abstract void OnUpdate();
-			   
-		public abstract void OnDelete();
-	}
-
-	static class ExecutionContractExtesions
-	{
-		public static void Execute(this IEnumerable<ExecutionContract> executionContracts, Action<ExecutionContract> action)
+		public EnumerableContract(Type enumItemType)
 		{
-			foreach (var executionContract in executionContracts)
-				action.Invoke(executionContract);
+
+		}
+
+		public override void OnCreate()
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void OnDelete()
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void OnInsert()
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void OnUpdate()
+		{
+			throw new NotImplementedException();
 		}
 	}
 }
