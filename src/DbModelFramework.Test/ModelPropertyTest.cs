@@ -20,6 +20,7 @@
 	SOFTWARE.
 **/
 
+using System.Collections.Generic;
 using System.Composition.Hosting;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -30,6 +31,8 @@ namespace DbModelFramework.Test
 	[TestClass]
 	public class ModelPropertyTest
 	{
+		#region test assets
+
 		class TestModel : Model<TestModel>
 		{
 			public long MyAttribute1 { get; set; }
@@ -46,6 +49,18 @@ namespace DbModelFramework.Test
 		class ReferenceModel : Model<ReferenceModel>
 		{
 		}
+
+		class ModelWithEnumerationOfValues : Model<ModelWithEnumerationOfValues>
+		{
+			IEnumerable<int> MyEnumeration { get; set; }
+		}
+
+		class ModelWithEnumerationOfReferences : Model<ModelWithEnumerationOfReferences>
+		{
+			IEnumerable<ReferenceModel> MyEnumeration { get; set; }
+		}
+
+		#endregion
 
 		[TestInitialize]
 		public void Init()

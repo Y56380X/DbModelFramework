@@ -1,5 +1,5 @@
 ﻿/**
-	Copyright (c) 2017 Y56380X
+	Copyright (c) 2017-2018 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -21,6 +21,7 @@
 **/
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -39,7 +40,9 @@ namespace DbModelFramework
 
 		public static IEnumerable<ModelProperty> GetModelProperties(this Type modelType)
 		{
-			var properties = modelType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).Where(prop => !Attribute.IsDefined(prop, typeof(DbIgnoreAttribute)));
+			// Get all properties (without ignored ones and enumerables)
+			var properties = modelType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
+				.Where(prop => !Attribute.IsDefined(prop, typeof(DbIgnoreAttribute)) && !prop.PropertyType.IsSubclassOf(typeof(IEnumerable)));
 			
 			return properties.Select(prop => new ModelProperty(prop));
 		}
@@ -60,6 +63,16 @@ namespace DbModelFramework
 
 			genericBaseClass = default(Type);
 			return false;
+		}
+
+		public static IEnumerable<ExecutionContract> GetExecutionContracts(this Type modelType)
+		{
+			// Setup execution contracts for enumerables
+			var enumerables = modelType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
+				.Where(prop => !Attribute.IsDefined(prop, typeof(DbIgnoreAttribute)) && prop.PropertyType.IsSubclassOf(typeof(IEnumerable)));
+
+			return new List<ExecutionContract>();
+			//throw new NotImplementedException();
 		}
 	}
 }

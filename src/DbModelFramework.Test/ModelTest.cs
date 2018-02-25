@@ -22,6 +22,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Collections.Generic;
 using System.Composition.Hosting;
 using System.Data;
 using System.Linq;
@@ -80,6 +81,11 @@ namespace DbModelFramework.Test
 			public string Name { get; set; }
 		}
 
+		class ExecutionContractTest : Model<ExecutionContractTest>
+		{
+			public IEnumerable<int> MyProperty { get; set; }
+		}
+
 		#endregion
 	
 		[TestInitialize]
@@ -88,9 +94,12 @@ namespace DbModelFramework.Test
 			// Setup fakes
 			var configuration = new ContainerConfiguration();
 			configuration.WithPart<Fakes.DbRequirements>();
+			DependencyInjection.InjectionContainer = configuration.CreateContainer();
 
 			// Setup car sqlengine
 			var sqlEngineMock = new Mock<SqlEngine>() { CallBase = true };
+			Fakes.DbRequirements.SqlEngineMock = sqlEngineMock.Object;
+
 			sqlEngineMock.Setup(se => se.GetLastPrimaryKey()).Returns("SELECT LAST_PK;");
 			sqlEngineMock.Setup(se => se.CheckTable("cars")).Returns(Car_CheckTableSql);
 			sqlEngineMock.Setup(se => se.CreateTable("cars", Car.ModelProperties)).Returns(Car_CreateTableSql);
@@ -100,9 +109,6 @@ namespace DbModelFramework.Test
 			sqlEngineMock.Setup(se => se.CreateTable("products", Product.ModelProperties)).Returns(Product_CreateTableSql);
 			sqlEngineMock.Setup(se => se.CheckTable("manufacturers")).Returns(Manufacturer_CheckTableSql);
 			sqlEngineMock.Setup(se => se.CreateTable("manufacturers", Manufacturer.ModelProperties)).Returns(Manufacturer_CheckTableSql);
-			Fakes.DbRequirements.SqlEngineMock = sqlEngineMock.Object;
-
-			DependencyInjection.InjectionContainer = configuration.CreateContainer();
 		}
 
 		[TestMethod]
@@ -126,7 +132,6 @@ namespace DbModelFramework.Test
 			var checkTableSql = Car.Sql.CheckTable;
 
 			Assert.AreEqual(Car_CheckTableSql, checkTableSql);
-			Assert.IsTrue(Fakes.DbConnection.CreatedCommands.Select(c => c.CommandText).Contains(checkTableSql));
 		}
 
 		[TestMethod]
@@ -135,7 +140,6 @@ namespace DbModelFramework.Test
 			var createTable = Car.Sql.CreateTable;
 
 			Assert.AreEqual(Car_CreateTableSql, createTable);
-			Assert.IsTrue(Fakes.DbConnection.CreatedCommands.Select(c => c.CommandText).Contains(createTable));
 		}
 
 		[TestMethod]
@@ -340,6 +344,20 @@ namespace DbModelFramework.Test
 			Assert.IsNotNull(product.Manufacturer);
 			Assert.AreEqual("My imaginary product", product.Name);
 			Assert.AreEqual("My imaginary manufacturer", product.Manufacturer.Name);
+		}
+
+		[TestMethod]
+		public void HasExecutionContract()
+		{
+			var executionContracts = ExecutionContractTest.ExecutionContracts;
+
+			Assert.IsTrue(executionContracts.Count() == 1);
+		}
+
+		[TestMethod]
+		public void IsOnCreateExecutionContractCalled()
+		{
+
 		}
 	}
 }

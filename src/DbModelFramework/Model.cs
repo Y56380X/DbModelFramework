@@ -41,6 +41,7 @@ namespace DbModelFramework
 		internal static readonly string TableName = $"{typeof(TType).Name.ToLower()}s";
 		internal static readonly IEnumerable<ModelProperty> ModelProperties = typeof(TType).GetModelProperties();
 		internal static readonly ModelProperty PrimaryKeyProperty = ModelProperties.Single(prop => prop.IsPrimaryKey);
+		internal static readonly IEnumerable<ExecutionContract> ExecutionContracts = typeof(TType).GetExecutionContracts();
 
 		#endregion
 
@@ -85,6 +86,7 @@ namespace DbModelFramework
 
 					command.ExecuteNonQuery();
 
+					ExecutionContracts.Execute(ec => ec.OnCreate());
 				}
 
 			}
