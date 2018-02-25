@@ -81,7 +81,7 @@ namespace DbModelFramework.Test
 			public string Name { get; set; }
 		}
 
-		class ExecutionContractTest : Model<ExecutionContractTest>
+		class ExecutionContractTestModel : Model<ExecutionContractTestModel>
 		{
 			public IEnumerable<int> MyProperty { get; set; }
 		}
@@ -349,15 +349,9 @@ namespace DbModelFramework.Test
 		[TestMethod]
 		public void HasExecutionContract()
 		{
-			var executionContracts = ExecutionContractTest.ExecutionContracts;
+			var executionContracts = ExecutionContractTestModel.ExecutionContracts;
 
 			Assert.IsTrue(executionContracts.Count() == 1);
-		}
-
-		[TestMethod]
-		public void IsOnCreateExecutionContractCalled()
-		{
-
 		}
 	}
 }

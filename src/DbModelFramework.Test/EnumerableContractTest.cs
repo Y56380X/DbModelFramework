@@ -20,35 +20,49 @@
 	SOFTWARE.
 **/
 
+using System.Composition.Hosting;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace DbModelFramework.Test
 {
 	[TestClass]
-	public class VirtualPropertyInfoTest
+	public class EnumerableContractTest
 	{
-		[TestMethod]
-		public void ModelPropertyIsCreateableFromVirtualPropertyInfo()
-		{
-			var modelProperty = new ModelProperty(new VirtualPropertyInfo("MyProperty", typeof(int)));
+		class MyTestModel : Model<MyTestModel> { }
 
-			Assert.IsNotNull(modelProperty);
+		Mock<SqlEngine> sqlEngineMock;
+
+		[TestInitialize]
+		public void Init()
+		{
+			// Setup fakes
+			var configuration = new ContainerConfiguration();
+			configuration.WithPart<Fakes.DbRequirements>();
+			DependencyInjection.InjectionContainer = configuration.CreateContainer();
+
+			// Setup car sqlengine
+			sqlEngineMock = new Mock<SqlEngine>() { CallBase = true };
+			Fakes.DbRequirements.SqlEngineMock = sqlEngineMock.Object;
 		}
 
 		[TestMethod]
-		public void VirtualPropertyInfoHasCorrectName()
+		public void CheckIntegerEnumeration()
 		{
-			var propertyInfo = new VirtualPropertyInfo("MyProperty", typeof(int));
+			var enumerableContract = new EnumerableContract(typeof(MyTestModel), typeof(int));
 
-			Assert.AreEqual("MyProperty", propertyInfo.Name);
+			Assert.AreEqual("int32sTomytestmodels", enumerableContract.tableName);
 		}
 
 		[TestMethod]
-		public void VirtualPropertyInfoHasCorrectPropertyType()
+		public void CheckVirtualModelProperties()
 		{
-			var propertyInfo = new VirtualPropertyInfo("MyProperty", typeof(int));
+			var modelProperties = new EnumerableContract(typeof(MyTestModel), typeof(int)).virtualModelProperties;
 
-			Assert.AreEqual(typeof(int), propertyInfo.PropertyType);
+			Assert.AreEqual(2, modelProperties.Count());
+			Assert.IsNotNull(modelProperties.SingleOrDefault(prop => prop.AttributeName == "mytestmodel"));
+			Assert.IsNotNull(modelProperties.SingleOrDefault(prop => prop.AttributeName == "int32"));
 		}
 	}
 }

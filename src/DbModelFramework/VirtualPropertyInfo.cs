@@ -28,19 +28,31 @@ namespace DbModelFramework
 {
 	class VirtualPropertyInfo : PropertyInfo
 	{
+		#region properties
+
 		public override PropertyAttributes Attributes => throw new NotImplementedException();
 
 		public override bool CanRead => throw new NotImplementedException();
 
 		public override bool CanWrite => throw new NotImplementedException();
 
-		public override Type PropertyType => throw new NotImplementedException();
+		private Type propertyType;
+		public override Type PropertyType => propertyType;
 
 		public override Type DeclaringType => throw new NotImplementedException();
 
-		public override string Name => throw new NotImplementedException();
+		private string name;
+		public override string Name => name;
 
 		public override Type ReflectedType => throw new NotImplementedException();
+
+		#endregion
+
+		public VirtualPropertyInfo(string name, Type type)
+		{
+			this.name = name;
+			this.propertyType = type;
+		}
 
 		public override MethodInfo[] GetAccessors(bool nonPublic)
 		{
@@ -59,17 +71,17 @@ namespace DbModelFramework
 
 		public override MethodInfo GetGetMethod(bool nonPublic)
 		{
-			throw new NotImplementedException();
+			return null;
 		}
 
 		public override ParameterInfo[] GetIndexParameters()
 		{
-			throw new NotImplementedException();
+			return new ParameterInfo[0];
 		}
 
 		public override MethodInfo GetSetMethod(bool nonPublic)
 		{
-			throw new NotImplementedException();
+			return null;
 		}
 
 		public override object GetValue(object obj, BindingFlags invokeAttr, Binder binder, object[] index, CultureInfo culture)
@@ -79,7 +91,7 @@ namespace DbModelFramework
 
 		public override bool IsDefined(Type attributeType, bool inherit)
 		{
-			throw new NotImplementedException();
+			return false;
 		}
 
 		public override void SetValue(object obj, object value, BindingFlags invokeAttr, Binder binder, object[] index, CultureInfo culture)

@@ -21,6 +21,7 @@
 **/
 
 using System;
+using System.Collections.Generic;
 
 namespace DbModelFramework
 {
@@ -30,16 +31,21 @@ namespace DbModelFramework
 
 		#region sql
 
-		private readonly string onCreateSql;
+		internal readonly IEnumerable<ModelProperty> virtualModelProperties;
+		internal readonly string tableName;
+		internal readonly string onCreateSql;
 
 		#endregion
 
 		public EnumerableContract(Type modelType, Type enumItemType)
 		{
-			onCreateSql = DbRequirements.SqlEngine.CreateTable($"{enumItemType.Name.ToLower()}sTo{modelType.Name.ToLower()}s", new[] {
-				new ModelProperty(new VirtualPropertyInfo()),
-				new ModelProperty(new VirtualPropertyInfo())
-			});
+			tableName = $"{enumItemType.Name.ToLower()}sTo{modelType.Name.ToLower()}s";
+			virtualModelProperties = new[] {
+				new ModelProperty(new VirtualPropertyInfo(enumItemType.Name.ToLower(), enumItemType)),
+				new ModelProperty(new VirtualPropertyInfo(modelType.Name.ToLower(), typeof(int)/*TODO: Type of models pk*/))
+			};
+
+			onCreateSql = DbRequirements.SqlEngine.CreateTable(tableName, virtualModelProperties);
 		}
 
 		public override void OnCreate()
