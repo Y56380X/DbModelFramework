@@ -83,10 +83,9 @@ namespace DbModelFramework
 				using (var command = connection.CreateCommand())
 				{
 					command.CommandText = CreateTable;
-
 					command.ExecuteNonQuery();
 
-					ExecutionContracts.Execute(ec => ec.OnCreate());
+					ExecutionContracts.Execute(ec => ec.OnCreate(connection));
 				}
 
 			}

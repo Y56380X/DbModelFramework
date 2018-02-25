@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 
 namespace DbModelFramework
 {
@@ -48,9 +49,13 @@ namespace DbModelFramework
 			onCreateSql = DbRequirements.SqlEngine.CreateTable(tableName, virtualModelProperties);
 		}
 
-		public override void OnCreate()
+		public override void OnCreate(IDbConnection connection)
 		{
-			throw new NotImplementedException();
+			using (var command = connection.CreateCommand())
+			{
+				command.CommandText = onCreateSql;
+				command.ExecuteNonQuery();
+			}
 		}
 
 		public override void OnDelete()

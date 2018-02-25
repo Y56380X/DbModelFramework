@@ -29,7 +29,7 @@ namespace DbModelFramework
 {
 	abstract class ExecutionContract
 	{
-		public abstract void OnCreate();
+		public abstract void OnCreate(IDbConnection connection);
 
 		public abstract void OnInsert();
 
