@@ -80,14 +80,16 @@ namespace DbModelFramework
 			private static void Create()
 			{
 				using (var connection = DbRequirements.CreateDbConnection())
-				using (var command = connection.CreateCommand())
 				{
-					command.CommandText = CreateTable;
-					command.ExecuteNonQuery();
+					using (var command = connection.CreateCommand())
+					{
+						command.CommandText = CreateTable;
+						command.ExecuteNonQuery();
+					}
 
+					// Execute contracts
 					ExecutionContracts.Execute(ec => ec.OnCreate(connection));
 				}
-
 			}
 		}
 
@@ -235,6 +237,9 @@ namespace DbModelFramework
 					command.CommandText = Sql.LastPrimaryKey;
 					PrimaryKeyProperty.SetValue(model, command.ExecuteScalar());
 				}
+
+				// Execute contracts
+				ExecutionContracts.Execute(ec => ec.OnInsert(connection));
 
 				transaction.Commit();
 			}

@@ -34,7 +34,8 @@ namespace DbModelFramework
 
 		internal readonly IEnumerable<ModelProperty> virtualModelProperties;
 		internal readonly string tableName;
-		internal readonly string onCreateSql;
+		private readonly string onCreateSql;
+		private readonly string onInsertSql;
 
 		#endregion
 
@@ -47,6 +48,7 @@ namespace DbModelFramework
 			};
 
 			onCreateSql = DbRequirements.SqlEngine.CreateTable(tableName, virtualModelProperties);
+			onInsertSql = DbRequirements.SqlEngine.InsertModel(tableName, virtualModelProperties);
 		}
 
 		public override void OnCreate(IDbConnection connection)
@@ -63,9 +65,13 @@ namespace DbModelFramework
 			throw new NotImplementedException();
 		}
 
-		public override void OnInsert()
+		public override void OnInsert(IDbConnection connection)
 		{
-			throw new NotImplementedException();
+			using (var command = connection.CreateCommand())
+			{
+				command.CommandText = onInsertSql;
+				command.ExecuteNonQuery();
+			}
 		}
 
 		public override void OnUpdate()

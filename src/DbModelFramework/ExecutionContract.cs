@@ -31,7 +31,7 @@ namespace DbModelFramework
 	{
 		public abstract void OnCreate(IDbConnection connection);
 
-		public abstract void OnInsert();
+		public abstract void OnInsert(IDbConnection connection);
 
 		public abstract void OnUpdate();
 			   
