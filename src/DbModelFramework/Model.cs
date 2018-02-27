@@ -119,15 +119,20 @@ namespace DbModelFramework
 			int changed;
 
 			using (var connection = DbRequirements.CreateDbConnection())
-			using (var command = connection.CreateCommand())
 			{
-				command.CommandText = Sql.Update;
-				command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, PrimaryKeyProperty.GetValue(this));
+				using (var command = connection.CreateCommand())
+				{
+					command.CommandText = Sql.Update;
+					command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, PrimaryKeyProperty.GetValue(this));
 
-				foreach (var property in ModelProperties.Where(prop => !prop.IsPrimaryKey))
-					command.AddParameter($"@{property.AttributeName}", property.Type, property.GetValue(this) ?? DBNull.Value);
+					foreach (var property in ModelProperties.Where(prop => !prop.IsPrimaryKey))
+						command.AddParameter($"@{property.AttributeName}", property.Type, property.GetValue(this) ?? DBNull.Value);
 
-				changed = command.ExecuteNonQuery();
+					changed = command.ExecuteNonQuery();
+				}
+
+				// Execute contracts
+				ExecutionContracts.Execute(ec => ec.OnUpdate(connection, this));
 			}
 
 			return changed == 1;
