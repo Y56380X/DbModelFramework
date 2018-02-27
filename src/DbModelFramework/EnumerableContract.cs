@@ -95,9 +95,10 @@ namespace DbModelFramework
 			}
 		}
 
-		public override void OnUpdate()
+		public override void OnUpdate<TType, TPrimaryKey>(IDbConnection connection, Model<TType, TPrimaryKey> model)
 		{
-			throw new NotImplementedException();
+			OnDelete(connection, model);
+			OnInsert(connection, model);
 		}
 
 		public override void OnSelect()
