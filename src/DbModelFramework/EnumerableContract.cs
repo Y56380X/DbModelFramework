@@ -40,6 +40,7 @@ namespace DbModelFramework
 		internal readonly string tableName;
 		private readonly string onCreateSql;
 		private readonly string onInsertSql;
+		private readonly string onDeleteSql;
 
 		#endregion
 
@@ -56,6 +57,7 @@ namespace DbModelFramework
 			var virtualModelProperties = new[] { virtualEnumerableProperty, virtualModelProperty };
 			onCreateSql = DbRequirements.SqlEngine.CreateTable(tableName, virtualModelProperties);
 			onInsertSql = DbRequirements.SqlEngine.InsertModel(tableName, virtualModelProperties);
+			onDeleteSql = DbRequirements.SqlEngine.DeleteModel(tableName, virtualModelProperty);
 		}
 
 		public override void OnCreate(IDbConnection connection)
@@ -67,9 +69,14 @@ namespace DbModelFramework
 			}
 		}
 
-		public override void OnDelete()
+		public override void OnDelete<TType, TPrimaryKey>(IDbConnection connection, Model<TType, TPrimaryKey> model)
 		{
-			throw new NotImplementedException();
+			using (var command = connection.CreateCommand())
+			{
+				command.CommandText = onDeleteSql;
+				command.AddParameter($"@{virtualModelProperty.AttributeName}", virtualEnumerableProperty.Type, model.Id);
+				command.ExecuteNonQuery();
+			}
 		}
 
 		public override void OnInsert<TType, TPrimaryKey>(IDbConnection connection, Model<TType, TPrimaryKey> model)
@@ -89,6 +96,11 @@ namespace DbModelFramework
 		}
 
 		public override void OnUpdate()
+		{
+			throw new NotImplementedException();
+		}
+
+		public override void OnSelect()
 		{
 			throw new NotImplementedException();
 		}

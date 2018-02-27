@@ -33,7 +33,9 @@ namespace DbModelFramework
 
 	}
 	
-	public abstract class Model<TType, TPrimaryKey> where TType : Model<TType, TPrimaryKey>, new() where TPrimaryKey : IComparable
+	public abstract class Model<TType, TPrimaryKey> 
+		where TType : Model<TType, TPrimaryKey>, new() 
+		where TPrimaryKey : IComparable
 	{
 		#region fields
 
@@ -136,12 +138,17 @@ namespace DbModelFramework
 			int changed;
 
 			using (var connection = DbRequirements.CreateDbConnection())
-			using (var command = connection.CreateCommand())
 			{
-				command.CommandText = Sql.Delete;
-				command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, PrimaryKeyProperty.GetValue(this));
+				// Execute contracts
+				ExecutionContracts.Execute(ec => ec.OnDelete(connection, this));
 
-				changed = command.ExecuteNonQuery();
+				using (var command = connection.CreateCommand())
+				{
+					command.CommandText = Sql.Delete;
+					command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, PrimaryKeyProperty.GetValue(this));
+
+					changed = command.ExecuteNonQuery();
+				}
 			}
 
 			return changed == 1;
@@ -239,7 +246,7 @@ namespace DbModelFramework
 				}
 
 				// Execute contracts
-				ExecutionContracts.Execute(ec => ec.OnInsert<TType, TPrimaryKey>(connection, model));
+				ExecutionContracts.Execute(ec => ec.OnInsert(connection, model));
 
 				transaction.Commit();
 			}
