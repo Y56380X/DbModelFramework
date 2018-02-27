@@ -20,8 +20,10 @@
 	SOFTWARE.
 **/
 
+using System;
 using System.Composition.Hosting;
 using System.Linq;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -50,19 +52,14 @@ namespace DbModelFramework.Test
 		[TestMethod]
 		public void CheckIntegerEnumeration()
 		{
-			var enumerableContract = new EnumerableContract(typeof(MyTestModel), typeof(int));
+			var enumerablePropertyInfo = new Mock<PropertyInfo> { CallBase = true, DefaultValue = DefaultValue.Mock };
+			var propertyTypeMock = new Mock<Type> { CallBase = true, DefaultValue = DefaultValue.Mock };
+			propertyTypeMock.Setup(se => se.GenericTypeArguments).Returns(new[] { typeof(int) });
+			enumerablePropertyInfo.Setup(se => se.PropertyType).Returns(propertyTypeMock.Object);
+
+			var enumerableContract = new EnumerableContract(typeof(MyTestModel), enumerablePropertyInfo.Object);
 
 			Assert.AreEqual("int32sTomytestmodels", enumerableContract.tableName);
-		}
-
-		[TestMethod]
-		public void CheckVirtualModelProperties()
-		{
-			var modelProperties = new EnumerableContract(typeof(MyTestModel), typeof(int)).virtualModelProperties;
-
-			Assert.AreEqual(2, modelProperties.Count());
-			Assert.IsNotNull(modelProperties.SingleOrDefault(prop => prop.AttributeName == "mytestmodel"));
-			Assert.IsNotNull(modelProperties.SingleOrDefault(prop => prop.AttributeName == "int32"));
 		}
 	}
 }

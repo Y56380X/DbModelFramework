@@ -71,7 +71,7 @@ namespace DbModelFramework
 			return false;
 		}
 
-		public static IEnumerable<ExecutionContract> GetExecutionContracts(this Type modelType)
+		public static IEnumerable<ExecutionContract> GetExecutionContracts(this Type modelType, ModelProperty modelPrimaryKey)
 		{
 			var executionContracts = new List<ExecutionContract>();
 
@@ -79,7 +79,7 @@ namespace DbModelFramework
 			var enumerables = modelType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
 				.Where(prop => !Attribute.IsDefined(prop, typeof(DbIgnoreAttribute)) && !EnumerableBlacklist.Contains(prop.PropertyType) && typeof(IEnumerable).IsAssignableFrom(prop.PropertyType));
 
-			executionContracts.AddRange(enumerables.Select(en => new EnumerableContract(modelType, en.PropertyType.GenericTypeArguments[0])));
+			executionContracts.AddRange(enumerables.Select(en => new EnumerableContract(modelType, en)));
 
 			return executionContracts;
 		}

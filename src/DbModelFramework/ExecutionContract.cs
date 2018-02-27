@@ -31,7 +31,7 @@ namespace DbModelFramework
 	{
 		public abstract void OnCreate(IDbConnection connection);
 
-		public abstract void OnInsert(IDbConnection connection);
+		public abstract void OnInsert<TType, TPrimaryKey>(IDbConnection connection, Model<TType, TPrimaryKey> model) where TType : Model<TType, TPrimaryKey>, new() where TPrimaryKey : IComparable;
 
 		public abstract void OnUpdate();
 			   

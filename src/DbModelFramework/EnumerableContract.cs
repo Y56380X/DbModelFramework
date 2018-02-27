@@ -21,8 +21,10 @@
 **/
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Reflection;
 
 namespace DbModelFramework
 {
@@ -31,22 +33,27 @@ namespace DbModelFramework
 		internal static readonly DbRequirements DbRequirements = DbRequirements.Instance;
 
 		#region sql
-
-		internal readonly IEnumerable<ModelProperty> virtualModelProperties;
+		
+		private readonly PropertyInfo enumerableProperty;
+		private readonly ModelProperty virtualEnumerableProperty;
+		private readonly ModelProperty virtualModelProperty;
 		internal readonly string tableName;
 		private readonly string onCreateSql;
 		private readonly string onInsertSql;
 
 		#endregion
 
-		public EnumerableContract(Type modelType, Type enumItemType)
+		public EnumerableContract(Type modelType, PropertyInfo enumerableProperty)
 		{
-			tableName = $"{enumItemType.Name.ToLower()}sTo{modelType.Name.ToLower()}s";
-			virtualModelProperties = new[] {
-				new ModelProperty(new VirtualPropertyInfo(enumItemType.Name.ToLower(), enumItemType)),
-				new ModelProperty(new VirtualPropertyInfo(modelType.Name.ToLower(), modelType))
-			};
+			Type enumerableItemType = enumerableProperty.PropertyType.GenericTypeArguments[0];
 
+			tableName = $"{enumerableItemType.Name.ToLower()}sTo{modelType.Name.ToLower()}s";
+			this.enumerableProperty = enumerableProperty;
+
+			virtualEnumerableProperty = new ModelProperty(new VirtualPropertyInfo(enumerableItemType.Name.ToLower(), enumerableItemType));
+			virtualModelProperty = new ModelProperty(new VirtualPropertyInfo(modelType.Name.ToLower(), modelType));
+
+			var virtualModelProperties = new[] { virtualEnumerableProperty, virtualModelProperty };
 			onCreateSql = DbRequirements.SqlEngine.CreateTable(tableName, virtualModelProperties);
 			onInsertSql = DbRequirements.SqlEngine.InsertModel(tableName, virtualModelProperties);
 		}
@@ -65,12 +72,19 @@ namespace DbModelFramework
 			throw new NotImplementedException();
 		}
 
-		public override void OnInsert(IDbConnection connection)
+		public override void OnInsert<TType, TPrimaryKey>(IDbConnection connection, Model<TType, TPrimaryKey> model)
 		{
 			using (var command = connection.CreateCommand())
 			{
 				command.CommandText = onInsertSql;
-				command.ExecuteNonQuery();
+
+				foreach(var item in (IEnumerable)enumerableProperty.GetValue(model))
+				{
+					command.Parameters.Clear();
+					command.AddParameter($"@{virtualEnumerableProperty.AttributeName}", virtualEnumerableProperty.Type, item);
+					command.AddParameter($"@{virtualModelProperty.AttributeName}", virtualEnumerableProperty.Type, model.Id);
+					command.ExecuteNonQuery();
+				}
 			}
 		}
 

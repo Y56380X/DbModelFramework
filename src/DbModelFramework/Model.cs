@@ -28,12 +28,12 @@ using System.Linq.Expressions;
 
 namespace DbModelFramework
 {
-	public abstract class Model<TType> : Model<TType, long> where TType : new()
+	public abstract class Model<TType> : Model<TType, long> where TType : Model<TType, long>, new()
 	{
 
 	}
 	
-	public abstract class Model<TType, TPrimaryKey> where TType : new() where TPrimaryKey : IComparable
+	public abstract class Model<TType, TPrimaryKey> where TType : Model<TType, TPrimaryKey>, new() where TPrimaryKey : IComparable
 	{
 		#region fields
 
@@ -41,7 +41,7 @@ namespace DbModelFramework
 		internal static readonly string TableName = $"{typeof(TType).Name.ToLower()}s";
 		internal static readonly IEnumerable<ModelProperty> ModelProperties = typeof(TType).GetModelProperties();
 		internal static readonly ModelProperty PrimaryKeyProperty = ModelProperties.Single(prop => prop.IsPrimaryKey);
-		internal static readonly IEnumerable<ExecutionContract> ExecutionContracts = typeof(TType).GetExecutionContracts();
+		internal static readonly IEnumerable<ExecutionContract> ExecutionContracts = typeof(TType).GetExecutionContracts(PrimaryKeyProperty);
 
 		#endregion
 
@@ -96,7 +96,7 @@ namespace DbModelFramework
 		#region properties
 
 		[PrimaryKey]
-		protected TPrimaryKey Id { get; set; }
+		protected internal TPrimaryKey Id { get; set; }
 
 		#endregion
 
@@ -239,7 +239,7 @@ namespace DbModelFramework
 				}
 
 				// Execute contracts
-				ExecutionContracts.Execute(ec => ec.OnInsert(connection));
+				ExecutionContracts.Execute(ec => ec.OnInsert<TType, TPrimaryKey>(connection, model));
 
 				transaction.Commit();
 			}
