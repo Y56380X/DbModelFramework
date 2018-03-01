@@ -1,5 +1,5 @@
 ﻿/**
-	Copyright (c) 2017-2018 Y56380X
+	Copyright (c) 2018 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -20,27 +20,32 @@
 	SOFTWARE.
 **/
 
-using System.Composition.Hosting;
+using System.Collections.Generic;
+using System.Text;
 
 namespace DbModelFramework
 {
-	public static class DependencyInjection
+	public static class SqlEngineExtensions
 	{
-		private static CompositionHost injectionContainer;
-		public static CompositionHost InjectionContainer
+		public static string ToChain(this IEnumerable<string> elements)
 		{
-			get
-			{
-				return injectionContainer;
-			}
-			set
-			{
-				// Check the injection requirements
-				if (!value.TryGetExport<DbRequirements>(out var dbRequirements))
-					throw new System.TypeLoadException($"Type: {typeof(DbRequirements).Name}");
+			StringBuilder chainString = new StringBuilder();
 
-				injectionContainer = value;
+			bool first = true;
+			foreach (var element in elements)
+			{
+				if (first)
+				{
+					chainString.Append(element);
+					first = false;
+				}
+				else
+				{
+					chainString.Append($", {element}");
+				}
 			}
+
+			return chainString.ToString();
 		}
 	}
 }

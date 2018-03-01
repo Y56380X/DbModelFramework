@@ -1,5 +1,5 @@
 ﻿/**
-	Copyright (c) 2017 Y56380X
+	Copyright (c) 2017-2018 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -21,6 +21,7 @@
 **/
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -29,6 +30,12 @@ namespace DbModelFramework
 {
 	static class TypeExtensions
 	{
+		private static readonly Type[] EnumerableBlacklist =
+		{
+			typeof(string),
+			typeof(byte[])
+		};
+
 		public static object GetDefault(this Type type)
 		{
 			if (type.IsValueType)
@@ -39,9 +46,42 @@ namespace DbModelFramework
 
 		public static IEnumerable<ModelProperty> GetModelProperties(this Type modelType)
 		{
-			var properties = modelType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance).Where(prop => !Attribute.IsDefined(prop, typeof(DbIgnoreAttribute)));
+			// Get all properties (without ignored ones and enumerables)
+			var properties = modelType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
+				.Where(prop => !Attribute.IsDefined(prop, typeof(DbIgnoreAttribute)) && (EnumerableBlacklist.Contains(prop.PropertyType) || !typeof(IEnumerable).IsAssignableFrom(prop.PropertyType)));
 			
 			return properties.Select(prop => new ModelProperty(prop));
+		}
+
+		public static bool TryGetGenericBaseClass(this Type propertyType, Type genericType, out Type genericBaseClass)
+		{
+			propertyType = propertyType.BaseType;
+			while (propertyType != typeof(object))
+			{
+				if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == genericType)
+				{
+					genericBaseClass = propertyType;
+					return true;
+				}
+
+				propertyType = propertyType.BaseType;
+			}
+
+			genericBaseClass = default(Type);
+			return false;
+		}
+
+		public static IEnumerable<ExecutionContract> GetExecutionContracts(this Type modelType, ModelProperty modelPrimaryKey)
+		{
+			var executionContracts = new List<ExecutionContract>();
+
+			// Setup execution contracts for enumerables
+			var enumerables = modelType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
+				.Where(prop => !Attribute.IsDefined(prop, typeof(DbIgnoreAttribute)) && !EnumerableBlacklist.Contains(prop.PropertyType) && typeof(IEnumerable).IsAssignableFrom(prop.PropertyType));
+
+			executionContracts.AddRange(enumerables.Select(en => new EnumerableContract(modelType, en)));
+
+			return executionContracts;
 		}
 	}
 }

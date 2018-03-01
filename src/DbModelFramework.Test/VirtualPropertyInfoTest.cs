@@ -1,5 +1,5 @@
 ﻿/**
-	Copyright (c) 2017-2018 Y56380X
+	Copyright (c) 2018 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -20,27 +20,35 @@
 	SOFTWARE.
 **/
 
-using System.Composition.Hosting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace DbModelFramework
+namespace DbModelFramework.Test
 {
-	public static class DependencyInjection
+	[TestClass]
+	public class VirtualPropertyInfoTest
 	{
-		private static CompositionHost injectionContainer;
-		public static CompositionHost InjectionContainer
+		[TestMethod]
+		public void ModelPropertyIsCreateableFromVirtualPropertyInfo()
 		{
-			get
-			{
-				return injectionContainer;
-			}
-			set
-			{
-				// Check the injection requirements
-				if (!value.TryGetExport<DbRequirements>(out var dbRequirements))
-					throw new System.TypeLoadException($"Type: {typeof(DbRequirements).Name}");
+			var modelProperty = new ModelProperty(new VirtualPropertyInfo("MyProperty", typeof(int)));
 
-				injectionContainer = value;
-			}
+			Assert.IsNotNull(modelProperty);
+		}
+
+		[TestMethod]
+		public void VirtualPropertyInfoHasCorrectName()
+		{
+			var propertyInfo = new VirtualPropertyInfo("MyProperty", typeof(int));
+
+			Assert.AreEqual("MyProperty", propertyInfo.Name);
+		}
+
+		[TestMethod]
+		public void VirtualPropertyInfoHasCorrectPropertyType()
+		{
+			var propertyInfo = new VirtualPropertyInfo("MyProperty", typeof(int));
+
+			Assert.AreEqual(typeof(int), propertyInfo.PropertyType);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿/**
+/**
 	Copyright (c) 2017-2018 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,27 +20,21 @@
 	SOFTWARE.
 **/
 
-using System.Composition.Hosting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
-namespace DbModelFramework
+namespace DbModelFramework.MySql.Test
 {
-	public static class DependencyInjection
+	[TestClass]
+	public class DbRequirementsTest
 	{
-		private static CompositionHost injectionContainer;
-		public static CompositionHost InjectionContainer
+		[TestMethod]
+		public void LoadSqlEngine()
 		{
-			get
-			{
-				return injectionContainer;
-			}
-			set
-			{
-				// Check the injection requirements
-				if (!value.TryGetExport<DbRequirements>(out var dbRequirements))
-					throw new System.TypeLoadException($"Type: {typeof(DbRequirements).Name}");
+			var dbRequirements = new Mock<DbRequirements> { CallBase = true }.Object;
 
-				injectionContainer = value;
-			}
+			Assert.IsNotNull(dbRequirements.SqlEngine);
+			Assert.IsInstanceOfType(dbRequirements.SqlEngine, typeof(SqlEngine));
 		}
 	}
 }

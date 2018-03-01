@@ -26,35 +26,46 @@ using System.Reflection;
 
 namespace DbModelFramework
 {
-	class ModelProperty
+	public class ModelProperty
 	{
 		#region fields
 
 		private PropertyInfo property;
+		private MethodInfo foreignKeyLoader;
 
 		#endregion
 
 		#region properties
 
-		public string PropertyName { get; private set; }
-		public string AttributeName { get; private set; }
-		public DbType Type { get; private set; }
-		public object DefaultValue { get; private set; }
-		public bool IsPrimaryKey { get; private set; }
-		public bool IsUnique { get; private set; }
+		public virtual string PropertyName { get; private set; }
+		public virtual string AttributeName { get; private set; }
+		public virtual DbType Type { get; private set; }
+		public virtual object DefaultValue { get; private set; }
+		public virtual bool IsPrimaryKey { get; private set; }
+		public virtual bool IsUnique { get; private set; }
+		public virtual bool IsForeignKey { get; private set; }
+		public virtual ModelProperty ForeignKeyReference { get; private set; }
+		public virtual string ForeignKeyTableName { get; private set; }
 
 		#endregion
 
 		#region constructors
 
+		internal ModelProperty() { }
+
 		public ModelProperty(PropertyInfo property)
 		{
 			PropertyName = property.Name;
 			AttributeName = property.Name.ToLower();
-			Type = property.PropertyType.ToDbType();
+			IsForeignKey = property.PropertyType.TryGetGenericBaseClass(typeof(Model<,>), out Type baseClass);
+			ForeignKeyReference = IsForeignKey ? GetForeignKeyReference(baseClass) : null;
+			ForeignKeyTableName = IsForeignKey ? GetForeignKeyTableName(baseClass) : null;
+			Type = IsForeignKey ? ForeignKeyReference.Type : property.PropertyType.ToDbType();
 			DefaultValue = property.PropertyType.GetDefault();
 			IsPrimaryKey = Attribute.IsDefined(property, typeof(PrimaryKeyAttribute));
 			IsUnique = Attribute.IsDefined(property, typeof(DbUniqueAttribute));
+
+			foreignKeyLoader = IsForeignKey ? baseClass.GetMethod("Get", new Type[] { ForeignKeyReference.property.PropertyType }) : null;
 
 			this.property = property;
 		}
@@ -65,15 +76,38 @@ namespace DbModelFramework
 
 		public void SetValue(object model, object value)
 		{
-			if (value != null && !property.PropertyType.IsInstanceOfType(value))
-				property.SetValue(model, Convert.ChangeType(value, property.PropertyType));
+			if (IsForeignKey)
+			{
+				if (value != null && !ForeignKeyReference.property.PropertyType.IsInstanceOfType(value))
+					property.SetValue(model, foreignKeyLoader.Invoke(null, new object[] { Convert.ChangeType(value, ForeignKeyReference.property.PropertyType) }));
+				else
+					property.SetValue(model, foreignKeyLoader.Invoke(null, new object[] { value }));
+			}
 			else
-				property.SetValue(model, value);
+			{
+				if (value != null && !property.PropertyType.IsInstanceOfType(value))
+					property.SetValue(model, Convert.ChangeType(value, property.PropertyType));
+				else
+					property.SetValue(model, value);
+			}
 		}
 
 		public object GetValue(object model)
 		{
-			return property.GetValue(model);
+			if (IsForeignKey)
+				return ForeignKeyReference.GetValue(property.GetValue(model));
+			else
+				return property.GetValue(model);
+		}
+
+		private static ModelProperty GetForeignKeyReference(Type model)
+		{
+			return (ModelProperty)model.GetField("PrimaryKeyProperty", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+		}
+
+		private static string GetForeignKeyTableName(Type model)
+		{
+			return (string)model.GetField("TableName", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
 		}
 
 		#endregion

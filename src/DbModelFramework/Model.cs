@@ -1,5 +1,5 @@
 ﻿/**
-	Copyright (c) 2017 Y56380X
+	Copyright (c) 2017-2018 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -25,36 +25,39 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
-using static DbModelFramework.DependencyInjection;
 
 namespace DbModelFramework
 {
-	public class Model<TType> : Model<TType, long> where TType : new()
+	public abstract class Model<TType> : Model<TType, long> where TType : Model<TType, long>, new()
 	{
 
 	}
 
-	public class Model<TType, TPrimaryKey> where TType : new() where TPrimaryKey : IComparable
+	public abstract class Model<TType, TPrimaryKey>
+		where TType : Model<TType, TPrimaryKey>, new()
+		where TPrimaryKey : IComparable
 	{
 		#region fields
 
+		internal static readonly DbRequirements DbRequirements = DbRequirements.Instance;
 		internal static readonly string TableName = $"{typeof(TType).Name.ToLower()}s";
 		internal static readonly IEnumerable<ModelProperty> ModelProperties = typeof(TType).GetModelProperties();
 		internal static readonly ModelProperty PrimaryKeyProperty = ModelProperties.Single(prop => prop.IsPrimaryKey);
+		internal static readonly IEnumerable<ExecutionContract> ExecutionContracts = typeof(TType).GetExecutionContracts(PrimaryKeyProperty);
 
 		#endregion
 
 		internal static class Sql
 		{
-			public static readonly string CheckTable = $"SELECT name FROM sqlite_master WHERE type='table' AND name='{TableName}';";
-			public static readonly string CreateTable = $"CREATE TABLE {TableName} ({ModelProperties.ToTableCreationSql()});";
-			public static readonly string Insert = $"INSERT INTO {TableName} ({ModelProperties.ToAttributeChainSql()}) VALUES ({ModelProperties.ToInsertParameterChainSql()});";
-			public static readonly string LastPrimaryKey = "SELECT last_insert_rowid();";
-			public static readonly string SelectAll = $"SELECT {ModelProperties.ToAttributeChainSql(true)} FROM {TableName};";
-			public static readonly string SelectByPrimaryKey = $"SELECT {ModelProperties.ToAttributeChainSql(true)} FROM {TableName} WHERE {PrimaryKeyProperty.AttributeName} = @{PrimaryKeyProperty.AttributeName};";
-			public static readonly string SelectByCustomCondition = $"SELECT {ModelProperties.ToAttributeChainSql(true)} FROM {TableName} WHERE {{0}};";
-			public static readonly string Delete = $"DELETE FROM {TableName} WHERE {PrimaryKeyProperty.AttributeName} = @{PrimaryKeyProperty.AttributeName};";
-			public static readonly string Update = $"UPDATE {TableName} SET {ModelProperties.ToUpdateSql()} WHERE {PrimaryKeyProperty.AttributeName} = @{PrimaryKeyProperty.AttributeName};";
+			public static readonly string CheckTable = DbRequirements.SqlEngine.CheckTable(TableName);
+			public static readonly string CreateTable = DbRequirements.SqlEngine.CreateTable(TableName, ModelProperties);
+			public static readonly string Insert = DbRequirements.SqlEngine.InsertModel(TableName, ModelProperties);
+			public static readonly string LastPrimaryKey = DbRequirements.SqlEngine.GetLastPrimaryKey();
+			public static readonly string SelectAll = DbRequirements.SqlEngine.SelectModelAllEntries(TableName, ModelProperties);
+			public static readonly string SelectByPrimaryKey = DbRequirements.SqlEngine.SelectModelEntryByPrimaryKey(TableName, ModelProperties);
+			public static readonly string SelectByCustomCondition = DbRequirements.SqlEngine.SelectModelEntriesByCustomCondition(TableName, ModelProperties, "{{0}}");
+			public static readonly string Delete = DbRequirements.SqlEngine.DeleteModel(TableName, PrimaryKeyProperty);
+			public static readonly string Update = DbRequirements.SqlEngine.UpdateModel(TableName, ModelProperties);
 
 			static Sql()
 			{
@@ -66,7 +69,7 @@ namespace DbModelFramework
 			{
 				bool result;
 
-				using (var connection = InjectionContainer.GetExport<IDbConnection>())
+				using (var connection = DbRequirements.CreateDbConnection())
 				using (var command = connection.CreateCommand())
 				{
 					command.CommandText = CheckTable;
@@ -78,11 +81,16 @@ namespace DbModelFramework
 
 			private static void Create()
 			{
-				using (var connection = InjectionContainer.GetExport<IDbConnection>())
-				using (var command = connection.CreateCommand())
+				using (var connection = DbRequirements.CreateDbConnection())
 				{
-					command.CommandText = CreateTable;
-					command.ExecuteNonQuery();
+					using (var command = connection.CreateCommand())
+					{
+						command.CommandText = CreateTable;
+						command.ExecuteNonQuery();
+					}
+
+					// Execute contracts
+					ExecutionContracts.Execute(ec => ec.OnCreate(connection));
 				}
 			}
 		}
@@ -90,15 +98,11 @@ namespace DbModelFramework
 		#region properties
 
 		[PrimaryKey]
-		protected TPrimaryKey Id { get; set; }
+		protected internal TPrimaryKey Id { get; set; }
 
 		#endregion
 
 		#region methods
-
-		protected Model()
-		{
-		}
 
 		public void Reload()
 		{
@@ -114,16 +118,21 @@ namespace DbModelFramework
 		{
 			int changed;
 
-			using (var connection = InjectionContainer.GetExport<IDbConnection>())
-			using (var command = connection.CreateCommand())
+			using (var connection = DbRequirements.CreateDbConnection())
 			{
-				command.CommandText = Sql.Update;
-				command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, PrimaryKeyProperty.GetValue(this));
+				using (var command = connection.CreateCommand())
+				{
+					command.CommandText = Sql.Update;
+					command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, PrimaryKeyProperty.GetValue(this));
 
-				foreach (var property in ModelProperties.Where(prop => !prop.IsPrimaryKey))
-					command.AddParameter($"@{property.AttributeName}", property.Type, property.GetValue(this) ?? DBNull.Value);
+					foreach (var property in ModelProperties.Where(prop => !prop.IsPrimaryKey))
+						command.AddParameter($"@{property.AttributeName}", property.Type, property.GetValue(this) ?? DBNull.Value);
 
-				changed = command.ExecuteNonQuery();
+					changed = command.ExecuteNonQuery();
+				}
+
+				// Execute contracts
+				ExecutionContracts.Execute(ec => ec.OnUpdate(connection, this));
 			}
 
 			return changed == 1;
@@ -133,13 +142,18 @@ namespace DbModelFramework
 		{
 			int changed;
 
-			using (var connection = InjectionContainer.GetExport<IDbConnection>())
-			using (var command = connection.CreateCommand())
+			using (var connection = DbRequirements.CreateDbConnection())
 			{
-				command.CommandText = Sql.Delete;
-				command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, PrimaryKeyProperty.GetValue(this));
+				// Execute contracts
+				ExecutionContracts.Execute(ec => ec.OnDelete(connection, this));
 
-				changed = command.ExecuteNonQuery();
+				using (var command = connection.CreateCommand())
+				{
+					command.CommandText = Sql.Delete;
+					command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, PrimaryKeyProperty.GetValue(this));
+
+					changed = command.ExecuteNonQuery();
+				}
 			}
 
 			return changed == 1;
@@ -149,17 +163,22 @@ namespace DbModelFramework
 		{
 			TType model = default(TType);
 
-			using (var connection = InjectionContainer.GetExport<IDbConnection>())
-			using (var command = connection.CreateCommand())
+			using (var connection = DbRequirements.CreateDbConnection())
 			{
-				command.CommandText = Sql.SelectByPrimaryKey;
-				command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, primaryKey);
-
-				using (var dataReader = command.ExecuteReader())
+				using (var command = connection.CreateCommand())
 				{
-					if (dataReader.Read())
-						model = InstanciateModel(dataReader);
+					command.CommandText = Sql.SelectByPrimaryKey;
+					command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, primaryKey);
+
+					using (var dataReader = command.ExecuteReader())
+					{
+						if (dataReader.Read())
+							model = InstanciateModel(dataReader);
+					}
 				}
+
+				// Execute contracts
+				ExecutionContracts.Execute(ec => ec.OnSelect(connection, model));
 			}
 
 			return model;
@@ -169,16 +188,22 @@ namespace DbModelFramework
 		{
 			var models = new List<TType>();
 
-			using (var connection = InjectionContainer.GetExport<IDbConnection>())
-			using (var command = connection.CreateCommand())
+			using (var connection = DbRequirements.CreateDbConnection())
 			{
-				command.CommandText = Sql.SelectAll;
-
-				using (var dataReader = command.ExecuteReader())
+				using (var command = connection.CreateCommand())
 				{
-					while (dataReader.Read())
-						models.Add(InstanciateModel(dataReader));
+					command.CommandText = Sql.SelectAll;
+
+					using (var dataReader = command.ExecuteReader())
+					{
+						while (dataReader.Read())
+							models.Add(InstanciateModel(dataReader));
+					}
 				}
+
+				// Execute contracts
+				foreach (var model in models)
+					ExecutionContracts.Execute(ec => ec.OnSelect(connection, model));
 			}
 
 			return models;
@@ -188,16 +213,22 @@ namespace DbModelFramework
 		{
 			var models = new List<TType>();
 
-			using (var connection = InjectionContainer.GetExport<IDbConnection>())
-			using (var command = connection.CreateCommand())
+			using (var connection = DbRequirements.CreateDbConnection())
 			{
-				command.CommandText = Sql.SelectByCustomCondition.Replace("{0}", selector.ToWhereSql(command));
-
-				using (var dataReader = command.ExecuteReader())
+				using (var command = connection.CreateCommand())
 				{
-					while (dataReader.Read())
-						models.Add(InstanciateModel(dataReader));
+					command.CommandText = Sql.SelectByCustomCondition.Replace("{0}", selector.ToWhereSql(command));
+
+					using (var dataReader = command.ExecuteReader())
+					{
+						while (dataReader.Read())
+							models.Add(InstanciateModel(dataReader));
+					}
 				}
+
+				// Execute contracts
+				foreach (var model in models)
+					ExecutionContracts.Execute(ec => ec.OnSelect(connection, model));
 			}
 
 			return models;
@@ -215,7 +246,7 @@ namespace DbModelFramework
 			// Set values if action is not null
 			setValuesAction?.Invoke(model);
 
-			using (var connection = InjectionContainer.GetExport<IDbConnection>())
+			using (var connection = DbRequirements.CreateDbConnection())
 			using (var transaction = connection.BeginTransaction())
 			{
 				// Insert
@@ -235,6 +266,9 @@ namespace DbModelFramework
 					command.CommandText = Sql.LastPrimaryKey;
 					PrimaryKeyProperty.SetValue(model, command.ExecuteScalar());
 				}
+
+				// Execute contracts
+				ExecutionContracts.Execute(ec => ec.OnInsert(connection, model));
 
 				transaction.Commit();
 			}

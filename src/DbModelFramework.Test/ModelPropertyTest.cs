@@ -20,18 +20,57 @@
 	SOFTWARE.
 **/
 
+using System.Collections.Generic;
+using System.Composition.Hosting;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace DbModelFramework.Test
 {
 	[TestClass]
 	public class ModelPropertyTest
 	{
+		#region test assets
+
 		class TestModel : Model<TestModel>
 		{
 			public long MyAttribute1 { get; set; }
 			public int MyAttribute2 { get; set; }
 			public short MyAttribute3 { get; set; }
+		}
+
+
+		class ModelWithReferencedModel : Model<ModelWithReferencedModel>
+		{
+			public ReferenceModel MyReferencedModel { get; set; }
+		}
+
+		class ReferenceModel : Model<ReferenceModel>
+		{
+		}
+
+		class ModelWithEnumerationOfValues : Model<ModelWithEnumerationOfValues>
+		{
+			IEnumerable<int> MyEnumeration { get; set; }
+		}
+
+		class ModelWithEnumerationOfReferences : Model<ModelWithEnumerationOfReferences>
+		{
+			IEnumerable<ReferenceModel> MyEnumeration { get; set; }
+		}
+
+		#endregion
+
+		[TestInitialize]
+		public void Init()
+		{
+			// Setup fakes
+			var configuration = new ContainerConfiguration();
+			configuration.WithPart<Fakes.DbConnection>();
+			configuration.WithPart<Fakes.DbRequirements>();
+
+			DependencyInjection.InjectionContainer = configuration.CreateContainer();
 		}
 
 		[TestMethod]
@@ -65,6 +104,39 @@ namespace DbModelFramework.Test
 			modelProperty.SetValue(model, (long)1200);
 
 			Assert.AreEqual(1200, model.MyAttribute3);
+		}
+
+		[TestMethod]
+		public void GetForeignKey_IsNotNull()
+		{
+			var foreignKey = ModelWithReferencedModel.ModelProperties.SingleOrDefault(prop => prop.IsForeignKey);
+
+			Assert.IsNotNull(foreignKey);
+		}
+
+		[TestMethod]
+		public void GetForeignKey_HasCorrectName()
+		{
+			var foreignKey = ModelWithReferencedModel.ModelProperties.SingleOrDefault(prop => prop.IsForeignKey);
+
+			Assert.AreEqual(nameof(ModelWithReferencedModel.MyReferencedModel), foreignKey.PropertyName);
+		}
+
+		[TestMethod]
+		public void GetForeignKey_HasCorrectType()
+		{
+			var foreignKey = ModelWithReferencedModel.ModelProperties.SingleOrDefault(prop => prop.IsForeignKey);
+
+			Assert.AreEqual(ReferenceModel.PrimaryKeyProperty.Type, foreignKey.Type);
+		}
+
+		[TestMethod]
+		public void GetForeignKey_ForeignKeyRelationIsReferencedPk()
+		{
+			var foreignKey = ModelWithReferencedModel.ModelProperties.SingleOrDefault(prop => prop.IsForeignKey);
+
+			Assert.IsNotNull(foreignKey.ForeignKeyReference);
+			Assert.AreEqual(ReferenceModel.PrimaryKeyProperty, foreignKey.ForeignKeyReference);
 		}
 	}
 }

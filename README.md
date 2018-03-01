@@ -6,12 +6,30 @@
 Download NuGet-Package
 
 ### Inject InjectionContainer
-As a minimum requirement you have to define a new injection container with at least the sqlite db connection class as a part.
-The db connection class has to export the type IDbConnection.
+As a minimum requirement you have to define a new injection container with at least a DbRequirements class as a part. You can use one of the predifined DbRequirements (DbModelFramework.Sqlite, DbModelFramework.MySql, DbModelFramework.MsSql).
+The DbRequirements class has to export the type DbModelFramework.DbRequirements.
 
+Your DbRequirements class:
+```C#
+[Export(typeof(DbModelFramework.DbRequirements))]
+class DbRequirements : DbModelFramework.Sqlite.DbRequirements
+{
+	private static readonly string ConnectionString = new SqliteConnectionStringBuilder { DataSource = "database.db" }.ConnectionString;
+
+	public override IDbConnection CreateDbConnection()
+	{
+		var connection = new SqliteConnection(ConnectionString);
+		connection.Open();
+
+		return connection;
+	}
+}
+```
+
+Injection container creation (System.Composition is required):
 ```C#
 var configuration = new ContainerConfiguration();
-configuration.WithPart<DbConnection>();
+configuration.WithPart<DbRequirements>();
 
 DbModelFramework.DependencyInjection.InjectionContainer = configuration.CreateContainer();
 ```

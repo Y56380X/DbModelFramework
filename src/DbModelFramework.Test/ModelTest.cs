@@ -1,5 +1,5 @@
 ﻿/**
-	Copyright (c) 2017 Y56380X
+	Copyright (c) 2017-2018 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -22,9 +22,11 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Collections.Generic;
 using System.Composition.Hosting;
 using System.Data;
 using System.Linq;
+using static DbModelFramework.Test.ModelTest.SqlFakes;
 
 namespace DbModelFramework.Test
 {
@@ -32,6 +34,21 @@ namespace DbModelFramework.Test
 	public class ModelTest
 	{
 		#region test assets
+
+		public static class SqlFakes
+		{
+			public static string Car_CheckTableSql = "CHECK TABLE CARS;";
+			public static string Car_CreateTableSql = "CREATE TABLE CARS;";
+
+			public static string Build_CheckTableSql = "CHECK TABLE BUILDS;";
+			public static string Build_CreateTableSql = "CREATE TABLE BUILDS;";
+
+			public static string Product_CheckTableSql = "CHECK TABLE PRODUCTS;";
+			public static string Product_CreateTableSql = "CREATE TABLE PRODUCTS;";
+
+			public static string Manufacturer_CheckTableSql = "CHECK TABLE MANUFACTURERS;";
+			public static string Manufacturer_CreateTableSql = "CREATE TABLE MANUFACTURERS;";
+		}
 
 		class Car : Model<Car>
 		{
@@ -42,16 +59,56 @@ namespace DbModelFramework.Test
 			public new long Id => base.Id;
 		}
 
+		class Build : Model<Build>
+		{
+			public string Name { get; set; }
+
+			public byte[] Artifact { get; set; }
+		}
+
+		class Product : Model<Product>
+		{
+			public string Name { get; set; }
+
+			public Manufacturer Manufacturer { get; set; }
+		}
+
+		class Manufacturer : Model<Manufacturer>
+		{
+			[DbIgnore]
+			public new long Id => base.Id;
+
+			public string Name { get; set; }
+		}
+
+		class ExecutionContractTestModel : Model<ExecutionContractTestModel>
+		{
+			public IEnumerable<int> MyProperty { get; set; }
+		}
+
 		#endregion
 	
 		[TestInitialize]
 		public void Init()
 		{
-			// Setup fake db connection
+			// Setup fakes
 			var configuration = new ContainerConfiguration();
-			configuration.WithPart<Fakes.DbConnection>();
-
+			configuration.WithPart<Fakes.DbRequirements>();
 			DependencyInjection.InjectionContainer = configuration.CreateContainer();
+
+			// Setup car sqlengine
+			var sqlEngineMock = new Mock<SqlEngine>() { CallBase = true };
+			Fakes.DbRequirements.SqlEngineMock = sqlEngineMock.Object;
+
+			sqlEngineMock.Setup(se => se.GetLastPrimaryKey()).Returns("SELECT LAST_PK;");
+			sqlEngineMock.Setup(se => se.CheckTable("cars")).Returns(Car_CheckTableSql);
+			sqlEngineMock.Setup(se => se.CreateTable("cars", Car.ModelProperties)).Returns(Car_CreateTableSql);
+			sqlEngineMock.Setup(se => se.CheckTable("builds")).Returns(Build_CheckTableSql);
+			sqlEngineMock.Setup(se => se.CreateTable("builds", Build.ModelProperties)).Returns(Build_CreateTableSql);
+			sqlEngineMock.Setup(se => se.CheckTable("products")).Returns(Product_CheckTableSql);
+			sqlEngineMock.Setup(se => se.CreateTable("products", Product.ModelProperties)).Returns(Product_CreateTableSql);
+			sqlEngineMock.Setup(se => se.CheckTable("manufacturers")).Returns(Manufacturer_CheckTableSql);
+			sqlEngineMock.Setup(se => se.CreateTable("manufacturers", Manufacturer.ModelProperties)).Returns(Manufacturer_CheckTableSql);
 		}
 
 		[TestMethod]
@@ -72,10 +129,9 @@ namespace DbModelFramework.Test
 		[TestMethod]
 		public void CheckTable()
 		{
-			var checkTable = Car.Sql.CheckTable;
+			var checkTableSql = Car.Sql.CheckTable;
 
-			Assert.AreEqual("SELECT name FROM sqlite_master WHERE type='table' AND name='cars';", checkTable);
-			Assert.IsTrue(Fakes.DbConnection.CreatedCommands.Select(c => c.CommandText).Contains(checkTable));
+			Assert.AreEqual(Car_CheckTableSql, checkTableSql);
 		}
 
 		[TestMethod]
@@ -83,8 +139,7 @@ namespace DbModelFramework.Test
 		{
 			var createTable = Car.Sql.CreateTable;
 
-			Assert.AreEqual("CREATE TABLE cars (manufacturer TEXT, type TEXT, id INTEGER PRIMARY KEY AUTOINCREMENT);", createTable);
-			Assert.IsTrue(Fakes.DbConnection.CreatedCommands.Select(c => c.CommandText).Contains(createTable));
+			Assert.AreEqual(Car_CreateTableSql, createTable);
 		}
 
 		[TestMethod]
@@ -229,6 +284,74 @@ namespace DbModelFramework.Test
 
 			Assert.AreEqual("TheMagicManufacturer", (command.Parameters["@manufacturer"] as IDbDataParameter).Value);
 			Assert.AreEqual("Sedan", (command.Parameters["@type"] as IDbDataParameter).Value);
+		}
+
+		[TestMethod]
+		public void GetModelWithBinaryProperty()
+		{
+			var buildArtifact = new byte[] { 10, 20, 30, 40 };
+
+			var dataReaderMock = new Mock<IDataReader>();
+
+			dataReaderMock.Setup(dr => dr.Read()).Returns(true);
+			dataReaderMock.Setup(dr => dr["id"]).Returns(1);
+			dataReaderMock.Setup(dr => dr["artifact"]).Returns(buildArtifact);
+
+			Fakes.DbConnection.ClearCustomExecuteResults();
+			Fakes.DbConnection.AddCustomExecuteReaderResult("SELECT name, artifact, id FROM builds WHERE id = @id;", dataReaderMock.Object);
+
+			var build = Build.Get(1);
+
+			CollectionAssert.AreEqual(buildArtifact, build.Artifact);
+		}
+
+		[TestMethod]
+		public void CreateModelWithReferencedModel_ReferencedModelHasPk()
+		{
+			Fakes.DbConnection.CreatedCommands.Clear();
+			Fakes.DbConnection.ClearCustomExecuteResults();
+			Fakes.DbConnection.AddCustomExecuteScalarResult(Product.Sql.LastPrimaryKey, 1);
+
+			var product = Product.Create(p =>
+			{
+				p.Manufacturer = Manufacturer.Create();
+				p.Name = "My imaginary product";
+			});
+
+			Assert.AreEqual(1, product.Manufacturer.Id);
+		}
+
+		[TestMethod]
+		public void GetModelWithReferencedModel_IsReferenceInstanciated()
+		{
+			var productDataReaderMock = new Mock<IDataReader>();
+			productDataReaderMock.Setup(dr => dr.Read()).Returns(true);
+			productDataReaderMock.Setup(dr => dr["id"]).Returns(1);
+			productDataReaderMock.Setup(dr => dr["manufacturer"]).Returns(1);
+			productDataReaderMock.Setup(dr => dr["name"]).Returns("My imaginary product");
+
+			var manufacturerDataReaderMock = new Mock<IDataReader>();
+			manufacturerDataReaderMock.Setup(dr => dr.Read()).Returns(true);
+			manufacturerDataReaderMock.Setup(dr => dr["id"]).Returns(1);
+			manufacturerDataReaderMock.Setup(dr => dr["name"]).Returns("My imaginary manufacturer");
+
+			Fakes.DbConnection.ClearCustomExecuteResults();
+			Fakes.DbConnection.AddCustomExecuteReaderResult(Product.Sql.SelectByPrimaryKey, productDataReaderMock.Object);
+			Fakes.DbConnection.AddCustomExecuteReaderResult(Manufacturer.Sql.SelectByPrimaryKey, manufacturerDataReaderMock.Object);
+
+			var product = Product.Get(1);
+
+			Assert.IsNotNull(product.Manufacturer);
+			Assert.AreEqual("My imaginary product", product.Name);
+			Assert.AreEqual("My imaginary manufacturer", product.Manufacturer.Name);
+		}
+
+		[TestMethod]
+		public void HasExecutionContract()
+		{
+			var executionContracts = ExecutionContractTestModel.ExecutionContracts;
+
+			Assert.IsTrue(executionContracts.Count() == 1);
 		}
 	}
 }

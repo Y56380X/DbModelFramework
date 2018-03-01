@@ -1,5 +1,5 @@
 ﻿/**
-	Copyright (c) 2017-2018 Y56380X
+	Copyright (c) 2018 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -20,27 +20,11 @@
 	SOFTWARE.
 **/
 
-using System.Composition.Hosting;
-
-namespace DbModelFramework
+namespace DbModelFramework.MsSql
 {
-	public static class DependencyInjection
+	public abstract class DbRequirements : DbModelFramework.DbRequirements
 	{
-		private static CompositionHost injectionContainer;
-		public static CompositionHost InjectionContainer
-		{
-			get
-			{
-				return injectionContainer;
-			}
-			set
-			{
-				// Check the injection requirements
-				if (!value.TryGetExport<DbRequirements>(out var dbRequirements))
-					throw new System.TypeLoadException($"Type: {typeof(DbRequirements).Name}");
-
-				injectionContainer = value;
-			}
-		}
+		private DbModelFramework.SqlEngine sqlEngine;
+		public override DbModelFramework.SqlEngine SqlEngine => sqlEngine ?? (sqlEngine = new SqlEngine());
 	}
 }

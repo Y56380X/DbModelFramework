@@ -20,27 +20,21 @@
 	SOFTWARE.
 **/
 
-using System.Composition.Hosting;
+using System.Composition;
+using System.Data;
 
-namespace DbModelFramework
+namespace DbModelFramework.Test.Fakes
 {
-	public static class DependencyInjection
+	[Export(typeof(DbModelFramework.DbRequirements))]
+	class DbRequirements : DbModelFramework.DbRequirements
 	{
-		private static CompositionHost injectionContainer;
-		public static CompositionHost InjectionContainer
-		{
-			get
-			{
-				return injectionContainer;
-			}
-			set
-			{
-				// Check the injection requirements
-				if (!value.TryGetExport<DbRequirements>(out var dbRequirements))
-					throw new System.TypeLoadException($"Type: {typeof(DbRequirements).Name}");
+		public static SqlEngine SqlEngineMock { get; set; }
 
-				injectionContainer = value;
-			}
+		public override SqlEngine SqlEngine => SqlEngineMock ?? Moq.Mock.Of<SqlEngine>();
+
+		public override IDbConnection CreateDbConnection()
+		{
+			return new DbConnection();
 		}
 	}
 }

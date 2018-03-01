@@ -25,7 +25,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 
 namespace DbModelFramework
 {
@@ -36,114 +35,10 @@ namespace DbModelFramework
 			{ typeof(string), DbType.String },
 			{ typeof(int), DbType.Int32 },
 			{ typeof(short), DbType.Int16 },
-			{ typeof(long), DbType.Int64 }
+			{ typeof(long), DbType.Int64 },
+			{ typeof(byte[]), DbType.Binary },
+			{ typeof(bool), DbType.Boolean }
 		};
-		static readonly Dictionary<DbType, string> DbTypeToStringDictionary = new Dictionary<DbType, string>
-		{
-			{ DbType.String, "TEXT" },
-			{ DbType.Int32, "INTEGER" },
-			{ DbType.Int16, "INTEGER" },
-			{ DbType.Int64, "INTEGER" },
-		};
-
-		public static string ToTableCreationSql(this IEnumerable<ModelProperty> modelProperties)
-		{
-			StringBuilder stringBuilder = new StringBuilder();
-
-			bool first = true;
-			foreach (var property in modelProperties)
-			{
-				if (first)
-				{
-					stringBuilder.Append($"{property.AttributeName} {DbTypeToString(property.Type)}");
-					first = false;
-				}
-				else
-				{
-					stringBuilder.Append($", {property.AttributeName} {DbTypeToString(property.Type)}");
-				}
-
-				if (property.IsPrimaryKey)
-					stringBuilder.Append(" PRIMARY KEY AUTOINCREMENT");
-
-				if (property.IsUnique)
-					stringBuilder.Append(" UNIQUE");
-			}
-
-			return stringBuilder.ToString();
-		}
-
-		public static string ToAttributeChainSql(this IEnumerable<ModelProperty> modelProperties, bool withPrimaryKey = false)
-		{
-			StringBuilder stringBuilder = new StringBuilder();
-
-			bool first = true;
-			foreach (var property in modelProperties)
-			{
-				if (!withPrimaryKey && property.IsPrimaryKey)
-					continue;
-
-				if (first)
-				{
-					stringBuilder.Append($"{property.AttributeName}");
-					first = false;
-				}
-				else
-				{
-					stringBuilder.Append($", {property.AttributeName}");
-				}
-			}
-
-			return stringBuilder.ToString();
-		}
-
-		public static string ToInsertParameterChainSql(this IEnumerable<ModelProperty> modelProperties)
-		{
-			StringBuilder stringBuilder = new StringBuilder();
-
-			bool first = true;
-			foreach (var property in modelProperties)
-			{
-				if (property.IsPrimaryKey)
-					continue;
-
-				if (first)
-				{
-					stringBuilder.Append($"@{property.AttributeName}");
-					first = false;
-				}
-				else
-				{
-					stringBuilder.Append($", @{property.AttributeName}");
-				}
-			}
-
-			return stringBuilder.ToString();
-		}
-
-		public static string ToUpdateSql(this IEnumerable<ModelProperty> modelProperties)
-		{
-			StringBuilder stringBuilder = new StringBuilder();
-
-			bool first = true;
-			foreach (var property in modelProperties)
-			{
-				if (property.IsPrimaryKey)
-					continue;
-
-				if (first)
-				{
-					stringBuilder.Append($"{property.AttributeName} = @{property.AttributeName}");
-					first = false;
-				}
-				else
-				{
-					stringBuilder.Append($", {property.AttributeName} = @{property.AttributeName}");
-				}
-			}
-
-			return stringBuilder.ToString();
-		}
 
 		public static string ToWhereSql(this Expression selector, IDbCommand dbCommand)
 		{
@@ -245,11 +140,6 @@ namespace DbModelFramework
 			parameter.DbType = dbType;
 			parameter.Value = value;
 			command.Parameters.Add(parameter);
-		}
-
-		private static string DbTypeToString(DbType dbType)
-		{
-			return DbTypeToStringDictionary[dbType];
 		}
 	}
 }
