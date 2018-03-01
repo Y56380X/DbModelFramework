@@ -74,5 +74,12 @@ namespace DbModelFramework
 
 			return $"SELECT {modelAttributes.ToChain()} FROM {tableName} WHERE {placeholder};";
 		}
+
+		public virtual string SelectModelEntriesByForeignKey(string tableName, IEnumerable<ModelProperty> modelProperties, ModelProperty modelForeignKeyProperty)
+		{
+			var modelAttributes = modelProperties.Select(prop => prop.AttributeName);
+
+			return $"SELECT {modelAttributes.ToChain()} FROM {tableName} WHERE {modelForeignKeyProperty.AttributeName} = @{modelForeignKeyProperty.AttributeName};";
+		}
 	}
 }

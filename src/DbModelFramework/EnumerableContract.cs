@@ -34,19 +34,28 @@ namespace DbModelFramework
 
 		#region sql
 		
+		private delegate object GetModelDelegate(object foreignKey);
+		private delegate object GetForeignKeyDelegate(object model);
+
 		private readonly PropertyInfo enumerableProperty;
+		private readonly Type enumerableItemType;
+		private readonly Type listType;
+		private readonly GetModelDelegate getModel;
+		private readonly GetForeignKeyDelegate getForeignKey;
 		private readonly ModelProperty virtualEnumerableProperty;
 		private readonly ModelProperty virtualModelProperty;
 		internal readonly string tableName;
 		private readonly string onCreateSql;
 		private readonly string onInsertSql;
 		private readonly string onDeleteSql;
+		private readonly string onSelectSql;
 
 		#endregion
 
 		public EnumerableContract(Type modelType, PropertyInfo enumerableProperty)
 		{
-			Type enumerableItemType = enumerableProperty.PropertyType.GenericTypeArguments[0];
+			enumerableItemType = enumerableProperty.PropertyType.GenericTypeArguments[0];
+			listType = typeof(List<>).MakeGenericType(enumerableItemType);
 
 			tableName = $"{enumerableItemType.Name.ToLower()}sTo{modelType.Name.ToLower()}s";
 			this.enumerableProperty = enumerableProperty;
@@ -54,10 +63,27 @@ namespace DbModelFramework
 			virtualEnumerableProperty = new ModelProperty(new VirtualPropertyInfo(enumerableItemType.Name.ToLower(), enumerableItemType));
 			virtualModelProperty = new ModelProperty(new VirtualPropertyInfo(modelType.Name.ToLower(), modelType));
 
+			// Use different getModel and getForeignKey Methods on non Model enumerables
+			if (enumerableItemType.TryGetGenericBaseClass(typeof(Model<,>), out Type baseClass))
+			{
+				var idProperty = baseClass.GetProperty("Id", BindingFlags.NonPublic | BindingFlags.Instance);
+				var getMethod = baseClass.GetMethod("Get", new[] { idProperty.PropertyType });
+
+				getModel = foreignKey => getMethod.Invoke(null, new[] { foreignKey });
+				getForeignKey = model => idProperty.GetValue(model);
+			}
+			else
+			{
+				getModel = Return;
+				getForeignKey = Return;
+			}
+
+			// Setup sql statements
 			var virtualModelProperties = new[] { virtualEnumerableProperty, virtualModelProperty };
 			onCreateSql = DbRequirements.SqlEngine.CreateTable(tableName, virtualModelProperties);
 			onInsertSql = DbRequirements.SqlEngine.InsertModel(tableName, virtualModelProperties);
 			onDeleteSql = DbRequirements.SqlEngine.DeleteModel(tableName, virtualModelProperty);
+			onSelectSql = DbRequirements.SqlEngine.SelectModelEntriesByForeignKey(tableName, virtualModelProperties, virtualModelProperty);
 		}
 
 		public override void OnCreate(IDbConnection connection)
@@ -85,11 +111,11 @@ namespace DbModelFramework
 			{
 				command.CommandText = onInsertSql;
 
-				foreach(var item in (IEnumerable)enumerableProperty.GetValue(model))
+				foreach (var item in (IEnumerable)enumerableProperty.GetValue(model))
 				{
 					command.Parameters.Clear();
-					command.AddParameter($"@{virtualEnumerableProperty.AttributeName}", virtualEnumerableProperty.Type, item);
-					command.AddParameter($"@{virtualModelProperty.AttributeName}", virtualEnumerableProperty.Type, model.Id);
+					command.AddParameter($"@{virtualEnumerableProperty.AttributeName}", virtualEnumerableProperty.Type, getForeignKey(item));
+					command.AddParameter($"@{virtualModelProperty.AttributeName}", virtualModelProperty.Type, model.Id);
 					command.ExecuteNonQuery();
 				}
 			}
@@ -101,9 +127,35 @@ namespace DbModelFramework
 			OnInsert(connection, model);
 		}
 
-		public override void OnSelect()
+		public override void OnSelect<TType, TPrimaryKey>(IDbConnection connection, Model<TType, TPrimaryKey> model)
 		{
-			throw new NotImplementedException();
+			IList enumerable = (IList)Activator.CreateInstance(listType);
+
+			using (var command = connection.CreateCommand())
+			{
+				command.CommandText = onSelectSql;
+				command.AddParameter($"@{virtualModelProperty.AttributeName}", virtualEnumerableProperty.Type, model.Id);
+
+				using (var dataReader = command.ExecuteReader())
+				{
+					object dataField;
+					while (dataReader.Read())
+					{
+						dataField = dataReader[virtualEnumerableProperty.AttributeName];
+						enumerable.Add(getModel(dataField));
+					}
+				}
+			}
+
+			enumerableProperty.SetValue(model, enumerable);
+		}
+
+		private object Return(object source)
+		{
+			if (enumerableItemType.IsInstanceOfType(source))
+				return source;
+			else
+				return Convert.ChangeType(source, enumerableItemType);
 		}
 	}
 }

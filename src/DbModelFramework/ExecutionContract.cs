@@ -37,7 +37,7 @@ namespace DbModelFramework
 
 		public abstract void OnDelete<TType, TPrimaryKey>(IDbConnection connection, Model<TType, TPrimaryKey> model) where TType : Model<TType, TPrimaryKey>, new() where TPrimaryKey : IComparable;
 
-		public abstract void OnSelect();
+		public abstract void OnSelect<TType, TPrimaryKey>(IDbConnection connection, Model<TType, TPrimaryKey> model) where TType : Model<TType, TPrimaryKey>, new() where TPrimaryKey : IComparable;
 	}
 
 	static class ExecutionContractExtesions

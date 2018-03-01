@@ -32,9 +32,9 @@ namespace DbModelFramework
 	{
 
 	}
-	
-	public abstract class Model<TType, TPrimaryKey> 
-		where TType : Model<TType, TPrimaryKey>, new() 
+
+	public abstract class Model<TType, TPrimaryKey>
+		where TType : Model<TType, TPrimaryKey>, new()
 		where TPrimaryKey : IComparable
 	{
 		#region fields
@@ -164,16 +164,21 @@ namespace DbModelFramework
 			TType model = default(TType);
 
 			using (var connection = DbRequirements.CreateDbConnection())
-			using (var command = connection.CreateCommand())
 			{
-				command.CommandText = Sql.SelectByPrimaryKey;
-				command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, primaryKey);
-
-				using (var dataReader = command.ExecuteReader())
+				using (var command = connection.CreateCommand())
 				{
-					if (dataReader.Read())
-						model = InstanciateModel(dataReader);
+					command.CommandText = Sql.SelectByPrimaryKey;
+					command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, primaryKey);
+
+					using (var dataReader = command.ExecuteReader())
+					{
+						if (dataReader.Read())
+							model = InstanciateModel(dataReader);
+					}
 				}
+
+				// Execute contracts
+				ExecutionContracts.Execute(ec => ec.OnSelect(connection, model));
 			}
 
 			return model;
@@ -184,15 +189,21 @@ namespace DbModelFramework
 			var models = new List<TType>();
 
 			using (var connection = DbRequirements.CreateDbConnection())
-			using (var command = connection.CreateCommand())
 			{
-				command.CommandText = Sql.SelectAll;
-
-				using (var dataReader = command.ExecuteReader())
+				using (var command = connection.CreateCommand())
 				{
-					while (dataReader.Read())
-						models.Add(InstanciateModel(dataReader));
+					command.CommandText = Sql.SelectAll;
+
+					using (var dataReader = command.ExecuteReader())
+					{
+						while (dataReader.Read())
+							models.Add(InstanciateModel(dataReader));
+					}
 				}
+
+				// Execute contracts
+				foreach (var model in models)
+					ExecutionContracts.Execute(ec => ec.OnSelect(connection, model));
 			}
 
 			return models;
@@ -203,15 +214,21 @@ namespace DbModelFramework
 			var models = new List<TType>();
 
 			using (var connection = DbRequirements.CreateDbConnection())
-			using (var command = connection.CreateCommand())
 			{
-				command.CommandText = Sql.SelectByCustomCondition.Replace("{0}", selector.ToWhereSql(command));
-
-				using (var dataReader = command.ExecuteReader())
+				using (var command = connection.CreateCommand())
 				{
-					while (dataReader.Read())
-						models.Add(InstanciateModel(dataReader));
+					command.CommandText = Sql.SelectByCustomCondition.Replace("{0}", selector.ToWhereSql(command));
+
+					using (var dataReader = command.ExecuteReader())
+					{
+						while (dataReader.Read())
+							models.Add(InstanciateModel(dataReader));
+					}
 				}
+
+				// Execute contracts
+				foreach (var model in models)
+					ExecutionContracts.Execute(ec => ec.OnSelect(connection, model));
 			}
 
 			return models;
