@@ -217,7 +217,7 @@ namespace DbModelFramework
 			{
 				using (var command = connection.CreateCommand())
 				{
-					command.CommandText = Sql.SelectByCustomCondition.Replace("{0}", selector.ToWhereSql(command));
+					command.CommandText = Sql.SelectByCustomCondition.Replace("{{0}}", selector.ToWhereSql(command));
 
 					using (var dataReader = command.ExecuteReader())
 					{
