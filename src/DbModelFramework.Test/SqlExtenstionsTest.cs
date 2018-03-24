@@ -45,6 +45,24 @@ namespace DbModelFramework.Test
 			public CustomExpression CustomExpressionFilter { get; set; }
 		}
 
+		enum Int16TestEnum : Int16
+		{
+			Test1,
+			Test2
+		}
+
+		enum Int32TestEnum : Int32
+		{
+			Test1,
+			Test2
+		}
+
+		enum Int64TestEnum : Int64
+		{
+			Test1,
+			Test2
+		}
+
 		#endregion
 
 		[TestMethod]
@@ -191,6 +209,24 @@ namespace DbModelFramework.Test
 		public void ToDbType_Boolean()
 		{
 			Assert.AreEqual(DbType.Boolean, typeof(bool).ToDbType());
+		}
+
+		[TestMethod]
+		public void ToDbType_Int16TestEnum()
+		{
+			Assert.AreEqual(DbType.Int16, typeof(Int16TestEnum).ToDbType());
+		}
+
+		[TestMethod]
+		public void ToDbType_Int32TestEnum()
+		{
+			Assert.AreEqual(DbType.Int32, typeof(Int32TestEnum).ToDbType());
+		}
+
+		[TestMethod]
+		public void ToDbType_Int64TestEnum()
+		{
+			Assert.AreEqual(DbType.Int64, typeof(Int64TestEnum).ToDbType());
 		}
 	}
 }
