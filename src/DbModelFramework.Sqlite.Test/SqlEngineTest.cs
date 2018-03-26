@@ -193,5 +193,14 @@ namespace DbModelFramework.Sqlite.Test
 		{
 			Assert.AreEqual("BLOB", SqlEngine.DbTypeToString(System.Data.DbType.Binary));
 		}
+
+		[TestMethod]
+		public void DbTypeToString_Single() => Assert.AreEqual("REAL", SqlEngine.DbTypeToString(System.Data.DbType.Single));
+
+		[TestMethod]
+		public void DbTypeToString_Double() => Assert.AreEqual("REAL", SqlEngine.DbTypeToString(System.Data.DbType.Double));
+
+		[TestMethod]
+		public void DbTypeToString_Decimal() => Assert.AreEqual("REAL", SqlEngine.DbTypeToString(System.Data.DbType.Decimal));
 	}
 }

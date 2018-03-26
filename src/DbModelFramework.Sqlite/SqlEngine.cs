@@ -34,7 +34,10 @@ namespace DbModelFramework.Sqlite
 			{ DbType.Int32, "INTEGER" },
 			{ DbType.Int16, "INTEGER" },
 			{ DbType.Int64, "INTEGER" },
-			{ DbType.Binary, "BLOB" }
+			{ DbType.Binary, "BLOB" },
+			{ DbType.Single, "REAL" },
+			{ DbType.Double, "REAL" },
+			{ DbType.Decimal, "REAL" }
 		};
 
 		public override string CheckTable(string tableName)
