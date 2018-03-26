@@ -36,7 +36,10 @@ namespace DbModelFramework.MsSql
 			{ DbType.Int16, "int" },
 			{ DbType.Int64, "int" },
 			{ DbType.Binary, "binary" },
-			{ DbType.Boolean, "int" }
+			{ DbType.Boolean, "int" },
+			{ DbType.Single, "real" },
+			{ DbType.Double, "float" },
+			{ DbType.Decimal, "decimal" }
 		};
 
 		static readonly Dictionary<DbType, string> DbTypeAsKeyToStringDictionary = new Dictionary<DbType, string>
@@ -70,7 +73,7 @@ namespace DbModelFramework.MsSql
 			return "SELECT SCOPE_IDENTITY();";
 		}
 
-		private static string DbTypeToString(DbType dbType, bool asKey = false)
+		internal static string DbTypeToString(DbType dbType, bool asKey = false)
 		{
 			return asKey ? DbTypeAsKeyToStringDictionary[dbType] : DbTypeToStringDictionary[dbType];
 		}

@@ -163,5 +163,14 @@ namespace DbModelFramework.MsSql.Test
 			Assert.AreEqual("CREATE TABLE multiplereferencingmodels (myreference1 int FOREIGN KEY REFERENCES referencedmodels(id), myreference2 int FOREIGN KEY REFERENCES referencedmodels(id), "
 				+ "id int IDENTITY(1,1) PRIMARY KEY);", createTableSql);
 		}
+
+		[TestMethod]
+		public void DbTypeToString_Single() => Assert.AreEqual("real", SqlEngine.DbTypeToString(System.Data.DbType.Single));
+
+		[TestMethod]
+		public void DbTypeToString_Double() => Assert.AreEqual("float", SqlEngine.DbTypeToString(System.Data.DbType.Double));
+
+		[TestMethod]
+		public void DbTypeToString_Decimal() => Assert.AreEqual("decimal", SqlEngine.DbTypeToString(System.Data.DbType.Decimal));
 	}
 }
