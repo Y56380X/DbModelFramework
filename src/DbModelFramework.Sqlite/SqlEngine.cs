@@ -65,7 +65,7 @@ namespace DbModelFramework.Sqlite
 			return "SELECT last_insert_rowid();";
 		}
 
-		public static string DbTypeToString(DbType dbType)
+		internal static string DbTypeToString(DbType dbType)
 		{
 			return DbTypeToStringDictionary[dbType];
 		}
