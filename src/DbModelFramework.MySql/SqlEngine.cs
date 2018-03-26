@@ -35,7 +35,10 @@ namespace DbModelFramework.MySql
 			{ DbType.Int16, "INTEGER" },
 			{ DbType.Int64, "INTEGER" },
 			{ DbType.Binary, "BLOB" },
-			{ DbType.Boolean, "BOOLEAN" }
+			{ DbType.Boolean, "BOOLEAN" },
+			{ DbType.Single, "FLOAT" },
+			{ DbType.Double, "DOUBLE" },
+			{ DbType.Decimal, "DECIMAL" }
 		};
 
 		static readonly Dictionary<DbType, string> DbTypeAsKeyToStringDictionary = new Dictionary<DbType, string>
@@ -73,7 +76,7 @@ namespace DbModelFramework.MySql
 			return "SELECT LAST_INSERT_ID();";
 		}
 
-		private static string DbTypeToString(DbType dbType, bool asKey = false)
+		internal static string DbTypeToString(DbType dbType, bool asKey = false)
 		{
 			return asKey ? DbTypeAsKeyToStringDictionary[dbType] : DbTypeToStringDictionary[dbType];
 		}

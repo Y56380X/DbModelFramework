@@ -163,5 +163,14 @@ namespace DbModelFramework.MySql.Test
 			Assert.AreEqual("CREATE TABLE multiplereferencingmodels (myreference1 INTEGER, myreference2 INTEGER, id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, "
 				+ "FOREIGN KEY(myreference1) REFERENCES referencedmodels(id), FOREIGN KEY(myreference2) REFERENCES referencedmodels(id));", createTableSql);
 		}
+
+		[TestMethod]
+		public void DbTypeToString_Single() => Assert.AreEqual("FLOAT", SqlEngine.DbTypeToString(System.Data.DbType.Single));
+
+		[TestMethod]
+		public void DbTypeToString_Double() => Assert.AreEqual("DOUBLE", SqlEngine.DbTypeToString(System.Data.DbType.Double));
+
+		[TestMethod]
+		public void DbTypeToString_Decimal() => Assert.AreEqual("DECIMAL", SqlEngine.DbTypeToString(System.Data.DbType.Decimal));
 	}
 }
