@@ -228,5 +228,14 @@ namespace DbModelFramework.Test
 		{
 			Assert.AreEqual(DbType.Int64, typeof(Int64TestEnum).ToDbType());
 		}
+
+		[TestMethod]
+		public void ToDbType_Float() => Assert.AreEqual(DbType.Single, typeof(float).ToDbType());
+
+		[TestMethod]
+		public void ToDbType_Double() => Assert.AreEqual(DbType.Double, typeof(double).ToDbType());
+
+		[TestMethod]
+		public void ToDbType_Decimal() => Assert.AreEqual(DbType.Decimal, typeof(decimal).ToDbType());
 	}
 }

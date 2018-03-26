@@ -37,7 +37,10 @@ namespace DbModelFramework
 			{ typeof(short), DbType.Int16 },
 			{ typeof(long), DbType.Int64 },
 			{ typeof(byte[]), DbType.Binary },
-			{ typeof(bool), DbType.Boolean }
+			{ typeof(bool), DbType.Boolean },
+			{ typeof(float), DbType.Single },
+			{ typeof(double), DbType.Double },
+			{ typeof(decimal), DbType.Decimal }
 		};
 
 		public static string ToWhereSql(this Expression selector, IDbCommand dbCommand)
