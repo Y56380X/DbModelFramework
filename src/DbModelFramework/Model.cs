@@ -37,6 +37,8 @@ namespace DbModelFramework
 		where TType : Model<TType, TPrimaryKey>, new()
 		where TPrimaryKey : IComparable
 	{
+		static Model() => Sql.Init();
+
 		#region fields
 
 		internal static readonly DbRequirements DbRequirements = DbRequirements.Instance;
@@ -59,7 +61,7 @@ namespace DbModelFramework
 			public static readonly string Delete = DbRequirements.SqlEngine.DeleteModel(TableName, PrimaryKeyProperty);
 			public static readonly string Update = DbRequirements.SqlEngine.UpdateModel(TableName, ModelProperties);
 
-			static Sql()
+			public static void Init()
 			{
 				if (!Check())
 					Create();
