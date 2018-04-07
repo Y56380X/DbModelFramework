@@ -28,10 +28,17 @@ namespace DbModelFramework
 {
 	public class ModelProperty
 	{
+		#region delegates
+
+		delegate object ConvertValue(object value, Type targetType);
+
+		#endregion
+
 		#region fields
 
 		private PropertyInfo property;
 		private MethodInfo foreignKeyLoader;
+		private ConvertValue convertValue;
 
 		#endregion
 
@@ -68,6 +75,7 @@ namespace DbModelFramework
 			foreignKeyLoader = IsForeignKey ? baseClass.GetMethod("Get", new Type[] { ForeignKeyReference.property.PropertyType }) : null;
 
 			this.property = property;
+			convertValue = property.PropertyType.IsEnum ? (ConvertValue)ToEnumValue : ChangeType;
 		}
 
 		#endregion
@@ -79,14 +87,14 @@ namespace DbModelFramework
 			if (IsForeignKey)
 			{
 				if (value != null && !ForeignKeyReference.property.PropertyType.IsInstanceOfType(value))
-					property.SetValue(model, foreignKeyLoader.Invoke(null, new object[] { Convert.ChangeType(value, ForeignKeyReference.property.PropertyType) }));
+					property.SetValue(model, foreignKeyLoader.Invoke(null, new object[] { convertValue(value, ForeignKeyReference.property.PropertyType) }));
 				else
 					property.SetValue(model, foreignKeyLoader.Invoke(null, new object[] { value }));
 			}
 			else
 			{
 				if (value != null && !property.PropertyType.IsInstanceOfType(value))
-					property.SetValue(model, Convert.ChangeType(value, property.PropertyType));
+					property.SetValue(model, convertValue(value, property.PropertyType));
 				else
 					property.SetValue(model, value);
 			}
@@ -109,6 +117,10 @@ namespace DbModelFramework
 		{
 			return (string)model.GetField("TableName", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
 		}
+
+		private static object ChangeType(object value, Type targetType) => Convert.ChangeType(value, targetType);
+
+		private static object ToEnumValue(object value, Type targetType) => Enum.ToObject(targetType, value);
 
 		#endregion
 	}
