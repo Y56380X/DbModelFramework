@@ -105,10 +105,10 @@ namespace DbModelFramework.Test
 			sqlEngineMock.Setup(se => se.CreateTable("cars", Car.ModelProperties)).Returns(Car_CreateTableSql);
 			sqlEngineMock.Setup(se => se.CheckTable("builds")).Returns(Build_CheckTableSql);
 			sqlEngineMock.Setup(se => se.CreateTable("builds", Build.ModelProperties)).Returns(Build_CreateTableSql);
-			sqlEngineMock.Setup(se => se.CheckTable("products")).Returns(Product_CheckTableSql);
-			sqlEngineMock.Setup(se => se.CreateTable("products", Product.ModelProperties)).Returns(Product_CreateTableSql);
 			sqlEngineMock.Setup(se => se.CheckTable("manufacturers")).Returns(Manufacturer_CheckTableSql);
 			sqlEngineMock.Setup(se => se.CreateTable("manufacturers", Manufacturer.ModelProperties)).Returns(Manufacturer_CheckTableSql);
+			sqlEngineMock.Setup(se => se.CheckTable("products")).Returns(Product_CheckTableSql);
+			sqlEngineMock.Setup(se => se.CreateTable("products", Product.ModelProperties)).Returns(Product_CreateTableSql);
 		}
 
 		[TestMethod]
