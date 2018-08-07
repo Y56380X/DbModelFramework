@@ -237,5 +237,8 @@ namespace DbModelFramework.Test
 
 		[TestMethod]
 		public void ToDbType_Decimal() => Assert.AreEqual(DbType.Decimal, typeof(decimal).ToDbType());
+
+		[TestMethod]
+		public void ToDbType_DateTime() => Assert.AreEqual(DbType.DateTime, typeof(DateTime).ToDbType());
 	}
 }

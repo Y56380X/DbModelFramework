@@ -40,7 +40,8 @@ namespace DbModelFramework
 			{ typeof(bool), DbType.Boolean },
 			{ typeof(float), DbType.Single },
 			{ typeof(double), DbType.Double },
-			{ typeof(decimal), DbType.Decimal }
+			{ typeof(decimal), DbType.Decimal },
+			{ typeof(DateTime), DbType.DateTime }
 		};
 
 		public static string ToWhereSql(this Expression selector, IDbCommand dbCommand)
