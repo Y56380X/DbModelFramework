@@ -39,7 +39,8 @@ namespace DbModelFramework.MsSql
 			{ DbType.Boolean, "int" },
 			{ DbType.Single, "real" },
 			{ DbType.Double, "float" },
-			{ DbType.Decimal, "decimal" }
+			{ DbType.Decimal, "decimal"},
+			{ DbType.DateTime, "datetime(4)" }
 		};
 
 		static readonly Dictionary<DbType, string> DbTypeAsKeyToStringDictionary = new Dictionary<DbType, string>
@@ -48,7 +49,8 @@ namespace DbModelFramework.MsSql
 			{ DbType.Int32, "int" },
 			{ DbType.Int16, "int" },
 			{ DbType.Int64, "int" },
-			{ DbType.Boolean, "int" }
+			{ DbType.Boolean, "int" },
+			{ DbType.DateTime, "datetime(4)" }
 		};
 
 		public override string CheckTable(string tableName)

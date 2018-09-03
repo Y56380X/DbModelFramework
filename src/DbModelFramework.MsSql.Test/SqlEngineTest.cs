@@ -172,5 +172,8 @@ namespace DbModelFramework.MsSql.Test
 
 		[TestMethod]
 		public void DbTypeToString_Decimal() => Assert.AreEqual("decimal", SqlEngine.DbTypeToString(System.Data.DbType.Decimal));
+
+		[TestMethod]
+		public void DbTypeToString_Date() => Assert.AreEqual("datetime(4)", SqlEngine.DbTypeToString(System.Data.DbType.DateTime));
 	}
 }
