@@ -102,13 +102,13 @@ namespace DbModelFramework.Test
 
 			sqlEngineMock.Setup(se => se.GetLastPrimaryKey()).Returns("SELECT LAST_PK;");
 			sqlEngineMock.Setup(se => se.CheckTable("cars")).Returns(Car_CheckTableSql);
-			sqlEngineMock.Setup(se => se.CreateTable("cars", Car.ModelProperties)).Returns(Car_CreateTableSql);
+			sqlEngineMock.Setup(se => se.CreateTable("cars", It.Is<IEnumerable<ModelProperty>>(i => i == Car.ModelProperties))).Returns(Car_CreateTableSql);
 			sqlEngineMock.Setup(se => se.CheckTable("builds")).Returns(Build_CheckTableSql);
-			sqlEngineMock.Setup(se => se.CreateTable("builds", Build.ModelProperties)).Returns(Build_CreateTableSql);
+			sqlEngineMock.Setup(se => se.CreateTable("builds", It.Is<IEnumerable<ModelProperty>>(i => i == Build.ModelProperties))).Returns(Build_CreateTableSql);
 			sqlEngineMock.Setup(se => se.CheckTable("manufacturers")).Returns(Manufacturer_CheckTableSql);
-			sqlEngineMock.Setup(se => se.CreateTable("manufacturers", Manufacturer.ModelProperties)).Returns(Manufacturer_CheckTableSql);
+			sqlEngineMock.Setup(se => se.CreateTable("manufacturers", It.Is<IEnumerable<ModelProperty>>(i => i == Manufacturer.ModelProperties))).Returns(Manufacturer_CheckTableSql);
 			sqlEngineMock.Setup(se => se.CheckTable("products")).Returns(Product_CheckTableSql);
-			sqlEngineMock.Setup(se => se.CreateTable("products", Product.ModelProperties)).Returns(Product_CreateTableSql);
+			sqlEngineMock.Setup(se => se.CreateTable("products", It.Is<IEnumerable<ModelProperty>>(i => i == Product.ModelProperties))).Returns(Product_CreateTableSql);
 		}
 
 		[TestMethod]
