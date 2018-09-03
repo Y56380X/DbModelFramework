@@ -202,5 +202,8 @@ namespace DbModelFramework.Sqlite.Test
 
 		[TestMethod]
 		public void DbTypeToString_Decimal() => Assert.AreEqual("REAL", SqlEngine.DbTypeToString(System.Data.DbType.Decimal));
+
+		[TestMethod]
+		public void DbTypeToString_Date() => Assert.AreEqual("TEXT", SqlEngine.DbTypeToString(System.Data.DbType.DateTime));
 	}
 }

@@ -37,7 +37,8 @@ namespace DbModelFramework.Sqlite
 			{ DbType.Binary, "BLOB" },
 			{ DbType.Single, "REAL" },
 			{ DbType.Double, "REAL" },
-			{ DbType.Decimal, "REAL" }
+			{ DbType.Decimal, "REAL" },
+			{ DbType.DateTime, "TEXT" }
 		};
 
 		public override string CheckTable(string tableName)
