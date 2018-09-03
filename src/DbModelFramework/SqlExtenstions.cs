@@ -1,5 +1,5 @@
 ﻿/**
-	Copyright (c) 2017 Y56380X
+	Copyright (c) 2017-2018 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,11 @@ namespace DbModelFramework
 			{ typeof(short), DbType.Int16 },
 			{ typeof(long), DbType.Int64 },
 			{ typeof(byte[]), DbType.Binary },
-			{ typeof(bool), DbType.Boolean }
+			{ typeof(bool), DbType.Boolean },
+			{ typeof(float), DbType.Single },
+			{ typeof(double), DbType.Double },
+			{ typeof(decimal), DbType.Decimal },
+			{ typeof(DateTime), DbType.DateTime }
 		};
 
 		public static string ToWhereSql(this Expression selector, IDbCommand dbCommand)
@@ -130,7 +134,7 @@ namespace DbModelFramework
 
 		public static DbType ToDbType(this Type type)
 		{
-			return TypeToDbTypeDictionary[type];
+			return type.IsEnum ? type.GetEnumUnderlyingType().ToDbType() : TypeToDbTypeDictionary[type];
 		}
 
 		public static void AddParameter(this IDbCommand command, string parameterName, DbType dbType, object value)

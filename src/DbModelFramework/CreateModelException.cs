@@ -20,17 +20,19 @@
 	SOFTWARE.
 **/
 
-using System.Composition;
-using System.Data;
+using System;
 
-namespace DbModelFramework.MsSql.Test.Fakes
+namespace DbModelFramework
 {
-	[Export(typeof(DbModelFramework.DbRequirements))]
-	class DbRequirements : MsSql.DbRequirements
+
+	[Serializable]
+	public class CreateModelException : Exception
 	{
-		public override IDbConnection CreateDbConnection()
-		{
-			return new FakeDbConnection().Object;
-		}
+		public CreateModelException() { }
+		public CreateModelException(string message) : base(message) { }
+		public CreateModelException(string message, Exception inner) : base(message, inner) { }
+		protected CreateModelException(
+		 System.Runtime.Serialization.SerializationInfo info,
+		 System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
 	}
 }

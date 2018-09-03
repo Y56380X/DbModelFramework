@@ -35,7 +35,11 @@ namespace DbModelFramework.MySql
 			{ DbType.Int16, "INTEGER" },
 			{ DbType.Int64, "INTEGER" },
 			{ DbType.Binary, "BLOB" },
-			{ DbType.Boolean, "BOOLEAN" }
+			{ DbType.Boolean, "BOOLEAN" },
+			{ DbType.Single, "FLOAT" },
+			{ DbType.Double, "DOUBLE" },
+			{ DbType.Decimal, "DECIMAL" },
+			{ DbType.DateTime, "DATETIME(4)" }
 		};
 
 		static readonly Dictionary<DbType, string> DbTypeAsKeyToStringDictionary = new Dictionary<DbType, string>
@@ -44,7 +48,8 @@ namespace DbModelFramework.MySql
 			{ DbType.Int32, "INTEGER" },
 			{ DbType.Int16, "INTEGER" },
 			{ DbType.Int64, "INTEGER" },
-			{ DbType.Boolean, "BOOLEAN" }
+			{ DbType.Boolean, "BOOLEAN" },
+			{ DbType.DateTime, "DATETIME(4)" }
 		};
 
 		public override string CheckTable(string tableName)
@@ -73,7 +78,7 @@ namespace DbModelFramework.MySql
 			return "SELECT LAST_INSERT_ID();";
 		}
 
-		private static string DbTypeToString(DbType dbType, bool asKey = false)
+		internal static string DbTypeToString(DbType dbType, bool asKey = false)
 		{
 			return asKey ? DbTypeAsKeyToStringDictionary[dbType] : DbTypeToStringDictionary[dbType];
 		}

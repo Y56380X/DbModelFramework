@@ -37,6 +37,8 @@ namespace DbModelFramework
 		where TType : Model<TType, TPrimaryKey>, new()
 		where TPrimaryKey : IComparable
 	{
+		static Model() => Sql.Init();
+
 		#region fields
 
 		internal static readonly DbRequirements DbRequirements = DbRequirements.Instance;
@@ -59,7 +61,7 @@ namespace DbModelFramework
 			public static readonly string Delete = DbRequirements.SqlEngine.DeleteModel(TableName, PrimaryKeyProperty);
 			public static readonly string Update = DbRequirements.SqlEngine.UpdateModel(TableName, ModelProperties);
 
-			static Sql()
+			public static void Init()
 			{
 				if (!Check())
 					Create();
@@ -234,11 +236,17 @@ namespace DbModelFramework
 			return models;
 		}
 
+		/// <exception cref="CreateModelException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
+		/// <exception cref="Exception"></exception>
 		public static TType Create()
 		{
 			return Create(null);
 		}
 
+		/// <exception cref="CreateModelException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
+		/// <exception cref="Exception"></exception>
 		public static TType Create(Action<TType> setValuesAction)
 		{
 			var model = new TType();
@@ -270,7 +278,16 @@ namespace DbModelFramework
 				// Execute contracts
 				ExecutionContracts.Execute(ec => ec.OnInsert(connection, model));
 
-				transaction.Commit();
+				// Try to commit create model change
+				try
+				{
+					transaction.Commit();
+				}
+				catch (Exception commitException)
+				{
+					transaction.Rollback();
+					throw new CreateModelException(commitException.Message);
+				}
 			}
 
 			return model;

@@ -163,5 +163,32 @@ namespace DbModelFramework.MySql.Test
 			Assert.AreEqual("CREATE TABLE multiplereferencingmodels (myreference1 INTEGER, myreference2 INTEGER, id INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT, "
 				+ "FOREIGN KEY(myreference1) REFERENCES referencedmodels(id), FOREIGN KEY(myreference2) REFERENCES referencedmodels(id));", createTableSql);
 		}
+
+		[TestMethod]
+		public void DbTypeToString_Int16() => Assert.AreEqual("INTEGER", SqlEngine.DbTypeToString(System.Data.DbType.Int16));
+
+		[TestMethod]
+		public void DbTypeToString_Int32() => Assert.AreEqual("INTEGER", SqlEngine.DbTypeToString(System.Data.DbType.Int32));
+
+		[TestMethod]
+		public void DbTypeToString_Int64() => Assert.AreEqual("INTEGER", SqlEngine.DbTypeToString(System.Data.DbType.Int64));
+
+		[TestMethod]
+		public void DbTypeToString_String() => Assert.AreEqual("TEXT", SqlEngine.DbTypeToString(System.Data.DbType.String));
+
+		[TestMethod]
+		public void DbTypeToString_Binary() => Assert.AreEqual("BLOB", SqlEngine.DbTypeToString(System.Data.DbType.Binary));
+
+		[TestMethod]
+		public void DbTypeToString_Single() => Assert.AreEqual("FLOAT", SqlEngine.DbTypeToString(System.Data.DbType.Single));
+
+		[TestMethod]
+		public void DbTypeToString_Double() => Assert.AreEqual("DOUBLE", SqlEngine.DbTypeToString(System.Data.DbType.Double));
+
+		[TestMethod]
+		public void DbTypeToString_Decimal() => Assert.AreEqual("DECIMAL", SqlEngine.DbTypeToString(System.Data.DbType.Decimal));
+
+		[TestMethod]
+		public void DbTypeToString_Date() => Assert.AreEqual("DATETIME(4)", SqlEngine.DbTypeToString(System.Data.DbType.DateTime));
 	}
 }

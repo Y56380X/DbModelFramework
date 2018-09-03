@@ -79,25 +79,26 @@ namespace DbModelFramework.Test.Fakes
 		{
 			var commandMock = new Mock<IDbCommand>() { DefaultValue = DefaultValue.Mock };
 			commandMock.SetupAllProperties();
+			//commandMock.SetupGet(c => c.CommandText).Returns(() => string.Empty);
 
 			// Setup execusion
 			commandMock.Setup(c => c.ExecuteNonQuery()).Returns(() => 
 			{
-					if (customExecuteNonQueryResults.ContainsKey(commandMock.Object.CommandText))
+					if (commandMock.Object.CommandText != null && customExecuteNonQueryResults.ContainsKey(commandMock.Object.CommandText))
 						return customExecuteNonQueryResults[commandMock.Object.CommandText];
 					else
 						return default(int);
 			});
 			commandMock.Setup(c => c.ExecuteReader()).Returns(() =>
 			{
-				if (customExecuteReaderResults.ContainsKey(commandMock.Object.CommandText))
+				if (commandMock.Object.CommandText != null && customExecuteReaderResults.ContainsKey(commandMock.Object.CommandText))
 					return customExecuteReaderResults[commandMock.Object.CommandText];
 				else
 					return Mock.Of<IDataReader>();
 			});
 			commandMock.Setup(c => c.ExecuteScalar()).Returns(() =>
 			{
-				if (customExecuteScalarResults.ContainsKey(commandMock.Object.CommandText))
+				if (commandMock.Object.CommandText != null && customExecuteScalarResults.ContainsKey(commandMock.Object.CommandText))
 					return customExecuteScalarResults[commandMock.Object.CommandText];
 				else
 					return default(object);

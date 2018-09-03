@@ -30,7 +30,7 @@ namespace DbModelFramework.Sqlite.Test.Fakes
 	{
 		public override IDbConnection CreateDbConnection()
 		{
-			throw new System.NotImplementedException();
+			return new FakeDbConnection().Object;
 		}
 	}
 }

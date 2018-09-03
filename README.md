@@ -74,3 +74,43 @@ myModel.Save();
 ```C#
 myModel.Delete();
 ```
+
+### Reload model data
+```C#
+myModel.Reload();
+```
+
+## Advanced
+
+### Model-in-Model
+```C#
+class MyReferencedModel : Model<MyReferencedModel>
+{
+	public string Property { get; set; }
+}
+
+class MyReferencingModel : Model<MyReferencingModel>
+{
+	public MyReferencedModel ReferencedModel { get; set; }
+}
+```
+
+### Unique values
+```C#
+class MyUniqueValueModel : Model<MyUniqueValueModel>
+{
+	[Unique]
+	public string UniqueProperty { get; set; }
+}
+```
+
+### Ignore values for db storage
+```C#
+class MyDbIgnoreModel : Model<MyDbIgnoreModel>
+{
+	[DbIgnore]
+	public string NotSavedInDbProperty { get; set; }
+	
+	public string SavedInDbProperty { get; set; }
+}
+```

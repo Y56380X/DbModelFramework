@@ -35,6 +35,10 @@ namespace DbModelFramework
 		public virtual string InsertModel(string tableName, IEnumerable<ModelProperty> modelProperties)
 		{
 			var modelAttributes = modelProperties.Where(prop => !prop.IsPrimaryKey).Select(prop => prop.AttributeName);
+
+			if (modelAttributes.Count() == 0)
+				return $"INSERT INTO {tableName} DEFAULT VALUES;";
+
 			var modelParameters = modelProperties.Where(prop => !prop.IsPrimaryKey).Select(prop => $"@{prop.AttributeName}");
 
 			return $"INSERT INTO {tableName} ({modelAttributes.ToChain()}) VALUES ({modelParameters.ToChain()});";

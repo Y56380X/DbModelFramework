@@ -58,5 +58,13 @@ namespace DbModelFramework.Test
 
 			Assert.AreEqual(default(long), defaultValue);
 		}
+
+		[TestMethod]
+		public void DateTimeDefaultValue()
+		{
+			var defaultValue = typeof(System.DateTime).GetDefault();
+
+			Assert.AreEqual(default(System.DateTime), defaultValue);
+		}
 	}
 }

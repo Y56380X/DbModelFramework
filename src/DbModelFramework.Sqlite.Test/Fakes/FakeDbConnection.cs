@@ -20,17 +20,16 @@
 	SOFTWARE.
 **/
 
-using System.Composition;
 using System.Data;
+using Moq;
 
-namespace DbModelFramework.MsSql.Test.Fakes
+namespace DbModelFramework.Sqlite.Test.Fakes
 {
-	[Export(typeof(DbModelFramework.DbRequirements))]
-	class DbRequirements : MsSql.DbRequirements
+	class FakeDbConnection : Mock<IDbConnection>
 	{
-		public override IDbConnection CreateDbConnection()
+		public FakeDbConnection()
 		{
-			return new FakeDbConnection().Object;
+			Setup(c => c.CreateCommand()).Returns(Of<IDbCommand>);
 		}
 	}
 }
