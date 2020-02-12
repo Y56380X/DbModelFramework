@@ -1,5 +1,5 @@
 ﻿/**
-	Copyright (c) 2017-2018 Y56380X
+	Copyright (c) 2017-20202 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -28,12 +28,17 @@ using System.Linq.Expressions;
 
 namespace DbModelFramework
 {
+	public interface IModel
+	{
+		object GetId();
+	}
+	
 	public abstract class Model<TType> : Model<TType, long> where TType : Model<TType, long>, new()
 	{
 
 	}
 
-	public abstract class Model<TType, TPrimaryKey>
+	public abstract class Model<TType, TPrimaryKey> : IModel
 		where TType : Model<TType, TPrimaryKey>, new()
 		where TPrimaryKey : IComparable
 	{
@@ -310,5 +315,7 @@ namespace DbModelFramework
 		}
 
 		#endregion
+
+		object IModel.GetId() => Id;
 	}
 }
