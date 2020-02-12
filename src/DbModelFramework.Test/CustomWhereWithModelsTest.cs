@@ -73,7 +73,7 @@ namespace DbModelFramework.Test
 			var dbCommand = dbCommandMock.Object;
 			var lookupRef = new ModelReferenced{ Id = 2004};
 
-			var sql = SqlExtenstions.ToWhereSql((Expression<Func<ModelOne, bool>>) (model => model.Reference == lookupRef),
+			var sql = SqlExtension.ToWhereSql((Expression<Func<ModelOne, bool>>) (model => model.Reference == lookupRef),
 				dbCommand);
 			
 			Assert.AreEqual("reference = @reference", sql);

@@ -28,7 +28,7 @@ using System.Reflection;
 
 namespace DbModelFramework
 {
-	static class SqlExtenstions
+	static class SqlExtension
 	{
 		static readonly Dictionary<Type, DbType> TypeToDbTypeDictionary = new Dictionary<Type, DbType>
 		{
