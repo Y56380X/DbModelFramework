@@ -1,5 +1,5 @@
 ﻿/**
-	Copyright (c) 2017-2018 Y56380X
+	Copyright (c) 2017-2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,7 @@ using System.Reflection;
 
 namespace DbModelFramework
 {
-	static class SqlExtenstions
+	static class SqlExtension
 	{
 		static readonly Dictionary<Type, DbType> TypeToDbTypeDictionary = new Dictionary<Type, DbType>
 		{
@@ -106,8 +106,14 @@ namespace DbModelFramework
 						if (mExpression.Expression is ParameterExpression)
 							return mExpression.Member.Name.ToLower();
 
-						if (mExpression.Member is FieldInfo fieldInfo && mExpression.Expression is ConstantExpression cExpression)
-							return fieldInfo.GetValue(cExpression.Value);
+						if (mExpression.Member is FieldInfo fieldInfo &&
+						    mExpression.Expression is ConstantExpression cExpression)
+						{
+							var value = fieldInfo.GetValue(cExpression.Value);
+							return value is IModel model
+								? model.GetId()
+								: value;
+						}
 
 						if (mExpression.Member is PropertyInfo propertyInfo && mExpression.Expression is MemberExpression submExpression)
 						{
@@ -134,6 +140,11 @@ namespace DbModelFramework
 
 		public static DbType ToDbType(this Type type)
 		{
+			if (type.TryGetGenericBaseClass(typeof(Model<,>), out var genericBase))
+				return genericBase
+					.GetProperty("Id", BindingFlags.Instance | BindingFlags.NonPublic)
+					.PropertyType.ToDbType();
+
 			return type.IsEnum ? type.GetEnumUnderlyingType().ToDbType() : TypeToDbTypeDictionary[type];
 		}
 

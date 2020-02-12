@@ -1,5 +1,5 @@
 ﻿/**
-	Copyright (c) 2017-2018 Y56380X
+	Copyright (c) 2017-2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
+using System.Composition.Hosting;
 using System.Data;
 using System.Linq.Expressions;
 
@@ -65,12 +66,25 @@ namespace DbModelFramework.Test
 
 		#endregion
 
+		[TestInitialize]
+		public void Init()
+		{
+			// Setup fakes
+			var configuration = new ContainerConfiguration();
+			configuration.WithPart<Fakes.DbRequirements>();
+			DependencyInjection.InjectionContainer = configuration.CreateContainer();
+
+			// Setup car sqlengine
+			var sqlEngineMock = new Mock<SqlEngine>() { CallBase = true };
+			Fakes.DbRequirements.SqlEngineMock = sqlEngineMock.Object;
+		}
+		
 		[TestMethod]
 		public void ToWhereSql_EqualsStringValue_SqlIsCorrect()
 		{
 			var dbCommandMock = new Mock<IDbCommand> { DefaultValue = DefaultValue.Mock };
 
-			var whereSql = SqlExtenstions.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == "Value"), dbCommandMock.Object);
+			var whereSql = SqlExtension.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == "Value"), dbCommandMock.Object);
 
 			Assert.AreEqual("mystringattribute = @mystringattribute", whereSql);
 		}
@@ -84,7 +98,7 @@ namespace DbModelFramework.Test
 			dbCommandMock.Setup(command => command.CreateParameter()).Returns(() => Mock.Of<IDbDataParameter>());
 			var dbCommand = dbCommandMock.Object;
 
-			SqlExtenstions.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == "Value"), dbCommand);
+			SqlExtension.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == "Value"), dbCommand);
 
 			Assert.IsTrue(dbCommand.Parameters.Contains("@mystringattribute"));
 			Assert.AreEqual("Value", (dbCommand.Parameters["@mystringattribute"] as IDbDataParameter).Value);
@@ -97,7 +111,7 @@ namespace DbModelFramework.Test
 			var dbCommandMock = new Mock<IDbCommand> { DefaultValue = DefaultValue.Mock };
 
 			string value = "Value";
-			var whereSql = SqlExtenstions.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == value), dbCommandMock.Object);
+			var whereSql = SqlExtension.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == value), dbCommandMock.Object);
 
 			Assert.AreEqual("mystringattribute = @mystringattribute", whereSql);
 		}
@@ -112,7 +126,7 @@ namespace DbModelFramework.Test
 			var dbCommand = dbCommandMock.Object;
 
 			string value = "Value";
-			SqlExtenstions.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == value), dbCommand);
+			SqlExtension.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == value), dbCommand);
 
 			Assert.IsTrue(dbCommand.Parameters.Contains("@mystringattribute"));
 			Assert.AreEqual("Value", (dbCommand.Parameters["@mystringattribute"] as IDbDataParameter).Value);
@@ -125,7 +139,7 @@ namespace DbModelFramework.Test
 			var dbCommandMock = new Mock<IDbCommand> { DefaultValue = DefaultValue.Mock };
 
 			var filter = new CustomExpression { MyStringAttribute = "Value" };
-			var whereSql = SqlExtenstions.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == filter.MyStringAttribute), dbCommandMock.Object);
+			var whereSql = SqlExtension.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == filter.MyStringAttribute), dbCommandMock.Object);
 
 			Assert.AreEqual("mystringattribute = @mystringattribute", whereSql);
 		}
@@ -140,7 +154,7 @@ namespace DbModelFramework.Test
 			var dbCommand = dbCommandMock.Object;
 
 			var filter = new CustomExpression { MyStringAttribute = "Value" };
-			SqlExtenstions.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == filter.MyStringAttribute), dbCommand);
+			SqlExtension.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == filter.MyStringAttribute), dbCommand);
 
 			Assert.IsTrue(dbCommand.Parameters.Contains("@mystringattribute"));
 			Assert.AreEqual("Value", (dbCommand.Parameters["@mystringattribute"] as IDbDataParameter).Value);
@@ -153,7 +167,7 @@ namespace DbModelFramework.Test
 			var dbCommandMock = new Mock<IDbCommand> { DefaultValue = DefaultValue.Mock };
 
 			var filter = new CascadedFilter { CustomExpressionFilter = new CustomExpression { MyStringAttribute = "Value" } };
-			var whereSql = SqlExtenstions.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == filter.CustomExpressionFilter.MyStringAttribute), dbCommandMock.Object);
+			var whereSql = SqlExtension.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == filter.CustomExpressionFilter.MyStringAttribute), dbCommandMock.Object);
 
 			Assert.AreEqual("mystringattribute = @mystringattribute", whereSql);
 		}
@@ -168,7 +182,7 @@ namespace DbModelFramework.Test
 			var dbCommand = dbCommandMock.Object;
 
 			var filter = new CascadedFilter { CustomExpressionFilter = new CustomExpression { MyStringAttribute = "Value" } };
-			SqlExtenstions.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == filter.CustomExpressionFilter.MyStringAttribute), dbCommand);
+			SqlExtension.ToWhereSql((Expression<Func<CustomExpression, bool>>)(model => model.MyStringAttribute == filter.CustomExpressionFilter.MyStringAttribute), dbCommand);
 
 			Assert.IsTrue(dbCommand.Parameters.Contains("@mystringattribute"));
 			Assert.AreEqual("Value", (dbCommand.Parameters["@mystringattribute"] as IDbDataParameter).Value);
