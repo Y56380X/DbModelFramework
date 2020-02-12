@@ -1,5 +1,5 @@
 ﻿/**
-	Copyright (c) 2018 Y56380X
+	Copyright (c) 2018-2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -21,31 +21,11 @@
 **/
 
 using System.Collections.Generic;
-using System.Text;
 
 namespace DbModelFramework
 {
 	public static class SqlEngineExtensions
 	{
-		public static string ToChain(this IEnumerable<string> elements)
-		{
-			StringBuilder chainString = new StringBuilder();
-
-			bool first = true;
-			foreach (var element in elements)
-			{
-				if (first)
-				{
-					chainString.Append(element);
-					first = false;
-				}
-				else
-				{
-					chainString.Append($", {element}");
-				}
-			}
-
-			return chainString.ToString();
-		}
+		public static string ToChain(this IEnumerable<string> elements) => string.Join(", ", elements);
 	}
 }
