@@ -23,6 +23,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
+using System.Composition.Hosting;
 using System.Data;
 using System.Linq.Expressions;
 
@@ -65,6 +66,19 @@ namespace DbModelFramework.Test
 
 		#endregion
 
+		[TestInitialize]
+		public void Init()
+		{
+			// Setup fakes
+			var configuration = new ContainerConfiguration();
+			configuration.WithPart<Fakes.DbRequirements>();
+			DependencyInjection.InjectionContainer = configuration.CreateContainer();
+
+			// Setup car sqlengine
+			var sqlEngineMock = new Mock<SqlEngine>() { CallBase = true };
+			Fakes.DbRequirements.SqlEngineMock = sqlEngineMock.Object;
+		}
+		
 		[TestMethod]
 		public void ToWhereSql_EqualsStringValue_SqlIsCorrect()
 		{
