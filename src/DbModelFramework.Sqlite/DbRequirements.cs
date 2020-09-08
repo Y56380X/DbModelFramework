@@ -1,5 +1,5 @@
-﻿/**
-	Copyright (c) 2017-2018 Y56380X
+﻿/*
+	Copyright (c) 2017-2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -18,13 +18,13 @@
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
-**/
+*/
 
 namespace DbModelFramework.Sqlite
 {
 	public abstract class DbRequirements : DbModelFramework.DbRequirements
 	{
-		private DbModelFramework.SqlEngine sqlEngine;
-		public override DbModelFramework.SqlEngine SqlEngine => sqlEngine ?? (sqlEngine = new SqlEngine());
+		private DbModelFramework.SqlEngine? _sqlEngine;
+		public override DbModelFramework.SqlEngine SqlEngine => _sqlEngine ??= new SqlEngine();
 	}
 }

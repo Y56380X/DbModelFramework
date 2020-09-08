@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DEB77921-A28A-4BC5-A39D-F13F9009F792}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
+		LICENSE = LICENSE
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbModelFramework.Sqlite", "src\DbModelFramework.Sqlite\DbModelFramework.Sqlite.csproj", "{22FA7610-09A4-4AC7-976A-021611826D2F}"
