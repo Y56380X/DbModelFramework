@@ -1,5 +1,5 @@
-﻿/**
-	Copyright (c) 2017-2018 Y56380X
+﻿/*
+	Copyright (c) 2017-2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -18,8 +18,9 @@
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
-**/
+*/
 
+using System;
 using System.Data;
 using static DbModelFramework.DependencyInjection;
 
@@ -27,11 +28,21 @@ namespace DbModelFramework
 {
 	public abstract class DbRequirements
 	{
-		private static DbRequirements instance;
-		internal static DbRequirements Instance => instance ?? (instance = InjectionContainer.GetExport<DbRequirements>());
-
 		public abstract SqlEngine SqlEngine { get; }
 
 		public abstract IDbConnection CreateDbConnection();
+
+		#region static
+
+		private static DbRequirements _instance;
+		internal static DbRequirements Instance => _instance ??= InjectionContainer.GetExport<DbRequirements>();
+
+		public static void Init(DbRequirements dbRequirements)
+		{
+			if (_instance != null) throw new InvalidOperationException("Database requirements are already initialized");
+			_instance = dbRequirements;
+		}
+
+		#endregion
 	}
 }

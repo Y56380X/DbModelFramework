@@ -12,6 +12,8 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Description>.NET and .NET Core framework for database access with models</Description>
 		<PackageVersion>1.5.1</PackageVersion>
+		<LangVersion>8</LangVersion>
+		<Nullable>disable</Nullable>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
