@@ -1,5 +1,5 @@
-﻿/**
-	Copyright (c) 2017-20202 Y56380X
+﻿/*
+	Copyright (c) 2017-2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -18,7 +18,7 @@
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
-**/
+*/
 
 using System;
 using System.Collections.Generic;
@@ -130,10 +130,18 @@ namespace DbModelFramework
 				using (var command = connection.CreateCommand())
 				{
 					command.CommandText = Sql.Update;
-					command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, PrimaryKeyProperty.GetValue(this));
+					command.AddParameter(
+						$"@{PrimaryKeyProperty.AttributeName}", 
+						PrimaryKeyProperty.Type, 
+						PrimaryKeyProperty.GetValue(this));
 
 					foreach (var property in ModelProperties.Where(prop => !prop.IsPrimaryKey))
-						command.AddParameter($"@{property.AttributeName}", property.Type, property.GetValue(this) ?? DBNull.Value);
+					{
+						command.AddParameter(
+							$"@{property.AttributeName}",
+							property.Type,
+							property.GetValue(this) ?? DBNull.Value);
+					}
 
 					changed = command.ExecuteNonQuery();
 				}
@@ -157,7 +165,10 @@ namespace DbModelFramework
 				using (var command = connection.CreateCommand())
 				{
 					command.CommandText = Sql.Delete;
-					command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, PrimaryKeyProperty.GetValue(this));
+					command.AddParameter(
+						$"@{PrimaryKeyProperty.AttributeName}",
+						PrimaryKeyProperty.Type, 
+						PrimaryKeyProperty.GetValue(this));
 
 					changed = command.ExecuteNonQuery();
 				}
@@ -168,7 +179,7 @@ namespace DbModelFramework
 
 		public static TType Get(TPrimaryKey primaryKey)
 		{
-			TType model = default(TType);
+			var model = default(TType);
 
 			using (var connection = DbRequirements.CreateDbConnection())
 			{
@@ -180,7 +191,7 @@ namespace DbModelFramework
 					using (var dataReader = command.ExecuteReader())
 					{
 						if (dataReader.Read())
-							model = InstanciateModel(dataReader);
+							model = InstantiateModel(dataReader);
 					}
 				}
 
@@ -204,7 +215,7 @@ namespace DbModelFramework
 					using (var dataReader = command.ExecuteReader())
 					{
 						while (dataReader.Read())
-							models.Add(InstanciateModel(dataReader));
+							models.Add(InstantiateModel(dataReader));
 					}
 				}
 
@@ -229,7 +240,7 @@ namespace DbModelFramework
 					using (var dataReader = command.ExecuteReader())
 					{
 						while (dataReader.Read())
-							models.Add(InstanciateModel(dataReader));
+							models.Add(InstantiateModel(dataReader));
 					}
 				}
 
@@ -298,17 +309,17 @@ namespace DbModelFramework
 			return model;
 		}
 
-		private static TType InstanciateModel(IDataReader dataReader)
+		private static TType InstantiateModel(IDataRecord dataReader)
 		{
 			var model = new TType();
 
 			// Get value from db for each model property
 			foreach (var property in ModelProperties)
 			{
-				if (dataReader[property.AttributeName.ToLower()] is DBNull)
-					property.SetValue(model, property.DefaultValue);
-				else
-					property.SetValue(model, dataReader[property.AttributeName]);
+				var propertyValue = dataReader[property.AttributeName.ToLower()] is DBNull
+					? property.DefaultValue
+					: dataReader[property.AttributeName];
+				property.SetValue(model, propertyValue);
 			}
 
 			return model;

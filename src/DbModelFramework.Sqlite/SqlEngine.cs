@@ -1,5 +1,5 @@
-﻿/**
-	Copyright (c) 2018 Y56380X
+﻿/*
+	Copyright (c) 2018-2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -18,7 +18,7 @@
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
-**/
+*/
 
 using System.Collections.Generic;
 using System.Data;
@@ -26,9 +26,9 @@ using System.Linq;
 
 namespace DbModelFramework.Sqlite
 {
-	class SqlEngine : DbModelFramework.SqlEngine
+	internal class SqlEngine : DbModelFramework.SqlEngine
 	{
-		static readonly Dictionary<DbType, string> DbTypeToStringDictionary = new Dictionary<DbType, string>
+		private static readonly Dictionary<DbType, string> DbTypeToStringDictionary = new Dictionary<DbType, string>
 		{
 			{ DbType.String, "TEXT" },
 			{ DbType.Int32, "INTEGER" },
@@ -41,34 +41,26 @@ namespace DbModelFramework.Sqlite
 			{ DbType.DateTime, "TEXT" }
 		};
 
-		public override string CheckTable(string tableName)
-		{
-			return $"SELECT name FROM sqlite_master WHERE type='table' AND name='{tableName}';";
-		}
+		public override string CheckTable(string tableName) => $"SELECT name FROM sqlite_master WHERE type='table' AND name='{tableName}';";
 
 		public override string CreateTable(string tableName, IEnumerable<ModelProperty> modelProperties)
 		{
-			var modelAttributes = modelProperties.Select(prop =>
-			{
-				return $"{prop.AttributeName} {DbTypeToString(prop.Type)}{(prop.IsPrimaryKey ? " PRIMARY KEY AUTOINCREMENT" : null)}{(prop.IsUnique ? " UNIQUE" : null)}";
-			});
+			static string BuildModelAttribute(ModelProperty prop) =>
+				$"{prop.AttributeName} {DbTypeToString(prop.Type)}{(prop.IsPrimaryKey ? " PRIMARY KEY AUTOINCREMENT" : null)}{(prop.IsUnique ? " UNIQUE" : null)}";
 
-			var foreignKeyAttributes = modelProperties.Where(prop => prop.IsForeignKey).Select(prop =>
-			{
-				return $"FOREIGN KEY({prop.AttributeName}) REFERENCES {prop.ForeignKeyTableName}({prop.ForeignKeyReference.AttributeName})";
-			});
+			static string BuildForeignKeyAttribute(ModelProperty prop) =>
+				$"FOREIGN KEY({prop.AttributeName}) REFERENCES {prop.ForeignKeyTableName}({prop.ForeignKeyReference.AttributeName})";
+			
+			var modelAttributes = modelProperties.Select(BuildModelAttribute);
+			var foreignKeyAttributes = modelProperties
+				.Where(prop => prop.IsForeignKey)
+				.Select(BuildForeignKeyAttribute);
 
-			return $"CREATE TABLE {tableName} ({modelAttributes.ToChain()}{(foreignKeyAttributes.Count() > 0 ? $", {foreignKeyAttributes.ToChain()}" : null)});";
+			return $"CREATE TABLE {tableName} ({modelAttributes.ToChain()}{(foreignKeyAttributes.Any() ? $", {foreignKeyAttributes.ToChain()}" : null)});";
 		}
 
-		public override string GetLastPrimaryKey()
-		{
-			return "SELECT last_insert_rowid();";
-		}
+		public override string GetLastPrimaryKey() => "SELECT last_insert_rowid();";
 
-		internal static string DbTypeToString(DbType dbType)
-		{
-			return DbTypeToStringDictionary[dbType];
-		}
+		internal static string DbTypeToString(DbType dbType) => DbTypeToStringDictionary[dbType];
 	}
 }
