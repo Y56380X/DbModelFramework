@@ -12,7 +12,7 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Description>.NET and .NET Core framework for database access with models</Description>
 		<PackageVersion>1.6.0-preview1</PackageVersion>
-		<LangVersion>9</LangVersion>
+		<LangVersion>8</LangVersion>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 	</PropertyGroup>
 
