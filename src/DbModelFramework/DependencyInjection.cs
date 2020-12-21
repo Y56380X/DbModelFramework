@@ -20,23 +20,27 @@
 	SOFTWARE.
 */
 
+using System;
 using System.Composition.Hosting;
+using System.Net.NetworkInformation;
 
 namespace DbModelFramework
 {
 	public static class DependencyInjection
 	{
-		private static CompositionHost injectionContainer;
-		public static CompositionHost InjectionContainer
+		private static CompositionHost? injectionContainer;
+		public static CompositionHost? InjectionContainer
 		{
 			get => injectionContainer;
 			set
 			{
-				// Check the injection requirements
-				if (!value.TryGetExport<DbRequirements>(out _))
-					throw new System.TypeLoadException($"Type: {nameof(DbRequirements)}");
+				var container = value ?? throw new NullReferenceException();
 
-				injectionContainer = value;
+				// Check the injection requirements
+				if (!container.TryGetExport<DbRequirements>(out _))
+					throw new TypeLoadException($"Type: {nameof(DbRequirements)}");
+
+				injectionContainer = container;
 			}
 		}
 	}

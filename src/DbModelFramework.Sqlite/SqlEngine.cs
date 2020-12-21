@@ -49,7 +49,7 @@ namespace DbModelFramework.Sqlite
 				$"{prop.AttributeName} {DbTypeToString(prop.Type)}{(prop.IsPrimaryKey ? " PRIMARY KEY AUTOINCREMENT" : null)}{(prop.IsUnique ? " UNIQUE" : null)}";
 
 			static string BuildForeignKeyAttribute(ModelProperty prop) =>
-				$"FOREIGN KEY({prop.AttributeName}) REFERENCES {prop.ForeignKeyTableName}({prop.ForeignKeyReference.AttributeName})";
+				$"FOREIGN KEY({prop.AttributeName}) REFERENCES {prop.ForeignKeyTableName}({prop.ForeignKeyReference!.AttributeName})";
 			
 			var modelAttributes = modelProperties.Select(BuildModelAttribute);
 			var foreignKeyAttributes = modelProperties

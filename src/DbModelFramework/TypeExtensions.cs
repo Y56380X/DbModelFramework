@@ -36,7 +36,7 @@ namespace DbModelFramework
 			typeof(byte[])
 		};
 
-		public static object GetDefault(this Type type) => 
+		public static object? GetDefault(this Type type) => 
 			type.IsValueType ? Activator.CreateInstance(type) : null;
 
 		public static IEnumerable<ModelProperty> GetModelProperties(this Type modelType)
@@ -49,7 +49,7 @@ namespace DbModelFramework
 			return properties.Select(prop => new ModelProperty(prop));
 		}
 
-		public static bool TryGetGenericBaseClass(this Type propertyType, Type genericType, out Type genericBaseClass)
+		public static bool TryGetGenericBaseClass(this Type propertyType, Type genericType, out Type? genericBaseClass)
 		{
 			propertyType = propertyType.BaseType;
 			while (propertyType != typeof(object))

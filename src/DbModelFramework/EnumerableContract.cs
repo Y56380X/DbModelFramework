@@ -64,9 +64,9 @@ namespace DbModelFramework
 			virtualModelProperty = new ModelProperty(new VirtualPropertyInfo(modelType.Name.ToLower(), modelType));
 
 			// Use different getModel and getForeignKey Methods on non Model enumerables
-			if (enumerableItemType.TryGetGenericBaseClass(typeof(Model<,>), out Type baseClass))
+			if (enumerableItemType.TryGetGenericBaseClass(typeof(Model<,>), out var baseClass))
 			{
-				var idProperty = baseClass.GetProperty("Id", BindingFlags.NonPublic | BindingFlags.Instance);
+				var idProperty = baseClass!.GetProperty("Id", BindingFlags.NonPublic | BindingFlags.Instance);
 				var getMethod = baseClass.GetMethod("Get", new[] { idProperty.PropertyType });
 
 				getModel = foreignKey => getMethod.Invoke(null, new[] { foreignKey });

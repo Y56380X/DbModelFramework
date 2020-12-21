@@ -64,7 +64,7 @@ namespace DbModelFramework.MsSql
 			{
 				return $"{prop.AttributeName} {DbTypeToString(prop.Type, prop.IsUnique || prop.IsForeignKey || prop.IsPrimaryKey)}"
 					+ $"{(prop.IsPrimaryKey ? " IDENTITY(1,1) PRIMARY KEY" : null)}{(prop.IsUnique ? " UNIQUE" : null)}"
-					+ $"{(prop.IsForeignKey ? $" FOREIGN KEY REFERENCES {prop.ForeignKeyTableName}({prop.ForeignKeyReference.AttributeName})" : null)}";
+					+ $"{(prop.IsForeignKey ? $" FOREIGN KEY REFERENCES {prop.ForeignKeyTableName}({prop.ForeignKeyReference!.AttributeName})" : null)}";
 			});
 
 			return $"CREATE TABLE {tableName} ({modelAttributes.ToChain()});";

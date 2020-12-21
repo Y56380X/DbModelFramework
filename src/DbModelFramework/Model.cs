@@ -98,8 +98,7 @@ namespace DbModelFramework
 
 		#region properties
 
-		[PrimaryKey]
-		protected internal TPrimaryKey Id { get; set; }
+		[PrimaryKey] protected internal TPrimaryKey Id { get; set; } = default!;
 
 		#endregion
 
@@ -108,7 +107,7 @@ namespace DbModelFramework
 		public void Reload()
 		{
 			// Load current model by id
-			var reloadedModel = Get(Id);
+			var reloadedModel = Get(Id) ?? throw new InvalidOperationException("This model does not exist.");
 
 			// Replace all non-pk property values
 			foreach (var modelProperty in ModelProperties.Where(mp => !mp.IsPrimaryKey))
@@ -117,8 +116,6 @@ namespace DbModelFramework
 
 		public bool Save()
 		{
-			int changed;
-
 			using var connection = DbRequirements.CreateDbConnection();
 			using var command = connection.CreateCommand();
 			
@@ -126,7 +123,7 @@ namespace DbModelFramework
 			command.AddParameter(
 				$"@{PrimaryKeyProperty.AttributeName}", 
 				PrimaryKeyProperty.Type, 
-				PrimaryKeyProperty.GetValue(this));
+				PrimaryKeyProperty.GetValue(this) ?? DBNull.Value);
 
 			foreach (var property in ModelProperties.Where(prop => !prop.IsPrimaryKey))
 			{
@@ -136,7 +133,7 @@ namespace DbModelFramework
 					property.GetValue(this) ?? DBNull.Value);
 			}
 
-			changed = command.ExecuteNonQuery();
+			var changed = command.ExecuteNonQuery();
 
 			// Execute contracts
 			ExecutionContracts.Execute(ec => ec.OnUpdate(connection, this));
@@ -146,8 +143,6 @@ namespace DbModelFramework
 
 		public bool Delete()
 		{
-			int changed;
-
 			using var connection = DbRequirements.CreateDbConnection();
 			// Execute contracts
 			ExecutionContracts.Execute(ec => ec.OnDelete(connection, this));
@@ -157,32 +152,26 @@ namespace DbModelFramework
 			command.AddParameter(
 				$"@{PrimaryKeyProperty.AttributeName}",
 				PrimaryKeyProperty.Type, 
-				PrimaryKeyProperty.GetValue(this));
+				PrimaryKeyProperty.GetValue(this) ?? DBNull.Value);
 
-			changed = command.ExecuteNonQuery();
+			var changed = command.ExecuteNonQuery();
 
 			return changed == 1;
 		}
 
-		public static TType Get(TPrimaryKey primaryKey)
+		public static TType? Get(TPrimaryKey primaryKey)
 		{
-			var model = default(TType);
-
 			using var connection = DbRequirements.CreateDbConnection();
 			using var command = connection.CreateCommand();
 			
 			command.CommandText = Sql.SelectByPrimaryKey;
 			command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, primaryKey);
 
-			using (var dataReader = command.ExecuteReader())
-			{
-				if (dataReader.Read())
-					model = InstantiateModel(dataReader);
-			}
-
-			// Execute contracts
+			using var dataReader = command.ExecuteReader();
+			if (!dataReader.Read()) return null;
+			
+			var model = InstantiateModel(dataReader);
 			ExecutionContracts.Execute(ec => ec.OnSelect(connection, model));
-
 			return model;
 		}
 
@@ -238,7 +227,7 @@ namespace DbModelFramework
 		/// <exception cref="CreateModelException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
 		/// <exception cref="Exception"></exception>
-		public static TType Create(Action<TType> setValuesAction)
+		public static TType Create(Action<TType>? setValuesAction)
 		{
 			var model = new TType();
 

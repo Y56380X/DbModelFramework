@@ -69,20 +69,14 @@ namespace DbModelFramework
 			throw new NotImplementedException();
 		}
 
-		public override MethodInfo GetGetMethod(bool nonPublic)
-		{
-			return null;
-		}
+		public override MethodInfo? GetGetMethod(bool nonPublic) => null;
 
 		public override ParameterInfo[] GetIndexParameters()
 		{
 			return new ParameterInfo[0];
 		}
 
-		public override MethodInfo GetSetMethod(bool nonPublic)
-		{
-			return null;
-		}
+		public override MethodInfo? GetSetMethod(bool nonPublic) => null;
 
 		public override object GetValue(object obj, BindingFlags invokeAttr, Binder binder, object[] index, CultureInfo culture)
 		{

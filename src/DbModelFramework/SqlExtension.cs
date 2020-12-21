@@ -22,6 +22,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -48,46 +49,42 @@ namespace DbModelFramework
 		{
 			switch (selector.NodeType)
 			{
-				case ExpressionType.Lambda:
-					return (selector as LambdaExpression).Body.ToWhereSql(dbCommand);
-				case ExpressionType.AndAlso:
-					return $"{(selector as BinaryExpression).Left.ToWhereSql(dbCommand)} AND {(selector as BinaryExpression).Right.ToWhereSql(dbCommand)}";
-				case ExpressionType.OrElse:
-					return $"{(selector as BinaryExpression).Left.ToWhereSql(dbCommand)} OR {(selector as BinaryExpression).Right.ToWhereSql(dbCommand)}";
-				case ExpressionType.Equal:
+				case ExpressionType.Lambda when selector is LambdaExpression lambda:
+					return lambda.Body.ToWhereSql(dbCommand);
+				case ExpressionType.AndAlso when selector is BinaryExpression andAlso:
+					return $"{andAlso.Left.ToWhereSql(dbCommand)} AND {andAlso.Right.ToWhereSql(dbCommand)}";
+				case ExpressionType.OrElse when selector is BinaryExpression orElse:
+					return $"{orElse.Left.ToWhereSql(dbCommand)} OR {orElse.Right.ToWhereSql(dbCommand)}";
+				case ExpressionType.Equal when selector is BinaryExpression equal:
 					{
-						var bExpression = selector as BinaryExpression;
-						var value = GetValue(bExpression.Right);
-						var paName = bExpression.Left.ToWhereSql(dbCommand);
+						var value = GetValue(equal.Right);
+						var paName = equal.Left.ToWhereSql(dbCommand);
 
 						dbCommand.AddParameter($"@{paName}", ToDbType(value.GetType()), value);
 
 						return $"{paName} = @{paName}";
 					}
-				case ExpressionType.NotEqual:
+				case ExpressionType.NotEqual when selector is BinaryExpression notEqual:
 					{
-						var bExpression = selector as BinaryExpression;
-						var value = GetValue(bExpression.Right);
-						var paName = bExpression.Left.ToWhereSql(dbCommand);
+						var value = GetValue(notEqual.Right);
+						var paName = notEqual.Left.ToWhereSql(dbCommand);
 
 						dbCommand.AddParameter($"@{paName}", ToDbType(value.GetType()), value);
 
 						return $"{paName} <> @{paName}";
 					}
-				case ExpressionType.MemberAccess:
+				case ExpressionType.MemberAccess when selector is MemberExpression memberAccess:
 					{
-						var mExpression = selector as MemberExpression;
+						if (memberAccess.Expression is ParameterExpression)
+							return memberAccess.Member.Name.ToLower();
 
-						if (mExpression.Expression is ParameterExpression)
-							return mExpression.Member.Name.ToLower();
-
-						if (mExpression.Member is FieldInfo fieldInfo && mExpression.Expression is ConstantExpression cExpression)
+						if (memberAccess.Member is FieldInfo fieldInfo && memberAccess.Expression is ConstantExpression cExpression)
 							return fieldInfo.GetValue(cExpression.Value).ToString();
 
 						return string.Empty;
 					}
-				case ExpressionType.Constant:
-					return (selector as ConstantExpression).ToString();
+				case ExpressionType.Constant when selector is ConstantExpression constant:
+					return constant.ToString();
 				default:
 					return string.Empty;
 			}
@@ -97,17 +94,15 @@ namespace DbModelFramework
 		{
 			switch (expression.NodeType)
 			{
-				case ExpressionType.Constant:
-					return (expression as ConstantExpression).Value;
-				case ExpressionType.MemberAccess:
+				case ExpressionType.Constant when expression is ConstantExpression constant:
+					return constant.Value;
+				case ExpressionType.MemberAccess when expression is MemberExpression memberAccess:
 					{
-						var mExpression = expression as MemberExpression;
+						if (memberAccess.Expression is ParameterExpression)
+							return memberAccess.Member.Name.ToLower();
 
-						if (mExpression.Expression is ParameterExpression)
-							return mExpression.Member.Name.ToLower();
-
-						if (mExpression.Member is FieldInfo fieldInfo &&
-						    mExpression.Expression is ConstantExpression cExpression)
+						if (memberAccess.Member is FieldInfo fieldInfo &&
+						    memberAccess.Expression is ConstantExpression cExpression)
 						{
 							var value = fieldInfo.GetValue(cExpression.Value);
 							return value is IModel model
@@ -115,17 +110,17 @@ namespace DbModelFramework
 								: value;
 						}
 
-						if (mExpression.Member is PropertyInfo propertyInfo && mExpression.Expression is MemberExpression submExpression)
+						if (memberAccess.Member is PropertyInfo propertyInfo && memberAccess.Expression is MemberExpression submExpression)
 						{
 							if (submExpression.Expression is ConstantExpression subcExpression)
 							{
-								var fieldInfoValue = (submExpression.Member as FieldInfo).GetValue(subcExpression.Value);
+								var fieldInfoValue = ((FieldInfo)submExpression.Member).GetValue(subcExpression.Value);
 								return propertyInfo.GetValue(fieldInfoValue, null);
 							}
 							else
 							{
 								var subPropertyValue = GetValue(submExpression.Expression);
-								var propertyParentObject = (submExpression.Member as PropertyInfo).GetValue(subPropertyValue);
+								var propertyParentObject = ((PropertyInfo)submExpression.Member).GetValue(subPropertyValue);
 
 								return propertyInfo.GetValue(propertyParentObject);
 							}
@@ -141,9 +136,11 @@ namespace DbModelFramework
 		public static DbType ToDbType(this Type type)
 		{
 			if (type.TryGetGenericBaseClass(typeof(Model<,>), out var genericBase))
-				return genericBase
+			{
+				return genericBase!
 					.GetProperty("Id", BindingFlags.Instance | BindingFlags.NonPublic)
 					.PropertyType.ToDbType();
+			}
 
 			return type.IsEnum ? type.GetEnumUnderlyingType().ToDbType() : TypeToDbTypeDictionary[type];
 		}

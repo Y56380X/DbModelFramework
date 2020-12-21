@@ -67,7 +67,7 @@ namespace DbModelFramework.MySql
 
 			var foreignKeyAttributes = modelProperties.Where(prop => prop.IsForeignKey).Select(prop =>
 			{
-				return $"FOREIGN KEY({prop.AttributeName}) REFERENCES {prop.ForeignKeyTableName}({prop.ForeignKeyReference.AttributeName})";
+				return $"FOREIGN KEY({prop.AttributeName}) REFERENCES {prop.ForeignKeyTableName}({prop.ForeignKeyReference!.AttributeName})";
 			});
 
 			return $"CREATE TABLE {tableName} ({modelAttributes.ToChain()}{(foreignKeyAttributes.Count() > 0 ? $", {foreignKeyAttributes.ToChain()}" : null)});";
