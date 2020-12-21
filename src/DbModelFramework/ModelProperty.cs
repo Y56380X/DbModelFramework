@@ -70,7 +70,9 @@ namespace DbModelFramework
 			IsPrimaryKey = Attribute.IsDefined(property, typeof(PrimaryKeyAttribute));
 			IsUnique = Attribute.IsDefined(property, typeof(DbUniqueAttribute));
 
-			foreignKeyLoader = IsForeignKey ? baseClass.GetMethod("Get", new[] { ForeignKeyReference.property.PropertyType }) : null;
+			foreignKeyLoader = IsForeignKey 
+				? baseClass.GetMethod("Get", new[] { ForeignKeyReference.property.PropertyType }) 
+				: null;
 
 			this.property = property;
 			convertValue = property.PropertyType.IsEnum ? (ConvertValue)ToEnumValue : ChangeType;
@@ -85,9 +87,9 @@ namespace DbModelFramework
 			if (IsForeignKey)
 			{
 				if (value != null && !ForeignKeyReference.property.PropertyType.IsInstanceOfType(value))
-					property.SetValue(model, foreignKeyLoader.Invoke(null, new object[] { convertValue(value, ForeignKeyReference.property.PropertyType) }));
+					property.SetValue(model, foreignKeyLoader.Invoke(null, new[] { convertValue(value, ForeignKeyReference.property.PropertyType) }));
 				else
-					property.SetValue(model, foreignKeyLoader.Invoke(null, new object[] { value }));
+					property.SetValue(model, foreignKeyLoader.Invoke(null, new[] { value }));
 			}
 			else
 			{

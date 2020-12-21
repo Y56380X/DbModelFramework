@@ -1,5 +1,5 @@
-﻿/**
-	Copyright (c) 2018 Y56380X
+﻿/*
+	Copyright (c) 2018-2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -18,9 +18,8 @@
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
-**/
+*/
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -34,12 +33,17 @@ namespace DbModelFramework
 		
 		public virtual string InsertModel(string tableName, IEnumerable<ModelProperty> modelProperties)
 		{
-			var modelAttributes = modelProperties.Where(prop => !prop.IsPrimaryKey).Select(prop => prop.AttributeName);
+			var modelAttributes = modelProperties
+				.Where(prop => !prop.IsPrimaryKey)
+				.Select(prop => prop.AttributeName)
+				.ToArray();
 
-			if (modelAttributes.Count() == 0)
+			if (!modelAttributes.Any())
 				return $"INSERT INTO {tableName} DEFAULT VALUES;";
 
-			var modelParameters = modelProperties.Where(prop => !prop.IsPrimaryKey).Select(prop => $"@{prop.AttributeName}");
+			var modelParameters = modelProperties
+				.Where(prop => !prop.IsPrimaryKey)
+				.Select(prop => $"@{prop.AttributeName}");
 
 			return $"INSERT INTO {tableName} ({modelAttributes.ToChain()}) VALUES ({modelParameters.ToChain()});";
 		}
@@ -47,7 +51,9 @@ namespace DbModelFramework
 		public virtual string UpdateModel(string tableName, IEnumerable<ModelProperty> modelProperties)
 		{
 			var primaryKeyProperty = modelProperties.Single(prop => prop.IsPrimaryKey);
-			var setParameters = modelProperties.Where(prop => !prop.IsPrimaryKey).Select(prop => $"{prop.AttributeName} = @{prop.AttributeName}");
+			var setParameters = modelProperties
+				.Where(prop => !prop.IsPrimaryKey)
+				.Select(prop => $"{prop.AttributeName} = @{prop.AttributeName}");
 
 			return $"UPDATE {tableName} SET {setParameters.ToChain()} WHERE {primaryKeyProperty.AttributeName} = @{primaryKeyProperty.AttributeName};";
 		}

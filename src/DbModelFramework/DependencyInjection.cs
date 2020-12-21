@@ -1,5 +1,5 @@
-﻿/**
-	Copyright (c) 2017-2018 Y56380X
+﻿/*
+	Copyright (c) 2017-2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -18,7 +18,7 @@
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
-**/
+*/
 
 using System.Composition.Hosting;
 
@@ -29,15 +29,12 @@ namespace DbModelFramework
 		private static CompositionHost injectionContainer;
 		public static CompositionHost InjectionContainer
 		{
-			get
-			{
-				return injectionContainer;
-			}
+			get => injectionContainer;
 			set
 			{
 				// Check the injection requirements
-				if (!value.TryGetExport<DbRequirements>(out var dbRequirements))
-					throw new System.TypeLoadException($"Type: {typeof(DbRequirements).Name}");
+				if (!value.TryGetExport<DbRequirements>(out _))
+					throw new System.TypeLoadException($"Type: {nameof(DbRequirements)}");
 
 				injectionContainer = value;
 			}

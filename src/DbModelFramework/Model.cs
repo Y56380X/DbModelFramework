@@ -74,31 +74,25 @@ namespace DbModelFramework
 
 			private static bool Check()
 			{
-				bool result;
-
-				using (var connection = DbRequirements.CreateDbConnection())
-				using (var command = connection.CreateCommand())
-				{
-					command.CommandText = CheckTable;
-					result = command.ExecuteScalar() != null;
-				}
+				using var connection = DbRequirements.CreateDbConnection();
+				using var command = connection.CreateCommand();
+				
+				command.CommandText = CheckTable;
+				var result = command.ExecuteScalar() != null;
 
 				return result;
 			}
 
 			private static void Create()
 			{
-				using (var connection = DbRequirements.CreateDbConnection())
-				{
-					using (var command = connection.CreateCommand())
-					{
-						command.CommandText = CreateTable;
-						command.ExecuteNonQuery();
-					}
+				using var connection = DbRequirements.CreateDbConnection();
+				using var command = connection.CreateCommand();
+				
+				command.CommandText = CreateTable;
+				command.ExecuteNonQuery();
 
-					// Execute contracts
-					ExecutionContracts.Execute(ec => ec.OnCreate(connection));
-				}
+				// Execute contracts
+				ExecutionContracts.Execute(ec => ec.OnCreate(connection));
 			}
 		}
 
@@ -125,30 +119,27 @@ namespace DbModelFramework
 		{
 			int changed;
 
-			using (var connection = DbRequirements.CreateDbConnection())
+			using var connection = DbRequirements.CreateDbConnection();
+			using var command = connection.CreateCommand();
+			
+			command.CommandText = Sql.Update;
+			command.AddParameter(
+				$"@{PrimaryKeyProperty.AttributeName}", 
+				PrimaryKeyProperty.Type, 
+				PrimaryKeyProperty.GetValue(this));
+
+			foreach (var property in ModelProperties.Where(prop => !prop.IsPrimaryKey))
 			{
-				using (var command = connection.CreateCommand())
-				{
-					command.CommandText = Sql.Update;
-					command.AddParameter(
-						$"@{PrimaryKeyProperty.AttributeName}", 
-						PrimaryKeyProperty.Type, 
-						PrimaryKeyProperty.GetValue(this));
-
-					foreach (var property in ModelProperties.Where(prop => !prop.IsPrimaryKey))
-					{
-						command.AddParameter(
-							$"@{property.AttributeName}",
-							property.Type,
-							property.GetValue(this) ?? DBNull.Value);
-					}
-
-					changed = command.ExecuteNonQuery();
-				}
-
-				// Execute contracts
-				ExecutionContracts.Execute(ec => ec.OnUpdate(connection, this));
+				command.AddParameter(
+					$"@{property.AttributeName}",
+					property.Type,
+					property.GetValue(this) ?? DBNull.Value);
 			}
+
+			changed = command.ExecuteNonQuery();
+
+			// Execute contracts
+			ExecutionContracts.Execute(ec => ec.OnUpdate(connection, this));
 
 			return changed == 1;
 		}
@@ -157,22 +148,18 @@ namespace DbModelFramework
 		{
 			int changed;
 
-			using (var connection = DbRequirements.CreateDbConnection())
-			{
-				// Execute contracts
-				ExecutionContracts.Execute(ec => ec.OnDelete(connection, this));
+			using var connection = DbRequirements.CreateDbConnection();
+			// Execute contracts
+			ExecutionContracts.Execute(ec => ec.OnDelete(connection, this));
 
-				using (var command = connection.CreateCommand())
-				{
-					command.CommandText = Sql.Delete;
-					command.AddParameter(
-						$"@{PrimaryKeyProperty.AttributeName}",
-						PrimaryKeyProperty.Type, 
-						PrimaryKeyProperty.GetValue(this));
+			using var command = connection.CreateCommand();
+			command.CommandText = Sql.Delete;
+			command.AddParameter(
+				$"@{PrimaryKeyProperty.AttributeName}",
+				PrimaryKeyProperty.Type, 
+				PrimaryKeyProperty.GetValue(this));
 
-					changed = command.ExecuteNonQuery();
-				}
-			}
+			changed = command.ExecuteNonQuery();
 
 			return changed == 1;
 		}
@@ -181,23 +168,20 @@ namespace DbModelFramework
 		{
 			var model = default(TType);
 
-			using (var connection = DbRequirements.CreateDbConnection())
+			using var connection = DbRequirements.CreateDbConnection();
+			using var command = connection.CreateCommand();
+			
+			command.CommandText = Sql.SelectByPrimaryKey;
+			command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, primaryKey);
+
+			using (var dataReader = command.ExecuteReader())
 			{
-				using (var command = connection.CreateCommand())
-				{
-					command.CommandText = Sql.SelectByPrimaryKey;
-					command.AddParameter($"@{PrimaryKeyProperty.AttributeName}", PrimaryKeyProperty.Type, primaryKey);
-
-					using (var dataReader = command.ExecuteReader())
-					{
-						if (dataReader.Read())
-							model = InstantiateModel(dataReader);
-					}
-				}
-
-				// Execute contracts
-				ExecutionContracts.Execute(ec => ec.OnSelect(connection, model));
+				if (dataReader.Read())
+					model = InstantiateModel(dataReader);
 			}
+
+			// Execute contracts
+			ExecutionContracts.Execute(ec => ec.OnSelect(connection, model));
 
 			return model;
 		}
@@ -206,23 +190,20 @@ namespace DbModelFramework
 		{
 			var models = new List<TType>();
 
-			using (var connection = DbRequirements.CreateDbConnection())
+			using var connection = DbRequirements.CreateDbConnection();
+			using var command = connection.CreateCommand();
+			
+			command.CommandText = Sql.SelectAll;
+
+			using (var dataReader = command.ExecuteReader())
 			{
-				using (var command = connection.CreateCommand())
-				{
-					command.CommandText = Sql.SelectAll;
-
-					using (var dataReader = command.ExecuteReader())
-					{
-						while (dataReader.Read())
-							models.Add(InstantiateModel(dataReader));
-					}
-				}
-
-				// Execute contracts
-				foreach (var model in models)
-					ExecutionContracts.Execute(ec => ec.OnSelect(connection, model));
+				while (dataReader.Read())
+					models.Add(InstantiateModel(dataReader));
 			}
+
+			// Execute contracts
+			foreach (var model in models)
+				ExecutionContracts.Execute(ec => ec.OnSelect(connection, model));
 
 			return models;
 		}
@@ -231,23 +212,20 @@ namespace DbModelFramework
 		{
 			var models = new List<TType>();
 
-			using (var connection = DbRequirements.CreateDbConnection())
+			using var connection = DbRequirements.CreateDbConnection();
+			using var command = connection.CreateCommand();
+			
+			command.CommandText = Sql.SelectByCustomCondition.Replace("{{0}}", selector.ToWhereSql(command));
+
+			using (var dataReader = command.ExecuteReader())
 			{
-				using (var command = connection.CreateCommand())
-				{
-					command.CommandText = Sql.SelectByCustomCondition.Replace("{{0}}", selector.ToWhereSql(command));
-
-					using (var dataReader = command.ExecuteReader())
-					{
-						while (dataReader.Read())
-							models.Add(InstantiateModel(dataReader));
-					}
-				}
-
-				// Execute contracts
-				foreach (var model in models)
-					ExecutionContracts.Execute(ec => ec.OnSelect(connection, model));
+				while (dataReader.Read())
+					models.Add(InstantiateModel(dataReader));
 			}
+
+			// Execute contracts
+			foreach (var model in models)
+				ExecutionContracts.Execute(ec => ec.OnSelect(connection, model));
 
 			return models;
 		}
@@ -255,10 +233,7 @@ namespace DbModelFramework
 		/// <exception cref="CreateModelException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
 		/// <exception cref="Exception"></exception>
-		public static TType Create()
-		{
-			return Create(null);
-		}
+		public static TType Create() => Create(null);
 
 		/// <exception cref="CreateModelException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
@@ -270,40 +245,39 @@ namespace DbModelFramework
 			// Set values if action is not null
 			setValuesAction?.Invoke(model);
 
-			using (var connection = DbRequirements.CreateDbConnection())
-			using (var transaction = connection.BeginTransaction())
+			using var connection = DbRequirements.CreateDbConnection();
+			using var transaction = connection.BeginTransaction();
+			
+			// Insert
+			using (var command = connection.CreateCommand())
 			{
-				// Insert
-				using (var command = connection.CreateCommand())
-				{
-					command.CommandText = Sql.Insert;
+				command.CommandText = Sql.Insert;
 
-					foreach (var property in ModelProperties)
-						command.AddParameter($"@{property.AttributeName}", property.Type, property.GetValue(model) ?? DBNull.Value);
+				foreach (var property in ModelProperties)
+					command.AddParameter($"@{property.AttributeName}", property.Type, property.GetValue(model) ?? DBNull.Value);
 
-					command.ExecuteNonQuery();
-				}
+				command.ExecuteNonQuery();
+			}
 
-				// Update primary key
-				using (var command = connection.CreateCommand())
-				{
-					command.CommandText = Sql.LastPrimaryKey;
-					PrimaryKeyProperty.SetValue(model, command.ExecuteScalar());
-				}
+			// Update primary key
+			using (var command = connection.CreateCommand())
+			{
+				command.CommandText = Sql.LastPrimaryKey;
+				PrimaryKeyProperty.SetValue(model, command.ExecuteScalar());
+			}
 
-				// Execute contracts
-				ExecutionContracts.Execute(ec => ec.OnInsert(connection, model));
+			// Execute contracts
+			ExecutionContracts.Execute(ec => ec.OnInsert(connection, model));
 
-				// Try to commit create model change
-				try
-				{
-					transaction.Commit();
-				}
-				catch (Exception commitException)
-				{
-					transaction.Rollback();
-					throw new CreateModelException(commitException.Message);
-				}
+			// Try to commit create model change
+			try
+			{
+				transaction.Commit();
+			}
+			catch (Exception commitException)
+			{
+				transaction.Rollback();
+				throw new CreateModelException(commitException.Message);
 			}
 
 			return model;

@@ -1,5 +1,5 @@
-﻿/**
-	Copyright (c) 2018 Y56380X
+﻿/*
+	Copyright (c) 2018-2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -18,7 +18,7 @@
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
-**/
+*/
 
 using System;
 using System.Globalization;
@@ -26,7 +26,7 @@ using System.Reflection;
 
 namespace DbModelFramework
 {
-	class VirtualPropertyInfo : PropertyInfo
+	internal class VirtualPropertyInfo : PropertyInfo
 	{
 		#region properties
 
@@ -36,12 +36,12 @@ namespace DbModelFramework
 
 		public override bool CanWrite => throw new NotImplementedException();
 
-		private Type propertyType;
+		private readonly Type propertyType;
 		public override Type PropertyType => propertyType;
 
 		public override Type DeclaringType => throw new NotImplementedException();
 
-		private string name;
+		private readonly string name;
 		public override string Name => name;
 
 		public override Type ReflectedType => throw new NotImplementedException();

@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 	Copyright (c) 2017-2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
-**/
+*/
 
 using System;
 using System.Collections.Generic;
@@ -28,9 +28,9 @@ using System.Reflection;
 
 namespace DbModelFramework
 {
-	static class SqlExtension
+	internal static class SqlExtension
 	{
-		static readonly Dictionary<Type, DbType> TypeToDbTypeDictionary = new Dictionary<Type, DbType>
+		private static readonly Dictionary<Type, DbType> TypeToDbTypeDictionary = new Dictionary<Type, DbType>
 		{
 			{ typeof(string), DbType.String },
 			{ typeof(int), DbType.Int32 },
