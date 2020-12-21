@@ -24,7 +24,7 @@ namespace DbModelFramework.MySql
 {
 	public abstract class DbRequirements : DbModelFramework.DbRequirements
 	{
-		private DbModelFramework.SqlEngine sqlEngine;
-		public override DbModelFramework.SqlEngine SqlEngine => sqlEngine ?? (sqlEngine = new SqlEngine());
+		private DbModelFramework.SqlEngine? sqlEngine;
+		public override DbModelFramework.SqlEngine SqlEngine => sqlEngine ??= new SqlEngine();
 	}
 }
