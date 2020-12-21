@@ -8,24 +8,20 @@
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<Copyright>Copyright (c) 2017-2020 Y56380X</Copyright>
 		<PackageProjectUrl>https://github.com/Y56380X/DbModelFramework</PackageProjectUrl>
-		<PackageLicenseUrl>https://github.com/Y56380X/DbModelFramework/blob/master/LICENSE</PackageLicenseUrl>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Description>.NET and .NET Core framework for database access with models</Description>
 		<PackageVersion>1.6.0-preview1</PackageVersion>
 		<LangVersion>9</LangVersion>
-		<Nullable>disable</Nullable>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-	  <DocumentationFile></DocumentationFile>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	  <DocumentationFile></DocumentationFile>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 	</PropertyGroup>
 
 	<ItemGroup>
 	  <PackageReference Include="System.Composition" Version="5.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="../../LICENSE" Pack="true" PackagePath="" />
 	</ItemGroup>
 
 </Project>
