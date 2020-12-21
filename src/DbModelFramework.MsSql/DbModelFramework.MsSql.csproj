@@ -7,13 +7,20 @@
     <Company />
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Copyright>Copyright (c) 2020 Y56380X</Copyright>
-    <PackageLicenseUrl>https://github.com/Y56380X/DbModelFramework/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/Y56380X/DbModelFramework</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>Pre-defined MsSql DbRequirements for DbModelFramework</Description>
     <PackageVersion>1.6.0-preview1</PackageVersion>
+    <LangVersion>8</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="../../LICENSE" Pack="true" PackagePath="" />
+  </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\DbModelFramework\DbModelFramework.csproj" />
   </ItemGroup>
