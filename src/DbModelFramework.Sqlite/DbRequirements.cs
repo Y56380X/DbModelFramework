@@ -24,7 +24,7 @@ namespace DbModelFramework.Sqlite
 {
 	public abstract class DbRequirements : DbModelFramework.DbRequirements
 	{
-		private DbModelFramework.SqlEngine? _sqlEngine;
-		public override DbModelFramework.SqlEngine SqlEngine => _sqlEngine ??= new SqlEngine();
+		private DbModelFramework.SqlEngine? sqlEngine;
+		public override DbModelFramework.SqlEngine SqlEngine => sqlEngine ??= new SqlEngine();
 	}
 }
