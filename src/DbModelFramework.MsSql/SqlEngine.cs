@@ -63,7 +63,7 @@ namespace DbModelFramework.MsSql
 			var modelAttributes = modelProperties.Select(prop =>
 			{
 				return $"{prop.AttributeName} {DbTypeToString(prop.Type, prop.IsUnique || prop.IsForeignKey || prop.IsPrimaryKey)}"
-					+ $"{(prop.IsPrimaryKey ? " IDENTITY(1,1) PRIMARY KEY" : null)}{(prop.IsUnique ? " UNIQUE" : null)}"
+					+ $"{(prop.IsPrimaryKey ? $"{(prop.DefaultValue == null ? " NOT NULL" : " IDENTITY(1,1)")} PRIMARY KEY" : null)}{(prop.IsUnique ? " UNIQUE" : null)}"
 					+ $"{(prop.IsForeignKey ? $" FOREIGN KEY REFERENCES {prop.ForeignKeyTableName}({prop.ForeignKeyReference!.AttributeName})" : null)}";
 			});
 

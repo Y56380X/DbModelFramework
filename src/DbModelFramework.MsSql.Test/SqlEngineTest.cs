@@ -70,6 +70,11 @@ namespace DbModelFramework.MsSql.Test
 		{
 			public string MyAttribute { get; set; }
 		}
+		
+		class StringPkModel : Model<StringPkModel, string>
+		{
+			
+		}
 
 		#endregion
 
@@ -162,6 +167,16 @@ namespace DbModelFramework.MsSql.Test
 
 			Assert.AreEqual("CREATE TABLE multiplereferencingmodels (myreference1 int FOREIGN KEY REFERENCES referencedmodels(id), myreference2 int FOREIGN KEY REFERENCES referencedmodels(id), "
 				+ "id int IDENTITY(1,1) PRIMARY KEY);", createTableSql);
+		}
+		
+		[TestMethod]
+		public void CreateTableSql_StringPk()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(StringPkModel.TableName, StringPkModel.ModelProperties);
+			
+			Assert.AreEqual("CREATE TABLE stringpkmodels (id Nvarchar(255) NOT NULL PRIMARY KEY);", createTableSql);
 		}
 
 		[TestMethod]
