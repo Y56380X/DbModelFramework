@@ -78,6 +78,8 @@ namespace DbModelFramework.Sqlite.Test
 
 		#endregion
 
+		#region test basic functions
+
 		[TestInitialize]
 		public void Init()
 		{
@@ -107,6 +109,10 @@ namespace DbModelFramework.Sqlite.Test
 
 			Assert.AreEqual("SELECT last_insert_rowid();", getLastPrimaryKey);
 		}
+
+		#endregion
+
+		#region test create table
 
 		[TestMethod]
 		public void CreateTableSql_SingleStringModel()
@@ -178,6 +184,10 @@ namespace DbModelFramework.Sqlite.Test
 			
 			Assert.AreEqual("CREATE TABLE stringpkmodels (id TEXT PRIMARY KEY NOT NULL);", createTableSql);
 		}
+		
+		#endregion
+
+		#region test DbTypeToString
 
 		[TestMethod]
 		public void DbTypeToString_Int16()
@@ -220,5 +230,7 @@ namespace DbModelFramework.Sqlite.Test
 
 		[TestMethod]
 		public void DbTypeToString_Date() => Assert.AreEqual("TEXT", SqlEngine.DbTypeToString(System.Data.DbType.DateTime));
+		
+		#endregion
 	}
 }
