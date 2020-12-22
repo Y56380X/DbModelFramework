@@ -22,7 +22,6 @@
 
 using System;
 using System.Composition.Hosting;
-using System.Net.NetworkInformation;
 
 namespace DbModelFramework
 {
