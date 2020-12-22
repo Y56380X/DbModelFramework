@@ -1,5 +1,5 @@
-﻿/**
-	Copyright (c) 2018 Y56380X
+﻿/*
+	Copyright (c) 2018-2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -18,7 +18,7 @@
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
-**/
+*/
 
 using System.Composition.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -69,6 +69,11 @@ namespace DbModelFramework.Sqlite.Test
 		class ReferencedModel : Model<ReferencedModel>
 		{
 			public string MyAttribute { get; set; }
+		}
+
+		class StringPkModel : Model<StringPkModel, string>
+		{
+			
 		}
 
 		#endregion
@@ -162,6 +167,16 @@ namespace DbModelFramework.Sqlite.Test
 
 			Assert.AreEqual("CREATE TABLE multiplereferencingmodels (myreference1 INTEGER, myreference2 INTEGER, id INTEGER PRIMARY KEY AUTOINCREMENT, "
 				+ "FOREIGN KEY(myreference1) REFERENCES referencedmodels(id), FOREIGN KEY(myreference2) REFERENCES referencedmodels(id));", createTableSql);
+		}
+
+		[TestMethod]
+		public void CreateTableSql_StringPk()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(StringPkModel.TableName, StringPkModel.ModelProperties);
+			
+			Assert.AreEqual("CREATE TABLE stringpkmodels (id TEXT PRIMARY KEY);", createTableSql);
 		}
 
 		[TestMethod]
