@@ -176,7 +176,7 @@ namespace DbModelFramework.Sqlite.Test
 
 			var createTableSql = sqlEngine.CreateTable(StringPkModel.TableName, StringPkModel.ModelProperties);
 			
-			Assert.AreEqual("CREATE TABLE stringpkmodels (id TEXT PRIMARY KEY);", createTableSql);
+			Assert.AreEqual("CREATE TABLE stringpkmodels (id TEXT PRIMARY KEY NOT NULL);", createTableSql);
 		}
 
 		[TestMethod]
