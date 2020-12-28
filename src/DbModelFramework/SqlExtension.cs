@@ -94,6 +94,26 @@ namespace DbModelFramework
 
 					return $"{paName} LIKE '{DbRequirements.Instance.SqlEngine.Wildcard}' + @{paName}";
 				}
+				case ExpressionType.Call when selector is MethodCallExpression methodCall 
+				                              && methodCall.Method.Name == nameof(string.EndsWith):
+				{
+					var value = GetValue(methodCall);
+					var paName = methodCall.Object.ToWhereSql(dbCommand);
+
+					dbCommand.AddParameter($"@{paName}", ToDbType(value.GetType()), value);
+
+					return $"{paName} LIKE @{paName} + '{DbRequirements.Instance.SqlEngine.Wildcard}'";
+				}
+				case ExpressionType.Call when selector is MethodCallExpression methodCall 
+				                              && methodCall.Method.Name == nameof(string.Contains):
+				{
+					var value = GetValue(methodCall);
+					var paName = methodCall.Object.ToWhereSql(dbCommand);
+
+					dbCommand.AddParameter($"@{paName}", ToDbType(value.GetType()), value);
+
+					return $"{paName} LIKE '{DbRequirements.Instance.SqlEngine.Wildcard}' + @{paName} + '{DbRequirements.Instance.SqlEngine.Wildcard}'";
+				}
 				default:
 					return string.Empty;
 			}
