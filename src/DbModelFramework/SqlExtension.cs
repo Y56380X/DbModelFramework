@@ -84,14 +84,15 @@ namespace DbModelFramework
 				}
 				case ExpressionType.Constant when selector is ConstantExpression constant:
 					return constant.ToString();
-				case ExpressionType.Call when selector is MethodCallExpression methodCall && methodCall.Method.Name == nameof(string.StartsWith):
+				case ExpressionType.Call when selector is MethodCallExpression methodCall 
+				                              && methodCall.Method.Name == nameof(string.StartsWith):
 				{
 					var value = GetValue(methodCall);
 					var paName = methodCall.Object.ToWhereSql(dbCommand);
 
 					dbCommand.AddParameter($"@{paName}", ToDbType(value.GetType()), value);
 
-					return $"{paName} LIKE @{paName}";
+					return $"{paName} LIKE '{DbRequirements.Instance.SqlEngine.Wildcard}' + @{paName}";
 				}
 				default:
 					return string.Empty;

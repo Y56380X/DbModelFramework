@@ -27,6 +27,8 @@ namespace DbModelFramework
 {
 	public abstract class SqlEngine
 	{
+		public virtual string Wildcard { get; } = "%";
+		
 		public abstract string CreateTable(string tableName, IEnumerable<ModelProperty> modelProperties);
 		public abstract string CheckTable(string tableName);
 		public abstract string GetLastPrimaryKey();

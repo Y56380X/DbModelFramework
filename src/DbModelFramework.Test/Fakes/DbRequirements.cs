@@ -30,7 +30,7 @@ namespace DbModelFramework.Test.Fakes
 	{
 		public static SqlEngine SqlEngineMock { get; set; }
 
-		public override SqlEngine SqlEngine => SqlEngineMock ?? Moq.Mock.Of<SqlEngine>();
+		public override SqlEngine SqlEngine => SqlEngineMock ??= Moq.Mock.Of<SqlEngine>();
 
 		public override IDbConnection CreateDbConnection()
 		{

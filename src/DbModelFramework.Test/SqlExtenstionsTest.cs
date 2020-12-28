@@ -202,8 +202,7 @@ namespace DbModelFramework.Test
 				(Expression<Func<CustomExpression, bool>>) (model => model.MyStringAttribute.StartsWith("Test"));
 			var whereSql = SqlExtension.ToWhereSql(whereExpression, dbCommand);
 
-			throw new Exception("Missing assertion expected value");
-			Assert.AreEqual(string.Empty, whereSql);
+			Assert.AreEqual("mystringattribute LIKE '%' + @mystringattribute", whereSql);
 		}
 
 		[TestMethod]
