@@ -205,5 +205,8 @@ namespace DbModelFramework.MySql.Test
 
 		[TestMethod]
 		public void DbTypeToString_Date() => Assert.AreEqual("DATETIME(4)", SqlEngine.DbTypeToString(System.Data.DbType.DateTime));
+		
+		[TestMethod]
+		public void WildcardIsPercentageSymbol() => Assert.AreEqual("%", new SqlEngine().Wildcard);
 	}
 }

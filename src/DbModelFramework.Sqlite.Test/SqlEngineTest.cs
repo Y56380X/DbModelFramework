@@ -232,5 +232,12 @@ namespace DbModelFramework.Sqlite.Test
 		public void DbTypeToString_Date() => Assert.AreEqual("TEXT", SqlEngine.DbTypeToString(System.Data.DbType.DateTime));
 		
 		#endregion
+
+		#region test where SQL wildcard
+
+		[TestMethod]
+		public void WildcardIsPercentageSymbol() => Assert.AreEqual("%", new SqlEngine().Wildcard);
+
+		#endregion
 	}
 }

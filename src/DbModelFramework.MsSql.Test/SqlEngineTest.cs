@@ -190,5 +190,8 @@ namespace DbModelFramework.MsSql.Test
 
 		[TestMethod]
 		public void DbTypeToString_Date() => Assert.AreEqual("datetime(4)", SqlEngine.DbTypeToString(System.Data.DbType.DateTime));
+
+		[TestMethod]
+		public void WildcardIsPercentageSymbol() => Assert.AreEqual("%", new SqlEngine().Wildcard);
 	}
 }
