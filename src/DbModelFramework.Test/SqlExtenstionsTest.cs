@@ -190,6 +190,23 @@ namespace DbModelFramework.Test
 		}
 
 		[TestMethod]
+		public void ToWhereSql_StartsWith_SqlIsCorrect()
+		{
+			var parameters = new Fakes.DataParameterCollection();
+			var dbCommandMock = new Mock<IDbCommand> { DefaultValue = DefaultValue.Mock };
+			dbCommandMock.SetupGet(command => command.Parameters).Returns(parameters);
+			dbCommandMock.Setup(command => command.CreateParameter()).Returns(() => Mock.Of<IDbDataParameter>());
+			var dbCommand = dbCommandMock.Object;
+			
+			var whereExpression =
+				(Expression<Func<CustomExpression, bool>>) (model => model.MyStringAttribute.StartsWith("Test"));
+			var whereSql = SqlExtension.ToWhereSql(whereExpression, dbCommand);
+
+			throw new Exception("Missing assertion expected value");
+			Assert.AreEqual(string.Empty, whereSql);
+		}
+
+		[TestMethod]
 		public void ToDbType_Int32()
 		{
 			Assert.AreEqual(DbType.Int32, typeof(int).ToDbType());

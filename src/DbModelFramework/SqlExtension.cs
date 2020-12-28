@@ -22,7 +22,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -56,35 +55,44 @@ namespace DbModelFramework
 				case ExpressionType.OrElse when selector is BinaryExpression orElse:
 					return $"{orElse.Left.ToWhereSql(dbCommand)} OR {orElse.Right.ToWhereSql(dbCommand)}";
 				case ExpressionType.Equal when selector is BinaryExpression equal:
-					{
-						var value = GetValue(equal.Right);
-						var paName = equal.Left.ToWhereSql(dbCommand);
+				{
+					var value = GetValue(equal.Right);
+					var paName = equal.Left.ToWhereSql(dbCommand);
 
-						dbCommand.AddParameter($"@{paName}", ToDbType(value.GetType()), value);
+					dbCommand.AddParameter($"@{paName}", ToDbType(value.GetType()), value);
 
-						return $"{paName} = @{paName}";
-					}
+					return $"{paName} = @{paName}";
+				}
 				case ExpressionType.NotEqual when selector is BinaryExpression notEqual:
-					{
-						var value = GetValue(notEqual.Right);
-						var paName = notEqual.Left.ToWhereSql(dbCommand);
+				{
+					var value = GetValue(notEqual.Right);
+					var paName = notEqual.Left.ToWhereSql(dbCommand);
 
-						dbCommand.AddParameter($"@{paName}", ToDbType(value.GetType()), value);
+					dbCommand.AddParameter($"@{paName}", ToDbType(value.GetType()), value);
 
-						return $"{paName} <> @{paName}";
-					}
+					return $"{paName} <> @{paName}";
+				}
 				case ExpressionType.MemberAccess when selector is MemberExpression memberAccess:
-					{
-						if (memberAccess.Expression is ParameterExpression)
-							return memberAccess.Member.Name.ToLower();
+				{
+					if (memberAccess.Expression is ParameterExpression)
+						return memberAccess.Member.Name.ToLower();
 
-						if (memberAccess.Member is FieldInfo fieldInfo && memberAccess.Expression is ConstantExpression cExpression)
-							return fieldInfo.GetValue(cExpression.Value).ToString();
+					if (memberAccess.Member is FieldInfo fieldInfo && memberAccess.Expression is ConstantExpression cExpression)
+						return fieldInfo.GetValue(cExpression.Value).ToString();
 
-						return string.Empty;
-					}
+					return string.Empty;
+				}
 				case ExpressionType.Constant when selector is ConstantExpression constant:
 					return constant.ToString();
+				case ExpressionType.Call when selector is MethodCallExpression methodCall && methodCall.Method.Name == nameof(string.StartsWith):
+				{
+					var value = GetValue(methodCall);
+					var paName = methodCall.Object.ToWhereSql(dbCommand);
+
+					dbCommand.AddParameter($"@{paName}", ToDbType(value.GetType()), value);
+
+					return $"{paName} LIKE @{paName}";
+				}
 				default:
 					return string.Empty;
 			}
@@ -97,37 +105,39 @@ namespace DbModelFramework
 				case ExpressionType.Constant when expression is ConstantExpression constant:
 					return constant.Value;
 				case ExpressionType.MemberAccess when expression is MemberExpression memberAccess:
+				{
+					if (memberAccess.Expression is ParameterExpression)
+						return memberAccess.Member.Name.ToLower();
+
+					if (memberAccess.Member is FieldInfo fieldInfo &&
+					    memberAccess.Expression is ConstantExpression cExpression)
 					{
-						if (memberAccess.Expression is ParameterExpression)
-							return memberAccess.Member.Name.ToLower();
-
-						if (memberAccess.Member is FieldInfo fieldInfo &&
-						    memberAccess.Expression is ConstantExpression cExpression)
-						{
-							var value = fieldInfo.GetValue(cExpression.Value);
-							return value is IModel model
-								? model.GetId()
-								: value;
-						}
-
-						if (memberAccess.Member is PropertyInfo propertyInfo && memberAccess.Expression is MemberExpression submExpression)
-						{
-							if (submExpression.Expression is ConstantExpression subcExpression)
-							{
-								var fieldInfoValue = ((FieldInfo)submExpression.Member).GetValue(subcExpression.Value);
-								return propertyInfo.GetValue(fieldInfoValue, null);
-							}
-							else
-							{
-								var subPropertyValue = GetValue(submExpression.Expression);
-								var propertyParentObject = ((PropertyInfo)submExpression.Member).GetValue(subPropertyValue);
-
-								return propertyInfo.GetValue(propertyParentObject);
-							}
-						}
-
-						return string.Empty;
+						var value = fieldInfo.GetValue(cExpression.Value);
+						return value is IModel model
+							? model.GetId()
+							: value;
 					}
+
+					if (memberAccess.Member is PropertyInfo propertyInfo && memberAccess.Expression is MemberExpression submExpression)
+					{
+						if (submExpression.Expression is ConstantExpression subcExpression)
+						{
+							var fieldInfoValue = ((FieldInfo)submExpression.Member).GetValue(subcExpression.Value);
+							return propertyInfo.GetValue(fieldInfoValue, null);
+						}
+						else
+						{
+							var subPropertyValue = GetValue(submExpression.Expression);
+							var propertyParentObject = ((PropertyInfo)submExpression.Member).GetValue(subPropertyValue);
+
+							return propertyInfo.GetValue(propertyParentObject);
+						}
+					}
+
+					return string.Empty;
+				}
+				case ExpressionType.Call when expression is MethodCallExpression methodCall:
+					return GetValue(methodCall.Arguments[0]);
 				default:
 					return DBNull.Value;
 			}
