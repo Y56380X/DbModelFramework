@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 	Copyright (c) 2017-2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
-**/
+*/
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -203,6 +203,38 @@ namespace DbModelFramework.Test
 			var whereSql = SqlExtension.ToWhereSql(whereExpression, dbCommand);
 
 			Assert.AreEqual("mystringattribute LIKE '%' + @mystringattribute", whereSql);
+		}
+		
+		[TestMethod]
+		public void ToWhereSql_EndsWith_SqlIsCorrect()
+		{
+			var parameters = new Fakes.DataParameterCollection();
+			var dbCommandMock = new Mock<IDbCommand> { DefaultValue = DefaultValue.Mock };
+			dbCommandMock.SetupGet(command => command.Parameters).Returns(parameters);
+			dbCommandMock.Setup(command => command.CreateParameter()).Returns(() => Mock.Of<IDbDataParameter>());
+			var dbCommand = dbCommandMock.Object;
+			
+			var whereExpression =
+				(Expression<Func<CustomExpression, bool>>) (model => model.MyStringAttribute.EndsWith("Test"));
+			var whereSql = SqlExtension.ToWhereSql(whereExpression, dbCommand);
+
+			Assert.AreEqual("mystringattribute LIKE @mystringattribute + '%'", whereSql);
+		}
+		
+		[TestMethod]
+		public void ToWhereSql_Contains_SqlIsCorrect()
+		{
+			var parameters = new Fakes.DataParameterCollection();
+			var dbCommandMock = new Mock<IDbCommand> { DefaultValue = DefaultValue.Mock };
+			dbCommandMock.SetupGet(command => command.Parameters).Returns(parameters);
+			dbCommandMock.Setup(command => command.CreateParameter()).Returns(() => Mock.Of<IDbDataParameter>());
+			var dbCommand = dbCommandMock.Object;
+			
+			var whereExpression =
+				(Expression<Func<CustomExpression, bool>>) (model => model.MyStringAttribute.Contains("Test"));
+			var whereSql = SqlExtension.ToWhereSql(whereExpression, dbCommand);
+
+			Assert.AreEqual("mystringattribute LIKE '%' + @mystringattribute + '%'", whereSql);
 		}
 
 		[TestMethod]
