@@ -1,5 +1,5 @@
 ﻿/*
-	Copyright (c) 2017-2020 Y56380X
+	Copyright (c) 2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -20,11 +20,18 @@
 	SOFTWARE.
 */
 
-using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Builder;
 
-[assembly: InternalsVisibleTo("DbModelFramework.Test")]
-[assembly: InternalsVisibleTo("DbModelFramework.Sqlite.Test")]
-[assembly: InternalsVisibleTo("DbModelFramework.MySql.Test")]
-[assembly: InternalsVisibleTo("DbModelFramework.MsSql.Test")]
-[assembly: InternalsVisibleTo("DbModelFramework.AspNetCore.Test")]
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
+namespace DbModelFramework.AspNetCore
+{
+	public static class ApplicationBuilderExtensions
+	{
+		public static IApplicationBuilder UseDbModelFramework<TDbRequirements>(this IApplicationBuilder app)
+			where TDbRequirements : DbRequirements, new()
+		{
+			var dbRequirements = new TDbRequirements();
+			DbRequirements.Init(dbRequirements);
+			return app;
+		}
+	}
+}

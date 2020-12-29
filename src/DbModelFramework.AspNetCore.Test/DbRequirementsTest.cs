@@ -1,5 +1,5 @@
-﻿/*
-	Copyright (c) 2017-2020 Y56380X
+/*
+	Copyright (c) 2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -20,11 +20,38 @@
 	SOFTWARE.
 */
 
-using System.Runtime.CompilerServices;
+using System.Data;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
-[assembly: InternalsVisibleTo("DbModelFramework.Test")]
-[assembly: InternalsVisibleTo("DbModelFramework.Sqlite.Test")]
-[assembly: InternalsVisibleTo("DbModelFramework.MySql.Test")]
-[assembly: InternalsVisibleTo("DbModelFramework.MsSql.Test")]
-[assembly: InternalsVisibleTo("DbModelFramework.AspNetCore.Test")]
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
+namespace DbModelFramework.AspNetCore.Test
+{
+	[TestClass]
+	public class DbRequirementsTest
+	{
+		#region test assets
+
+		private class TestDbRequirements : DbModelFramework.DbRequirements
+		{
+			public override SqlEngine SqlEngine { get; }
+			public override IDbConnection CreateDbConnection() => throw new System.NotImplementedException();
+		}
+
+		#endregion
+		
+		[TestMethod]
+		public void InitDbRequirements()
+		{
+			// Arrange
+			var applicationBuilder = Mock.Of<IApplicationBuilder>();
+			
+			// Act
+			applicationBuilder.UseDbModelFramework<TestDbRequirements>();
+			
+			// Assert
+			Assert.IsNotNull(DbRequirements.Instance);
+			Assert.AreEqual(typeof(TestDbRequirements), DbRequirements.Instance.GetType());
+		}
+	}
+}
