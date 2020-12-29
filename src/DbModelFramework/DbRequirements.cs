@@ -34,8 +34,10 @@ namespace DbModelFramework
 
 		#region static
 
-		private static DbRequirements _instance;
-		internal static DbRequirements Instance => _instance ??= InjectionContainer.GetExport<DbRequirements>();
+		private static DbRequirements? _instance;
+		internal static DbRequirements Instance => _instance 
+			??= InjectionContainer?.GetExport<DbRequirements>() 
+			    ?? throw new InvalidOperationException("No injection container set.");
 
 		public static void Init(DbRequirements dbRequirements)
 		{

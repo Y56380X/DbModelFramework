@@ -1,5 +1,5 @@
-﻿/**
-	Copyright (c) 2017 Y56380X
+﻿/*
+	Copyright (c) 2017-2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -18,7 +18,7 @@
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
-**/
+*/
 
 using System;
 using System.Data;
@@ -26,53 +26,53 @@ using System.Reflection;
 
 namespace DbModelFramework
 {
-	public class ModelProperty
+	public sealed class ModelProperty
 	{
 		#region delegates
 
-		delegate object ConvertValue(object value, Type targetType);
+		private delegate object ConvertValue(object value, Type targetType);
 
 		#endregion
 
 		#region fields
 
-		private PropertyInfo property;
-		private MethodInfo foreignKeyLoader;
-		private ConvertValue convertValue;
+		private readonly PropertyInfo property;
+		private readonly MethodInfo? foreignKeyLoader;
+		private readonly ConvertValue convertValue;
 
 		#endregion
 
 		#region properties
 
-		public virtual string PropertyName { get; private set; }
-		public virtual string AttributeName { get; private set; }
-		public virtual DbType Type { get; private set; }
-		public virtual object DefaultValue { get; private set; }
-		public virtual bool IsPrimaryKey { get; private set; }
-		public virtual bool IsUnique { get; private set; }
-		public virtual bool IsForeignKey { get; private set; }
-		public virtual ModelProperty ForeignKeyReference { get; private set; }
-		public virtual string ForeignKeyTableName { get; private set; }
+		public string PropertyName { get; }
+		public string AttributeName { get; }
+		public DbType Type { get; }
+		public object? DefaultValue { get; }
+		public bool IsPrimaryKey { get; }
+		public bool IsUnique { get; }
+		public bool IsForeignKey { get; }
+		public ModelProperty? ForeignKeyReference { get; }
+		public string? ForeignKeyTableName { get; }
 
 		#endregion
 
 		#region constructors
 
-		internal ModelProperty() { }
-
 		public ModelProperty(PropertyInfo property)
 		{
 			PropertyName = property.Name;
 			AttributeName = property.Name.ToLower();
-			IsForeignKey = property.PropertyType.TryGetGenericBaseClass(typeof(Model<,>), out Type baseClass);
-			ForeignKeyReference = IsForeignKey ? GetForeignKeyReference(baseClass) : null;
-			ForeignKeyTableName = IsForeignKey ? GetForeignKeyTableName(baseClass) : null;
-			Type = IsForeignKey ? ForeignKeyReference.Type : property.PropertyType.ToDbType();
+			IsForeignKey = property.PropertyType.TryGetGenericBaseClass(typeof(Model<,>), out var baseClass);
+			ForeignKeyReference = IsForeignKey ? GetForeignKeyReference(baseClass!) : null;
+			ForeignKeyTableName = IsForeignKey ? GetForeignKeyTableName(baseClass!) : null;
+			Type = IsForeignKey ? ForeignKeyReference!.Type : property.PropertyType.ToDbType();
 			DefaultValue = property.PropertyType.GetDefault();
 			IsPrimaryKey = Attribute.IsDefined(property, typeof(PrimaryKeyAttribute));
 			IsUnique = Attribute.IsDefined(property, typeof(DbUniqueAttribute));
 
-			foreignKeyLoader = IsForeignKey ? baseClass.GetMethod("Get", new Type[] { ForeignKeyReference.property.PropertyType }) : null;
+			foreignKeyLoader = IsForeignKey 
+				? baseClass!.GetMethod("Get", new[] { ForeignKeyReference!.property.PropertyType }) 
+				: null;
 
 			this.property = property;
 			convertValue = property.PropertyType.IsEnum ? (ConvertValue)ToEnumValue : ChangeType;
@@ -82,14 +82,14 @@ namespace DbModelFramework
 
 		#region methods
 
-		public void SetValue(object model, object value)
+		public void SetValue(object model, object? value)
 		{
 			if (IsForeignKey)
 			{
-				if (value != null && !ForeignKeyReference.property.PropertyType.IsInstanceOfType(value))
-					property.SetValue(model, foreignKeyLoader.Invoke(null, new object[] { convertValue(value, ForeignKeyReference.property.PropertyType) }));
+				if (value != null && !ForeignKeyReference!.property.PropertyType.IsInstanceOfType(value))
+					property.SetValue(model, foreignKeyLoader!.Invoke(null, new[] { convertValue(value, ForeignKeyReference.property.PropertyType) }));
 				else
-					property.SetValue(model, foreignKeyLoader.Invoke(null, new object[] { value }));
+					property.SetValue(model, foreignKeyLoader!.Invoke(null, new[] { value }));
 			}
 			else
 			{
@@ -100,20 +100,17 @@ namespace DbModelFramework
 			}
 		}
 
-		public object GetValue(object model)
-		{
-			if (IsForeignKey)
-				return ForeignKeyReference.GetValue(property.GetValue(model));
-			else
-				return property.GetValue(model);
-		}
+		public object? GetValue(object model) => 
+			IsForeignKey 
+				? ForeignKeyReference!.GetValue(property.GetValue(model)) 
+				: property.GetValue(model);
 
-		private static ModelProperty GetForeignKeyReference(Type model)
+		private static ModelProperty GetForeignKeyReference(IReflect model)
 		{
 			return (ModelProperty)model.GetField("PrimaryKeyProperty", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
 		}
 
-		private static string GetForeignKeyTableName(Type model)
+		private static string GetForeignKeyTableName(IReflect model)
 		{
 			return (string)model.GetField("TableName", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
 		}

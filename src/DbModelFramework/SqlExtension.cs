@@ -1,4 +1,4 @@
-﻿/**
+﻿/*
 	Copyright (c) 2017-2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,7 @@
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
-**/
+*/
 
 using System;
 using System.Collections.Generic;
@@ -28,9 +28,9 @@ using System.Reflection;
 
 namespace DbModelFramework
 {
-	static class SqlExtension
+	internal static class SqlExtension
 	{
-		static readonly Dictionary<Type, DbType> TypeToDbTypeDictionary = new Dictionary<Type, DbType>
+		private static readonly Dictionary<Type, DbType> TypeToDbTypeDictionary = new Dictionary<Type, DbType>
 		{
 			{ typeof(string), DbType.String },
 			{ typeof(int), DbType.Int32 },
@@ -48,46 +48,72 @@ namespace DbModelFramework
 		{
 			switch (selector.NodeType)
 			{
-				case ExpressionType.Lambda:
-					return (selector as LambdaExpression).Body.ToWhereSql(dbCommand);
-				case ExpressionType.AndAlso:
-					return $"{(selector as BinaryExpression).Left.ToWhereSql(dbCommand)} AND {(selector as BinaryExpression).Right.ToWhereSql(dbCommand)}";
-				case ExpressionType.OrElse:
-					return $"{(selector as BinaryExpression).Left.ToWhereSql(dbCommand)} OR {(selector as BinaryExpression).Right.ToWhereSql(dbCommand)}";
-				case ExpressionType.Equal:
-					{
-						var bExpression = selector as BinaryExpression;
-						var value = GetValue(bExpression.Right);
-						var paName = bExpression.Left.ToWhereSql(dbCommand);
+				case ExpressionType.Lambda when selector is LambdaExpression lambda:
+					return lambda.Body.ToWhereSql(dbCommand);
+				case ExpressionType.AndAlso when selector is BinaryExpression andAlso:
+					return $"{andAlso.Left.ToWhereSql(dbCommand)} AND {andAlso.Right.ToWhereSql(dbCommand)}";
+				case ExpressionType.OrElse when selector is BinaryExpression orElse:
+					return $"{orElse.Left.ToWhereSql(dbCommand)} OR {orElse.Right.ToWhereSql(dbCommand)}";
+				case ExpressionType.Equal when selector is BinaryExpression equal:
+				{
+					var value = GetValue(equal.Right);
+					var paName = equal.Left.ToWhereSql(dbCommand);
 
-						dbCommand.AddParameter($"@{paName}", ToDbType(value.GetType()), value);
+					dbCommand.AddParameter($"@{paName}", ToDbType(value.GetType()), value);
 
-						return $"{paName} = @{paName}";
-					}
-				case ExpressionType.NotEqual:
-					{
-						var bExpression = selector as BinaryExpression;
-						var value = GetValue(bExpression.Right);
-						var paName = bExpression.Left.ToWhereSql(dbCommand);
+					return $"{paName} = @{paName}";
+				}
+				case ExpressionType.NotEqual when selector is BinaryExpression notEqual:
+				{
+					var value = GetValue(notEqual.Right);
+					var paName = notEqual.Left.ToWhereSql(dbCommand);
 
-						dbCommand.AddParameter($"@{paName}", ToDbType(value.GetType()), value);
+					dbCommand.AddParameter($"@{paName}", ToDbType(value.GetType()), value);
 
-						return $"{paName} <> @{paName}";
-					}
-				case ExpressionType.MemberAccess:
-					{
-						var mExpression = selector as MemberExpression;
+					return $"{paName} <> @{paName}";
+				}
+				case ExpressionType.MemberAccess when selector is MemberExpression memberAccess:
+				{
+					if (memberAccess.Expression is ParameterExpression)
+						return memberAccess.Member.Name.ToLower();
 
-						if (mExpression.Expression is ParameterExpression)
-							return mExpression.Member.Name.ToLower();
+					if (memberAccess.Member is FieldInfo fieldInfo && memberAccess.Expression is ConstantExpression cExpression)
+						return fieldInfo.GetValue(cExpression.Value).ToString();
 
-						if (mExpression.Member is FieldInfo fieldInfo && mExpression.Expression is ConstantExpression cExpression)
-							return fieldInfo.GetValue(cExpression.Value).ToString();
+					return string.Empty;
+				}
+				case ExpressionType.Constant when selector is ConstantExpression constant:
+					return constant.ToString();
+				case ExpressionType.Call when selector is MethodCallExpression methodCall 
+				                              && methodCall.Method.Name == nameof(string.StartsWith):
+				{
+					var value = GetValue(methodCall);
+					var paName = methodCall.Object.ToWhereSql(dbCommand);
 
-						return string.Empty;
-					}
-				case ExpressionType.Constant:
-					return (selector as ConstantExpression).ToString();
+					dbCommand.AddParameter($"@{paName}", ToDbType(value.GetType()), value);
+
+					return $"{paName} LIKE '{DbRequirements.Instance.SqlEngine.Wildcard}' + @{paName}";
+				}
+				case ExpressionType.Call when selector is MethodCallExpression methodCall 
+				                              && methodCall.Method.Name == nameof(string.EndsWith):
+				{
+					var value = GetValue(methodCall);
+					var paName = methodCall.Object.ToWhereSql(dbCommand);
+
+					dbCommand.AddParameter($"@{paName}", ToDbType(value.GetType()), value);
+
+					return $"{paName} LIKE @{paName} + '{DbRequirements.Instance.SqlEngine.Wildcard}'";
+				}
+				case ExpressionType.Call when selector is MethodCallExpression methodCall 
+				                              && methodCall.Method.Name == nameof(string.Contains):
+				{
+					var value = GetValue(methodCall);
+					var paName = methodCall.Object.ToWhereSql(dbCommand);
+
+					dbCommand.AddParameter($"@{paName}", ToDbType(value.GetType()), value);
+
+					return $"{paName} LIKE '{DbRequirements.Instance.SqlEngine.Wildcard}' + @{paName} + '{DbRequirements.Instance.SqlEngine.Wildcard}'";
+				}
 				default:
 					return string.Empty;
 			}
@@ -97,42 +123,42 @@ namespace DbModelFramework
 		{
 			switch (expression.NodeType)
 			{
-				case ExpressionType.Constant:
-					return (expression as ConstantExpression).Value;
-				case ExpressionType.MemberAccess:
+				case ExpressionType.Constant when expression is ConstantExpression constant:
+					return constant.Value;
+				case ExpressionType.MemberAccess when expression is MemberExpression memberAccess:
+				{
+					if (memberAccess.Expression is ParameterExpression)
+						return memberAccess.Member.Name.ToLower();
+
+					if (memberAccess.Member is FieldInfo fieldInfo &&
+					    memberAccess.Expression is ConstantExpression cExpression)
 					{
-						var mExpression = expression as MemberExpression;
-
-						if (mExpression.Expression is ParameterExpression)
-							return mExpression.Member.Name.ToLower();
-
-						if (mExpression.Member is FieldInfo fieldInfo &&
-						    mExpression.Expression is ConstantExpression cExpression)
-						{
-							var value = fieldInfo.GetValue(cExpression.Value);
-							return value is IModel model
-								? model.GetId()
-								: value;
-						}
-
-						if (mExpression.Member is PropertyInfo propertyInfo && mExpression.Expression is MemberExpression submExpression)
-						{
-							if (submExpression.Expression is ConstantExpression subcExpression)
-							{
-								var fieldInfoValue = (submExpression.Member as FieldInfo).GetValue(subcExpression.Value);
-								return propertyInfo.GetValue(fieldInfoValue, null);
-							}
-							else
-							{
-								var subPropertyValue = GetValue(submExpression.Expression);
-								var propertyParentObject = (submExpression.Member as PropertyInfo).GetValue(subPropertyValue);
-
-								return propertyInfo.GetValue(propertyParentObject);
-							}
-						}
-
-						return string.Empty;
+						var value = fieldInfo.GetValue(cExpression.Value);
+						return value is IModel model
+							? model.GetId()
+							: value;
 					}
+
+					if (memberAccess.Member is PropertyInfo propertyInfo && memberAccess.Expression is MemberExpression submExpression)
+					{
+						if (submExpression.Expression is ConstantExpression subcExpression)
+						{
+							var fieldInfoValue = ((FieldInfo)submExpression.Member).GetValue(subcExpression.Value);
+							return propertyInfo.GetValue(fieldInfoValue, null);
+						}
+						else
+						{
+							var subPropertyValue = GetValue(submExpression.Expression);
+							var propertyParentObject = ((PropertyInfo)submExpression.Member).GetValue(subPropertyValue);
+
+							return propertyInfo.GetValue(propertyParentObject);
+						}
+					}
+
+					return string.Empty;
+				}
+				case ExpressionType.Call when expression is MethodCallExpression methodCall:
+					return GetValue(methodCall.Arguments[0]);
 				default:
 					return DBNull.Value;
 			}
@@ -141,9 +167,11 @@ namespace DbModelFramework
 		public static DbType ToDbType(this Type type)
 		{
 			if (type.TryGetGenericBaseClass(typeof(Model<,>), out var genericBase))
-				return genericBase
+			{
+				return genericBase!
 					.GetProperty("Id", BindingFlags.Instance | BindingFlags.NonPublic)
 					.PropertyType.ToDbType();
+			}
 
 			return type.IsEnum ? type.GetEnumUnderlyingType().ToDbType() : TypeToDbTypeDictionary[type];
 		}

@@ -1,5 +1,5 @@
-﻿/**
-	Copyright (c) 2017-2018 Y56380X
+﻿/*
+	Copyright (c) 2017-2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -18,7 +18,7 @@
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
-**/
+*/
 
 using System;
 using System.Collections;
@@ -28,7 +28,7 @@ using System.Reflection;
 
 namespace DbModelFramework
 {
-	static class TypeExtensions
+	internal static class TypeExtensions
 	{
 		private static readonly Type[] EnumerableBlacklist =
 		{
@@ -36,24 +36,20 @@ namespace DbModelFramework
 			typeof(byte[])
 		};
 
-		public static object GetDefault(this Type type)
-		{
-			if (type.IsValueType)
-				return Activator.CreateInstance(type);
-
-			return null;
-		}
+		public static object? GetDefault(this Type type) => 
+			type.IsValueType ? Activator.CreateInstance(type) : null;
 
 		public static IEnumerable<ModelProperty> GetModelProperties(this Type modelType)
 		{
 			// Get all properties (without ignored ones and enumerables)
-			var properties = modelType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
+			var properties = modelType
+				.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
 				.Where(prop => !Attribute.IsDefined(prop, typeof(DbIgnoreAttribute)) && (EnumerableBlacklist.Contains(prop.PropertyType) || !typeof(IEnumerable).IsAssignableFrom(prop.PropertyType)));
 			
 			return properties.Select(prop => new ModelProperty(prop));
 		}
 
-		public static bool TryGetGenericBaseClass(this Type propertyType, Type genericType, out Type genericBaseClass)
+		public static bool TryGetGenericBaseClass(this Type propertyType, Type genericType, out Type? genericBaseClass)
 		{
 			propertyType = propertyType.BaseType;
 			while (propertyType != typeof(object))
@@ -67,7 +63,7 @@ namespace DbModelFramework
 				propertyType = propertyType.BaseType;
 			}
 
-			genericBaseClass = default(Type);
+			genericBaseClass = default;
 			return false;
 		}
 
@@ -76,7 +72,8 @@ namespace DbModelFramework
 			var executionContracts = new List<ExecutionContract>();
 
 			// Setup execution contracts for enumerables
-			var enumerables = modelType.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
+			var enumerables = modelType
+				.GetProperties(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance)
 				.Where(prop => !Attribute.IsDefined(prop, typeof(DbIgnoreAttribute)) && !EnumerableBlacklist.Contains(prop.PropertyType) && typeof(IEnumerable).IsAssignableFrom(prop.PropertyType));
 
 			executionContracts.AddRange(enumerables.Select(en => new EnumerableContract(modelType, en)));

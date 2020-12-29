@@ -23,6 +23,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Security.Principal;
 
 namespace DbModelFramework.Sqlite
 {
@@ -46,10 +47,12 @@ namespace DbModelFramework.Sqlite
 		public override string CreateTable(string tableName, IEnumerable<ModelProperty> modelProperties)
 		{
 			static string BuildModelAttribute(ModelProperty prop) =>
-				$"{prop.AttributeName} {DbTypeToString(prop.Type)}{(prop.IsPrimaryKey ? " PRIMARY KEY AUTOINCREMENT" : null)}{(prop.IsUnique ? " UNIQUE" : null)}";
+				$"{prop.AttributeName} {DbTypeToString(prop.Type)}" +
+				$"{(prop.IsPrimaryKey ? $" PRIMARY KEY{(prop.DefaultValue == null ? " NOT NULL" : " AUTOINCREMENT")}" : null)}" +
+				$"{(prop.IsUnique ? " UNIQUE" : null)}";
 
 			static string BuildForeignKeyAttribute(ModelProperty prop) =>
-				$"FOREIGN KEY({prop.AttributeName}) REFERENCES {prop.ForeignKeyTableName}({prop.ForeignKeyReference.AttributeName})";
+				$"FOREIGN KEY({prop.AttributeName}) REFERENCES {prop.ForeignKeyTableName}({prop.ForeignKeyReference!.AttributeName})";
 			
 			var modelAttributes = modelProperties.Select(BuildModelAttribute);
 			var foreignKeyAttributes = modelProperties

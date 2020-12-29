@@ -1,5 +1,5 @@
-﻿/*
-	Copyright (c) 2018-2020 Y56380X
+/*
+	Copyright (c) 2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -20,19 +20,38 @@
 	SOFTWARE.
 */
 
-using System;
+using System.Data;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
-namespace DbModelFramework
+namespace DbModelFramework.AspNetCore.Test
 {
-
-	[Serializable]
-	public class CreateModelException : Exception
+	[TestClass]
+	public class DbRequirementsTest
 	{
-		public CreateModelException() { }
-		public CreateModelException(string message) : base(message) { }
-		public CreateModelException(string message, Exception inner) : base(message, inner) { }
-		protected CreateModelException(
-		 System.Runtime.Serialization.SerializationInfo info,
-		 System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+		#region test assets
+
+		private class TestDbRequirements : DbModelFramework.DbRequirements
+		{
+			public override SqlEngine SqlEngine { get; }
+			public override IDbConnection CreateDbConnection() => throw new System.NotImplementedException();
+		}
+
+		#endregion
+		
+		[TestMethod]
+		public void InitDbRequirements()
+		{
+			// Arrange
+			var applicationBuilder = Mock.Of<IApplicationBuilder>();
+			
+			// Act
+			applicationBuilder.UseDbModelFramework<TestDbRequirements>();
+			
+			// Assert
+			Assert.IsNotNull(DbRequirements.Instance);
+			Assert.AreEqual(typeof(TestDbRequirements), DbRequirements.Instance.GetType());
+		}
 	}
 }

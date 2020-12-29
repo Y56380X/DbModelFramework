@@ -1,5 +1,5 @@
-﻿/**
-	Copyright (c) 2018 Y56380X
+﻿/*
+	Copyright (c) 2018-2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -18,7 +18,7 @@
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
-**/
+*/
 
 using System.Composition.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -71,7 +71,14 @@ namespace DbModelFramework.Sqlite.Test
 			public string MyAttribute { get; set; }
 		}
 
+		class StringPkModel : Model<StringPkModel, string>
+		{
+			
+		}
+
 		#endregion
+
+		#region test basic functions
 
 		[TestInitialize]
 		public void Init()
@@ -102,6 +109,10 @@ namespace DbModelFramework.Sqlite.Test
 
 			Assert.AreEqual("SELECT last_insert_rowid();", getLastPrimaryKey);
 		}
+
+		#endregion
+
+		#region test create table
 
 		[TestMethod]
 		public void CreateTableSql_SingleStringModel()
@@ -165,6 +176,20 @@ namespace DbModelFramework.Sqlite.Test
 		}
 
 		[TestMethod]
+		public void CreateTableSql_StringPk()
+		{
+			var sqlEngine = new SqlEngine();
+
+			var createTableSql = sqlEngine.CreateTable(StringPkModel.TableName, StringPkModel.ModelProperties);
+			
+			Assert.AreEqual("CREATE TABLE stringpkmodels (id TEXT PRIMARY KEY NOT NULL);", createTableSql);
+		}
+		
+		#endregion
+
+		#region test DbTypeToString
+
+		[TestMethod]
 		public void DbTypeToString_Int16()
 		{
 			Assert.AreEqual("INTEGER", SqlEngine.DbTypeToString(System.Data.DbType.Int16));
@@ -205,5 +230,14 @@ namespace DbModelFramework.Sqlite.Test
 
 		[TestMethod]
 		public void DbTypeToString_Date() => Assert.AreEqual("TEXT", SqlEngine.DbTypeToString(System.Data.DbType.DateTime));
+		
+		#endregion
+
+		#region test where SQL wildcard
+
+		[TestMethod]
+		public void WildcardIsPercentageSymbol() => Assert.AreEqual("%", new SqlEngine().Wildcard);
+
+		#endregion
 	}
 }

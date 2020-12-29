@@ -1,5 +1,5 @@
-﻿/*
-	Copyright (c) 2018-2020 Y56380X
+/*
+	Copyright (c) 2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -20,19 +20,21 @@
 	SOFTWARE.
 */
 
-using System;
+using System.Data;
 
 namespace DbModelFramework
 {
-
-	[Serializable]
-	public class CreateModelException : Exception
+	internal class VirtualDbParameter : IDbDataParameter
 	{
-		public CreateModelException() { }
-		public CreateModelException(string message) : base(message) { }
-		public CreateModelException(string message, Exception inner) : base(message, inner) { }
-		protected CreateModelException(
-		 System.Runtime.Serialization.SerializationInfo info,
-		 System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+		public DbType DbType { get; set; }
+		public ParameterDirection Direction { get; set; }
+		public bool IsNullable { get; }
+		public string? ParameterName { get; set; }
+		public string? SourceColumn { get; set; }
+		public DataRowVersion SourceVersion { get; set; }
+		public object? Value { get; set; }
+		public byte Precision { get; set; }
+		public byte Scale { get; set; }
+		public int Size { get; set; }
 	}
 }

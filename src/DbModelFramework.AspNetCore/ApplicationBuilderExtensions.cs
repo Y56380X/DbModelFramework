@@ -1,5 +1,5 @@
 ﻿/*
-	Copyright (c) 2018-2020 Y56380X
+	Copyright (c) 2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -20,19 +20,18 @@
 	SOFTWARE.
 */
 
-using System;
+using Microsoft.AspNetCore.Builder;
 
-namespace DbModelFramework
+namespace DbModelFramework.AspNetCore
 {
-
-	[Serializable]
-	public class CreateModelException : Exception
+	public static class ApplicationBuilderExtensions
 	{
-		public CreateModelException() { }
-		public CreateModelException(string message) : base(message) { }
-		public CreateModelException(string message, Exception inner) : base(message, inner) { }
-		protected CreateModelException(
-		 System.Runtime.Serialization.SerializationInfo info,
-		 System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+		public static IApplicationBuilder UseDbModelFramework<TDbRequirements>(this IApplicationBuilder app)
+			where TDbRequirements : DbRequirements, new()
+		{
+			var dbRequirements = new TDbRequirements();
+			DbRequirements.Init(dbRequirements);
+			return app;
+		}
 	}
 }

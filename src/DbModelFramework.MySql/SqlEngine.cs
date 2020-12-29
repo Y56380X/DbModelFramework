@@ -1,5 +1,5 @@
-﻿/**
-	Copyright (c) 2018 Y56380X
+﻿/*
+	Copyright (c) 2018-2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -18,15 +18,16 @@
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
-**/
+*/
 
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Security.Principal;
 
 namespace DbModelFramework.MySql
 {
-	class SqlEngine : DbModelFramework.SqlEngine
+	internal class SqlEngine : DbModelFramework.SqlEngine
 	{
 		static readonly Dictionary<DbType, string> DbTypeToStringDictionary = new Dictionary<DbType, string>
 		{
@@ -62,12 +63,12 @@ namespace DbModelFramework.MySql
 			var modelAttributes = modelProperties.Select(prop =>
 			{
 				return $"{prop.AttributeName} {DbTypeToString(prop.Type, prop.IsUnique || prop.IsForeignKey || prop.IsPrimaryKey)}"
-				+ $"{(prop.IsPrimaryKey ? " NOT NULL PRIMARY KEY AUTO_INCREMENT" : null)}{(prop.IsUnique ? " UNIQUE" : null)}";
+				+ $"{(prop.IsPrimaryKey ? $" NOT NULL PRIMARY KEY{(prop.DefaultValue == null ? null : " AUTO_INCREMENT")}" : null)}{(prop.IsUnique ? " UNIQUE" : null)}";
 			});
 
 			var foreignKeyAttributes = modelProperties.Where(prop => prop.IsForeignKey).Select(prop =>
 			{
-				return $"FOREIGN KEY({prop.AttributeName}) REFERENCES {prop.ForeignKeyTableName}({prop.ForeignKeyReference.AttributeName})";
+				return $"FOREIGN KEY({prop.AttributeName}) REFERENCES {prop.ForeignKeyTableName}({prop.ForeignKeyReference!.AttributeName})";
 			});
 
 			return $"CREATE TABLE {tableName} ({modelAttributes.ToChain()}{(foreignKeyAttributes.Count() > 0 ? $", {foreignKeyAttributes.ToChain()}" : null)});";

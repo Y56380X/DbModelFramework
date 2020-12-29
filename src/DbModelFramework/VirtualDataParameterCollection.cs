@@ -1,5 +1,5 @@
-﻿/*
-	Copyright (c) 2018-2020 Y56380X
+/*
+	Copyright (c) 2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -21,18 +21,27 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 
 namespace DbModelFramework
 {
-
-	[Serializable]
-	public class CreateModelException : Exception
+	internal class VirtualDataParameterCollection : List<IDataParameter>, IDataParameterCollection
 	{
-		public CreateModelException() { }
-		public CreateModelException(string message) : base(message) { }
-		public CreateModelException(string message, Exception inner) : base(message, inner) { }
-		protected CreateModelException(
-		 System.Runtime.Serialization.SerializationInfo info,
-		 System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+		public bool Contains(string parameterName) => 
+			this.Any(p => p.ParameterName == parameterName);
+
+		public int IndexOf(string parameterName) => throw new NotImplementedException();
+
+		public void RemoveAt(string parameterName) => throw new NotImplementedException();
+
+		object IDataParameterCollection.this[string parameterName]
+		{
+			get => this[parameterName];
+			set => throw new NotImplementedException();
+		}
+		
+		public IDataParameter this[string parameterName] => this.Single(p => p.ParameterName == parameterName);
 	}
 }

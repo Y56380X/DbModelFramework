@@ -1,5 +1,5 @@
-﻿/*
-	Copyright (c) 2018-2020 Y56380X
+/*
+	Copyright (c) 2020 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -21,18 +21,30 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace DbModelFramework
 {
-
-	[Serializable]
-	public class CreateModelException : Exception
+	public class Filter<T> where T : IModel
 	{
-		public CreateModelException() { }
-		public CreateModelException(string message) : base(message) { }
-		public CreateModelException(string message, Exception inner) : base(message, inner) { }
-		protected CreateModelException(
-		 System.Runtime.Serialization.SerializationInfo info,
-		 System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+		private readonly string sql;
+		private readonly List<IDataParameter> parameters;
+		
+		public Filter(Expression<Func<T, bool>> filter)
+		{
+			using var command = new VirtualDbCommand();
+			sql = filter.ToWhereSql(command);
+			parameters = command.Parameters.OfType<IDataParameter>().ToList();
+		}
+
+		internal void PrepareCommand(IDbCommand command, string sqlStub)
+		{
+			command.CommandText = sqlStub.Replace("{{0}}", sql);
+			foreach (var parameter in parameters)
+				command.AddParameter(parameter.ParameterName, parameter.DbType, parameter.Value);
+		}
 	}
 }
