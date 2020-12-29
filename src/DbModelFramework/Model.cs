@@ -219,6 +219,27 @@ namespace DbModelFramework
 			return models;
 		}
 
+		public static IEnumerable<TType> Get(Filter<TType> filter)
+		{
+			var models = new List<TType>();
+
+			using var connection = DbRequirements.CreateDbConnection();
+			using var command = connection.CreateCommand();
+			filter.PrepareCommand(command, Sql.SelectByCustomCondition);
+
+			using (var dataReader = command.ExecuteReader())
+			{
+				while (dataReader.Read())
+					models.Add(InstantiateModel(dataReader));
+			}
+
+			// Execute contracts
+			foreach (var model in models)
+				ExecutionContracts.Execute(ec => ec.OnSelect(connection, model));
+
+			return models;
+		}
+
 		/// <exception cref="CreateModelException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
 		/// <exception cref="Exception"></exception>
