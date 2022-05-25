@@ -125,7 +125,9 @@ namespace DbModelFramework
 			switch (expression.NodeType)
 			{
 				case ExpressionType.Constant when expression is ConstantExpression constant:
-					return constant.Value;
+					return constant.Value is IModel constantModel
+						? constantModel.GetId()
+						: constant.Value;
 				case ExpressionType.MemberAccess when expression is MemberExpression memberAccess:
 				{
 					if (memberAccess.Expression is ParameterExpression)
