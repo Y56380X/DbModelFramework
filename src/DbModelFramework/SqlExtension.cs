@@ -167,10 +167,9 @@ namespace DbModelFramework
 
 		public static DbType ToDbType(this Type type)
 		{
-			if (type.TryGetGenericBaseClass(typeof(Model<,>), out var genericBase))
+			if (type.TryGetGenericBaseClass(typeof(Model<,>), out var genericBase) && genericBase is {})
 			{
-				return genericBase!
-					.GetProperty("Id", BindingFlags.Instance | BindingFlags.NonPublic)
+				return genericBase.GetProperty("Id", BindingFlags.Instance | BindingFlags.NonPublic)
 					.PropertyType.ToDbType();
 			}
 
