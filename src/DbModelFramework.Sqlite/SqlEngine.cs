@@ -1,5 +1,5 @@
 ﻿/*
-	Copyright (c) 2018-2020 Y56380X
+	Copyright (c) 2018-2022 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -31,15 +31,16 @@ namespace DbModelFramework.Sqlite
 	{
 		private static readonly Dictionary<DbType, string> DbTypeToStringDictionary = new Dictionary<DbType, string>
 		{
-			{ DbType.String, "TEXT" },
-			{ DbType.Int32, "INTEGER" },
-			{ DbType.Int16, "INTEGER" },
-			{ DbType.Int64, "INTEGER" },
-			{ DbType.Binary, "BLOB" },
-			{ DbType.Single, "REAL" },
-			{ DbType.Double, "REAL" },
-			{ DbType.Decimal, "REAL" },
-			{ DbType.DateTime, "TEXT" }
+			{ DbType.String  , "TEXT" },
+			{ DbType.Int32   , "INTEGER" },
+			{ DbType.Int16   , "INTEGER" },
+			{ DbType.Int64   , "INTEGER" },
+			{ DbType.Binary  , "BLOB" },
+			{ DbType.Single  , "REAL" },
+			{ DbType.Double  , "REAL" },
+			{ DbType.Decimal , "REAL" },
+			{ DbType.DateTime, "TEXT" },
+			{ DbType.Guid    , "TEXT"}
 		};
 
 		public override string CheckTable(string tableName) => $"SELECT name FROM sqlite_master WHERE type='table' AND name='{tableName}';";
