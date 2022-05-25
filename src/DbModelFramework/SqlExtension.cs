@@ -1,5 +1,5 @@
 ﻿/*
-	Copyright (c) 2017-2020 Y56380X
+	Copyright (c) 2017-2022 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -32,16 +32,17 @@ namespace DbModelFramework
 	{
 		private static readonly Dictionary<Type, DbType> TypeToDbTypeDictionary = new Dictionary<Type, DbType>
 		{
-			{ typeof(string), DbType.String },
-			{ typeof(int), DbType.Int32 },
-			{ typeof(short), DbType.Int16 },
-			{ typeof(long), DbType.Int64 },
-			{ typeof(byte[]), DbType.Binary },
-			{ typeof(bool), DbType.Boolean },
-			{ typeof(float), DbType.Single },
-			{ typeof(double), DbType.Double },
-			{ typeof(decimal), DbType.Decimal },
-			{ typeof(DateTime), DbType.DateTime }
+			{ typeof(string)  , DbType.String },
+			{ typeof(int)     , DbType.Int32 },
+			{ typeof(short)   , DbType.Int16 },
+			{ typeof(long)    , DbType.Int64 },
+			{ typeof(byte[])  , DbType.Binary },
+			{ typeof(bool)    , DbType.Boolean },
+			{ typeof(float)   , DbType.Single },
+			{ typeof(double)  , DbType.Double },
+			{ typeof(decimal) , DbType.Decimal },
+			{ typeof(DateTime), DbType.DateTime },
+			{ typeof(Guid)    , DbType.Guid }
 		};
 
 		public static string ToWhereSql(this Expression selector, IDbCommand dbCommand)
@@ -166,10 +167,9 @@ namespace DbModelFramework
 
 		public static DbType ToDbType(this Type type)
 		{
-			if (type.TryGetGenericBaseClass(typeof(Model<,>), out var genericBase))
+			if (type.TryGetGenericBaseClass(typeof(Model<,>), out var genericBase) && genericBase is {})
 			{
-				return genericBase!
-					.GetProperty("Id", BindingFlags.Instance | BindingFlags.NonPublic)
+				return genericBase.GetProperty("Id", BindingFlags.Instance | BindingFlags.NonPublic)
 					.PropertyType.ToDbType();
 			}
 

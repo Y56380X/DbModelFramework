@@ -1,5 +1,5 @@
 ﻿/*
-	Copyright (c) 2017-2020 Y56380X
+	Copyright (c) 2017-2022 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -302,5 +302,8 @@ namespace DbModelFramework.Test
 
 		[TestMethod]
 		public void ToDbType_DateTime() => Assert.AreEqual(DbType.DateTime, typeof(DateTime).ToDbType());
+
+		[TestMethod]
+		public void ToTbType_Guid() => Assert.AreEqual(DbType.Guid, typeof(Guid).ToDbType());
 	}
 }

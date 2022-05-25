@@ -1,5 +1,5 @@
 ﻿/*
-	Copyright (c) 2018-2020 Y56380X
+	Copyright (c) 2018-2022 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -230,6 +230,9 @@ namespace DbModelFramework.Sqlite.Test
 
 		[TestMethod]
 		public void DbTypeToString_Date() => Assert.AreEqual("TEXT", SqlEngine.DbTypeToString(System.Data.DbType.DateTime));
+
+		[TestMethod]
+		public void DbTypeToString_Guid() => Assert.AreEqual("TEXT", SqlEngine.DbTypeToString(System.Data.DbType.Guid));
 		
 		#endregion
 
