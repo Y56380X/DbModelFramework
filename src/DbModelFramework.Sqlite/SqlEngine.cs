@@ -1,5 +1,5 @@
 ﻿/*
-	Copyright (c) 2018-2022 Y56380X
+	Copyright (c) 2018-2024 Y56380X
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -40,7 +40,8 @@ namespace DbModelFramework.Sqlite
 			{ DbType.Double  , "REAL" },
 			{ DbType.Decimal , "REAL" },
 			{ DbType.DateTime, "TEXT" },
-			{ DbType.Guid    , "TEXT"}
+			{ DbType.Guid    , "TEXT" },
+			{ DbType.Boolean , "INTEGER" }
 		};
 
 		public override string CheckTable(string tableName) => $"SELECT name FROM sqlite_master WHERE type='table' AND name='{tableName}';";
