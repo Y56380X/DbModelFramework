@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DbModelFramework.MySql\DbModelFramework.MySql.csproj" />
+    <ProjectReference Include="..\..\src\DbModelFramework.MySql\DbModelFramework.MySql.csproj" />
   </ItemGroup>
 
 </Project>

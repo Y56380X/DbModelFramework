@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DbModelFramework.Sqlite\DbModelFramework.Sqlite.csproj" />
+    <ProjectReference Include="..\..\src\DbModelFramework\DbModelFramework.csproj" />
   </ItemGroup>
 
 </Project>

@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbModelFramework", "src\DbModelFramework\DbModelFramework.csproj", "{44480A12-0386-4EFB-8B26-44E72634FC81}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbModelFramework.Test", "src\DbModelFramework.Test\DbModelFramework.Test.csproj", "{1BE74DCF-B3AE-454B-9BEA-FC43A8B5DDF3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbModelFramework.Test", "test\DbModelFramework.Test\DbModelFramework.Test.csproj", "{1BE74DCF-B3AE-454B-9BEA-FC43A8B5DDF3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DEB77921-A28A-4BC5-A39D-F13F9009F792}"
 	ProjectSection(SolutionItems) = preProject
@@ -15,21 +15,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbModelFramework.Sqlite", "src\DbModelFramework.Sqlite\DbModelFramework.Sqlite.csproj", "{22FA7610-09A4-4AC7-976A-021611826D2F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbModelFramework.Sqlite.Test", "src\DbModelFramework.Sqlite.Test\DbModelFramework.Sqlite.Test.csproj", "{77359CC7-DF9B-48AA-BA91-C0351959C59E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbModelFramework.Sqlite.Test", "test\DbModelFramework.Sqlite.Test\DbModelFramework.Sqlite.Test.csproj", "{77359CC7-DF9B-48AA-BA91-C0351959C59E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{95157DEB-ABF4-456D-9D9D-8B7D81409158}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbModelFramework.MySql", "src\DbModelFramework.MySql\DbModelFramework.MySql.csproj", "{88ED4EAD-581C-4C30-B6EA-DBAB3456B671}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbModelFramework.MySql.Test", "src\DbModelFramework.MySql.Test\DbModelFramework.MySql.Test.csproj", "{1FFA95E0-C339-4C35-862D-474488479B09}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbModelFramework.MySql.Test", "test\DbModelFramework.MySql.Test\DbModelFramework.MySql.Test.csproj", "{1FFA95E0-C339-4C35-862D-474488479B09}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DbModelFramework.MsSql", "src\DbModelFramework.MsSql\DbModelFramework.MsSql.csproj", "{756C8C5D-C8F5-4946-9D9A-92B4F14C20CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbModelFramework.MsSql.Test", "src\DbModelFramework.MsSql.Test\DbModelFramework.MsSql.Test.csproj", "{050F7473-0CE9-4C1C-84EE-27C2CA3818FF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbModelFramework.MsSql.Test", "test\DbModelFramework.MsSql.Test\DbModelFramework.MsSql.Test.csproj", "{050F7473-0CE9-4C1C-84EE-27C2CA3818FF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbModelFramework.AspNetCore", "src\DbModelFramework.AspNetCore\DbModelFramework.AspNetCore.csproj", "{B4A28AF7-D971-4E2A-8A3E-FAB2417D6C05}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbModelFramework.AspNetCore.Test", "src\DbModelFramework.AspNetCore.Test\DbModelFramework.AspNetCore.Test.csproj", "{6F7FF381-3678-4A27-B5B9-16D3B01C7003}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbModelFramework.AspNetCore.Test", "test\DbModelFramework.AspNetCore.Test\DbModelFramework.AspNetCore.Test.csproj", "{6F7FF381-3678-4A27-B5B9-16D3B01C7003}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
