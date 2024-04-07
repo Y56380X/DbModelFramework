@@ -1,0 +1,9 @@
+<Project>
+    <PropertyGroup>
+        <Version>1.6.3</Version>
+        <Authors>Y56380X</Authors>
+        <Company />
+        <Copyright>Copyright (c) $(IntroductionYear)-2024 Y56380X</Copyright>
+        <PackageProjectUrl>https://github.com/Y56380X/DbModelFramework</PackageProjectUrl>
+    </PropertyGroup>
+</Project>

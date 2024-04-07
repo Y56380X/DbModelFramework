@@ -2,20 +2,20 @@
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <Version>1.6.2</Version>
+
+        <Description>DbModelFramework AspNetCore Extensions</Description>
+        <IntroductionYear>2020</IntroductionYear>
+        
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-        <Authors>Y56380X</Authors>
-        <Company />
-        <Copyright>Copyright (c) 2020-2022 Y56380X</Copyright>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
-        <PackageProjectUrl>https://github.com/Y56380X/DbModelFramework</PackageProjectUrl>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Description>AspNetCore Extensions</Description>
-        <PackageVersion>1.6.2</PackageVersion>
+        
         <LangVersion>8</LangVersion>
         <Nullable>enable</Nullable>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
+
+    <Import Project="../../Information.targets" />
 
     <ItemGroup>
         <None Include="../../LICENSE" Pack="true" PackagePath="" />

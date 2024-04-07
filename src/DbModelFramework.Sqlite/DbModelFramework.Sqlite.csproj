@@ -2,20 +2,20 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>1.6.2</Version>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Authors>Y56380X</Authors>
-    <Company />
-    <Copyright>Copyright (c) 2017-2024 Y56380X</Copyright>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageProjectUrl>https://github.com/Y56380X/DbModelFramework</PackageProjectUrl>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    
     <Description>Pre-defined sqlite DbRequirements for DbModelFramework</Description>
-    <PackageVersion>1.6.2</PackageVersion>
+    <IntroductionYear>2017</IntroductionYear>
+    
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    
     <LangVersion>8</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+
+  <Import Project="../../Information.targets" />
 
   <ItemGroup>
     <None Include="../../LICENSE" Pack="true" PackagePath="" />
